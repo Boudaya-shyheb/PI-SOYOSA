@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                dir('Backend/User-Service') {
+                dir('user-microservice') {
                     sh 'mvn clean verify'
                 }
             }
