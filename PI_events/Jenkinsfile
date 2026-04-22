@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                dir('PI-events') {
+                dir('PI_events') {
                     sh 'mvn clean verify'
                 }
             }
@@ -28,7 +28,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                dir('PI-events') {
+                dir('PI_events') {
                     withSonarQubeEnv('SonarQube') {
                         sh '''
                         mvn sonar:sonar \
