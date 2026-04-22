@@ -28,7 +28,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                dir('Backend/User-Service') {
+                dir('user-microservice') {
                     withSonarQubeEnv('SonarQube') {
                         sh '''
                         mvn sonar:sonar \
