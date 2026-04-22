@@ -20,15 +20,15 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                dir('courses-microservice') {
-                    sh 'mvn clean verify'
+                dir('api-gateway') {
+                    sh 'mvn -B clean compile'
                 }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                dir('courses-microservice') {
+                dir('api-gateway') {
                     withSonarQubeEnv('SonarQube') {
                         sh '''
                         mvn sonar:sonar \
