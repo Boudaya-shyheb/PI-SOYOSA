@@ -20,7 +20,7 @@ pipeline {
 
         stage('Build & Test') {
             steps {
-                dir('courses-microservice') {
+                dir('ecommerce-insights-worker') {
                     sh 'mvn clean verify'
                 }
             }
@@ -28,7 +28,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                dir('courses-microservice') {
+                dir('ecommerce-insights-worker') {
                     withSonarQubeEnv('SonarQube') {
                         sh '''
                         mvn sonar:sonar \
