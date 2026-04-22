@@ -68,7 +68,13 @@ module.exports = function (config) {
         flags: []
       }
     },
-    browsers: ['OperaGX'],
+    customLaunchers: {
+  ChromeHeadlessNoSandbox: {
+    base: 'ChromeHeadless',
+    flags: ['--no-sandbox', '--disable-gpu']
+    }
+  },
+    browsers: ['ChromeHeadlessNoSandbox'],
     singleRun: false,
     restartOnFileChange: true
   });
