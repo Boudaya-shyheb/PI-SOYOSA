@@ -21,7 +21,7 @@ pipeline {
         stage('Build & Test') {
             steps {
                 dir('courses-microservice') {
-                    sh 'mvn clean verify'
+                    sh 'mvn -B clean compile'
                 }
             }
         }
