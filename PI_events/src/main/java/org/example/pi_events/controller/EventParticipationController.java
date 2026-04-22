@@ -23,7 +23,9 @@ public class EventParticipationController {
             @PathVariable Long eventId,
             @RequestBody EventParticipationDTO dto,
             Principal principal,
+            @RequestHeader(value = "User-Role", required = false) String role,
             @RequestParam(required = false) String email) {
+        RoleSecurity.requireAnyRole(role, "MEMBER", "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
 
         return participationService.participate(eventId, dto, resolveEmail(principal, email));
     }
@@ -38,31 +40,44 @@ public class EventParticipationController {
 
     @GetMapping("/requests/pending/event/{eventId}")
     public List<EventParticipationDTO> getPendingRequestsByEvent(
-            @PathVariable Long eventId) {
+            @PathVariable Long eventId,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return participationService.getPendingRequestsByEvent(eventId);
     }
 
     @GetMapping("/requests/me")
     public List<EventParticipationDTO> getMyRequestStatuses(
             Principal principal,
+            @RequestHeader(value = "User-Role", required = false) String role,
             @RequestParam(required = false) String email
     ) {
+        RoleSecurity.requireAnyRole(role, "MEMBER", "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return participationService.getMyParticipationRequests(resolveEmail(principal, email));
     }
 
     @PutMapping("/requests/{id}/approve")
-    public EventParticipationDTO approveRequest(@PathVariable Long id) {
+    public EventParticipationDTO approveRequest(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return participationService.approveParticipationRequest(id);
     }
 
     @PutMapping("/requests/{id}/reject")
-    public EventParticipationDTO rejectRequest(@PathVariable Long id) {
+    public EventParticipationDTO rejectRequest(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return participationService.rejectParticipationRequest(id);
     }
 
     // 🔥 Cancel participation
     @DeleteMapping("/{id}")
-    public void cancelParticipation(@PathVariable Long id) {
+    public void cancelParticipation(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "MEMBER", "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         participationService.cancelParticipation(id);
     }
     // 🔥 GET ONE PARTICIPANT BY ID

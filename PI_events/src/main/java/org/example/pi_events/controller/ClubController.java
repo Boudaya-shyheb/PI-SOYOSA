@@ -16,7 +16,10 @@ public class ClubController {
     private final ClubService clubService;
 
     @PostMapping
-    public ClubDto createClub(@RequestBody ClubDto dto) {
+    public ClubDto createClub(
+            @RequestBody ClubDto dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         return clubService.createClub(dto);
     }
 
@@ -31,12 +34,19 @@ public class ClubController {
     }
 
     @PutMapping("/{id}")
-    public ClubDto updateClub(@PathVariable Long id, @RequestBody ClubDto dto) {
+    public ClubDto updateClub(
+            @PathVariable Long id,
+            @RequestBody ClubDto dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT", "VICE_PRESIDENT");
         return clubService.updateClub(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteClub(@PathVariable Long id) {
+    public void deleteClub(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         clubService.deleteClub(id);
     }
 }

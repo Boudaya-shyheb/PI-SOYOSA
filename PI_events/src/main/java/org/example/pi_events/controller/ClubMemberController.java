@@ -19,7 +19,10 @@ public class ClubMemberController {
     private final ClubMemberService memberService;
 
     @PostMapping
-    public ClubMemberDto createMember(@RequestBody ClubMemberDto dto) {
+    public ClubMemberDto createMember(
+            @RequestBody ClubMemberDto dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         return memberService.createMember(dto);
     }
 
@@ -27,31 +30,44 @@ public class ClubMemberController {
     public ClubJoinRequestDto joinClub(
             @PathVariable Long clubId,
             Principal principal,
+            @RequestHeader(value = "User-Role", required = false) String role,
             @RequestParam(required = false) String email
     ) {
+        RoleSecurity.requireAnyRole(role, "MEMBER", "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return memberService.joinClub(clubId, resolveEmail(principal, email));
     }
 
     @GetMapping("/requests/pending/{clubId}")
-    public List<ClubJoinRequestDto> getPendingRequestsByClub(@PathVariable Long clubId) {
+    public List<ClubJoinRequestDto> getPendingRequestsByClub(
+            @PathVariable Long clubId,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return memberService.getPendingRequestsByClub(clubId);
     }
 
     @GetMapping("/requests/me")
     public List<ClubJoinRequestDto> getMyJoinRequests(
             Principal principal,
+            @RequestHeader(value = "User-Role", required = false) String role,
             @RequestParam(required = false) String email
     ) {
+        RoleSecurity.requireAnyRole(role, "MEMBER", "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return memberService.getMyJoinRequestStatuses(resolveEmail(principal, email));
     }
 
     @PutMapping("/requests/{requestId}/approve")
-    public ClubJoinRequestDto approveJoinRequest(@PathVariable Long requestId) {
+    public ClubJoinRequestDto approveJoinRequest(
+            @PathVariable Long requestId,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return memberService.approveJoinRequest(requestId);
     }
 
     @PutMapping("/requests/{requestId}/reject")
-    public ClubJoinRequestDto rejectJoinRequest(@PathVariable Long requestId) {
+    public ClubJoinRequestDto rejectJoinRequest(
+            @PathVariable Long requestId,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         return memberService.rejectJoinRequest(requestId);
     }
 
@@ -66,12 +82,19 @@ public class ClubMemberController {
     }
 
     @PutMapping("/{id}")
-    public ClubMemberDto updateMember(@PathVariable Long id, @RequestBody ClubMemberDto dto) {
+    public ClubMemberDto updateMember(
+            @PathVariable Long id,
+            @RequestBody ClubMemberDto dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         return memberService.updateMember(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteMember(@PathVariable Long id) {
+    public void deleteMember(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         memberService.deleteMember(id);
     }
 

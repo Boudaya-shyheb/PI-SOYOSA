@@ -16,7 +16,10 @@ public class ClubActivityController {
     private final ClubActivityService activityService;
 
     @PostMapping
-    public ClubActivityDto createActivity(@RequestBody ClubActivityDto dto) {
+    public ClubActivityDto createActivity(
+            @RequestBody ClubActivityDto dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT", "VICE_PRESIDENT");
         return activityService.createActivity(dto);
     }
 
@@ -36,12 +39,19 @@ public class ClubActivityController {
     }
 
     @PutMapping("/{id}")
-    public ClubActivityDto updateActivity(@PathVariable Long id, @RequestBody ClubActivityDto dto) {
+    public ClubActivityDto updateActivity(
+            @PathVariable Long id,
+            @RequestBody ClubActivityDto dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT", "VICE_PRESIDENT");
         return activityService.updateActivity(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteActivity(@PathVariable Long id) {
+    public void deleteActivity(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         activityService.deleteActivity(id);
     }
 }

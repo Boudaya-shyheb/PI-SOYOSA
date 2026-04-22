@@ -31,7 +31,10 @@ public class ClubJoinQuizController {
     }
 
     @PutMapping("/passing-score")
-    public ResponseEntity<Map<String, Integer>> updatePassingScore(@RequestBody Map<String, Integer> payload) {
+    public ResponseEntity<Map<String, Integer>> updatePassingScore(
+            @RequestBody Map<String, Integer> payload,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         Integer passingScore = payload.get("passingScore");
         if (passingScore == null) {
             throw new IllegalArgumentException("passingScore is required");
@@ -45,7 +48,9 @@ public class ClubJoinQuizController {
             @PathVariable Long clubId,
             @RequestBody QuizSubmitDto dto,
             Principal principal,
+            @RequestHeader(value = "User-Role", required = false) String role,
             @RequestParam(required = false) String email) {
+        RoleSecurity.requireAnyRole(role, "MEMBER", "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         try {
             String message = clubJoinQuizService.evaluateQuizAndJoin(
                     clubId,

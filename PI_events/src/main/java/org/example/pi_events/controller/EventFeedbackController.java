@@ -18,7 +18,9 @@ public class EventFeedbackController {
     @PostMapping("/{eventId}")
     public EventFeedbackDTO addFeedback(
             @PathVariable Long eventId,
-            @RequestBody EventFeedbackDTO dto) {
+            @RequestBody EventFeedbackDTO dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "MEMBER", "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
 
         return feedbackService.addFeedback(
                 eventId,
@@ -33,7 +35,10 @@ public class EventFeedbackController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteFeedback(@PathVariable Long id) {
+    public void deleteFeedback(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT", "VICE_PRESIDENT");
         feedbackService.deleteFeedback(id);
     }
 }

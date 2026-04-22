@@ -37,7 +37,10 @@ public class NotificationController {
     }
 
     @PatchMapping("/{id}/read")
-    public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
+    public ResponseEntity<Void> markAsRead(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "MEMBER", "VICE_PRESIDENT", "PRESIDENT", "ADMIN");
         notificationRepository.findById(id).ifPresent(n -> {
             n.setRead(true);
             notificationRepository.save(n);

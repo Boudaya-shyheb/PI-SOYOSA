@@ -16,7 +16,10 @@ public class EventCategoryController {
     private final EventCategoryService categoryService;
 
     @PostMapping
-    public EventCategoryDTO createCategory(@RequestBody EventCategoryDTO dto) {
+    public EventCategoryDTO createCategory(
+            @RequestBody EventCategoryDTO dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT", "VICE_PRESIDENT");
         return categoryService.createCategory(dto);
     }
 
@@ -31,12 +34,19 @@ public class EventCategoryController {
     }
 
     @PutMapping("/{id}")
-    public EventCategoryDTO updateCategory(@PathVariable Long id, @RequestBody EventCategoryDTO dto) {
+    public EventCategoryDTO updateCategory(
+            @PathVariable Long id,
+            @RequestBody EventCategoryDTO dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT", "VICE_PRESIDENT");
         return categoryService.updateCategory(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable Long id) {
+    public void deleteCategory(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         categoryService.deleteCategory(id);
     }
 }

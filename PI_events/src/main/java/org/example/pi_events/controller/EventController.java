@@ -16,7 +16,10 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping
-    public EventDTO createEvent(@RequestBody EventDTO dto) {
+    public EventDTO createEvent(
+            @RequestBody EventDTO dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT", "VICE_PRESIDENT");
         return eventService.createEvent(dto);
     }
 
@@ -31,12 +34,19 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
-    public EventDTO updateEvent(@PathVariable Long id, @RequestBody EventDTO dto) {
+    public EventDTO updateEvent(
+            @PathVariable Long id,
+            @RequestBody EventDTO dto,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT", "VICE_PRESIDENT");
         return eventService.updateEvent(id, dto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteEvent(@PathVariable Long id) {
+    public void deleteEvent(
+            @PathVariable Long id,
+            @RequestHeader(value = "User-Role", required = false) String role) {
+        RoleSecurity.requireAnyRole(role, "ADMIN", "PRESIDENT");
         eventService.deleteEvent(id);
     }
 
