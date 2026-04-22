@@ -1,0 +1,87 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div class="max-w-2xl mx-auto">
+
+        <div *ngIf="loading" class="flex justify-center items-center py-20">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-[#2D5757]"></div>
+        </div>
+
+        <div *ngIf="!loading && game && totalWords > 0"
+             class="bg-[#1A2E2E] rounded-2xl shadow-xl overflow-hidden text-center text-white border border-[#2D5757]">
+
+            <!-- HEADER -->
+            <div class="bg-[#2D5757] px-8 py-6 flex justify-between items-center">
+                <h2 class="text-3xl font-extrabold">{{ game.title }}</h2>
+                <span class="bg-[#3D3D60] text-sm font-bold px-3 py-1 rounded-full uppercase border border-white">
+              Level: {{ selectedLevel }}
+            </span>
+            </div>
+
+            <!-- GAME -->
+            <div *ngIf="!gameFinished" class="p-8">
+
+                <p class="text-gray-400 font-bold mb-6 text-sm uppercase tracking-widest">
+                    Word {{ currentIndex + 1 }} of {{ totalWords }}
+                </p>
+
+                <!-- SCRAMBLED LETTERS -->
+                <div class="flex flex-wrap justify-center gap-3 mb-10">
+              <span *ngFor="let letter of scrambledLetters"
+                    class="w-16 h-16 bg-[#3D3D60] text-white font-black text-3xl flex items-center justify-center rounded-xl border border-[#2D5757]">
+                {{ letter }}
+              </span>
+                </div>
+
+                <!-- INPUT -->
+                <div class="mb-6">
+                    <input type="text"
+                           [(ngModel)]="userAnswer"
+                           (keyup.enter)="checkAnswer()"
+                           placeholder="Type the correct word..."
+                           autocomplete="off"
+                           class="w-full text-center text-2xl py-4 px-6 border-2 border-[#2D5757] bg-[#223B3B] text-white rounded-xl focus:ring-4 focus:ring-[#3D3D60] outline-none"
+                           [class.border-green-400]="isCorrect"
+                           [class.border-red-500]="feedbackMsg && !isCorrect">
+                </div>
+
+                <p *ngIf="feedbackMsg"
+                   class="font-bold text-lg mb-4"
+                   [ngClass]="isCorrect ? 'text-green-400' : 'text-red-400'">
+                    {{ feedbackMsg }}
+                </p>
+
+                <button
+                        (click)="checkAnswer()"
+                        [disabled]="!userAnswer"
+                        class="w-full bg-[#3D3D60] hover:bg-opacity-80 disabled:opacity-50 text-white font-bold py-4 rounded-xl">
+                    Submit Answer
+                </button>
+
+            </div>
+
+            <!-- FINISH SCREEN -->
+            <div *ngIf="gameFinished" class="p-12 text-center">
+                <div class="text-5xl mb-6">🏆</div>
+                <h2 class="text-3xl font-bold mb-4">Great Job!</h2>
+                <p class="text-xl">
+                    Final Score:
+                    <span class="font-black text-[#66C2C2] text-3xl">
+                {{ score }} / {{ totalWords }}
+              </span>
+                </p>
+
+                <button routerLink="/games"
+                        class="mt-8 bg-transparent border-2 border-gray-400 text-gray-300 hover:text-white hover:bg-[#2D5757] font-bold py-3 px-8 rounded-xl">
+                    Back to Games
+                </button>
+            </div>
+
+        </div>
+
+        <!-- EMPTY CONTENT -->
+        <div *ngIf="!loading && (!game || totalWords === 0)"
+             class="text-center py-20 text-gray-500 text-xl font-medium">
+            No content available for this level.
+        </div>
+
+    </div>
+</div>

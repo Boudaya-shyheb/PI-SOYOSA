@@ -1,0 +1,80 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+
+        <div *ngIf="loading" class="flex justify-center items-center py-20">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-primary"></div>
+        </div>
+
+        <div *ngIf="!loading && game" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+
+            <div class="bg-primary px-8 py-6 text-white flex justify-between items-center">
+                <h2 class="text-3xl font-extrabold">{{ game.title }}</h2>
+                <div class="flex flex-col items-end">
+              <span class="bg-white text-primary text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wide mb-1">
+                Level: {{ selectedLevel || game.level }}
+              </span>
+                </div>
+            </div>
+
+            <div *ngIf="!quizFinished" class="p-8">
+                <div class="mb-6">
+                    <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">
+                        Question {{ currentQuestionIndex + 1 }} of {{ totalQuestions }}
+                    </p>
+                    <h3 class="mt-4 text-2xl font-bold text-gray-900 leading-tight">
+                        {{ currentQuestion?.question }}
+                    </h3>
+                </div>
+
+                <div class="space-y-4 my-8">
+                    <div *ngFor="let option of getOptions(currentQuestion)"
+                         class="flex items-center p-4 border rounded-xl cursor-pointer transition-all hover:border-primary hover:bg-blue-50"
+                         [class.border-primary]="selectedAnswer === option"
+                         [class.bg-blue-50]="selectedAnswer === option"
+                         [class.ring-2]="selectedAnswer === option"
+                         [class.ring-primary]="selectedAnswer === option"
+                         (click)="selectedAnswer = option">
+
+                        <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center mr-4"
+                             [class.border-primary]="selectedAnswer === option">
+                            <div *ngIf="selectedAnswer === option" class="w-3 h-3 bg-primary rounded-full"></div>
+                        </div>
+                        <span class="text-lg text-gray-800 font-medium">{{ option }}</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-end mt-10">
+                    <button
+                            [disabled]="!selectedAnswer"
+                            (click)="nextQuestion()"
+                            class="bg-[#2D5757] hover:bg-[#1A3333] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-md text-lg">
+                        {{ isLastQuestion ? 'Finish Quiz' : 'Next Question' }}
+                    </button>
+                </div>
+            </div>
+
+            <div *ngIf="quizFinished" class="p-12 text-center">
+                <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-5xl mx-auto mb-6">
+                    🎉
+                </div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Quiz Completed!</h2>
+                <div class="bg-gray-100 rounded-xl p-8 mb-8 inline-block">
+                    <p class="text-xl text-gray-600 mb-2">Your Score</p>
+                    <p class="text-5xl font-black text-primary">{{ score }} / {{ totalQuestions }}</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mt-6">
+                    <button routerLink="/games" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-8 rounded-xl transition-colors">
+                        Back to Games
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div *ngIf="!loading && (!game || !game.contents || game.contents.length === 0)" class="text-center py-20 text-gray-500 text-xl font-medium">
+            No content available for this level.
+        </div>
+
+    </div>
+</div>

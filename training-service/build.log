@@ -1,0 +1,23 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------< com.esprit.microservice:training-service >--------------
+[INFO] Building training-service 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ training-service ---
+[INFO] Deleting C:\Users\LENOVO\Desktop\New folder (6)\training-service\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ training-service ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ training-service ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 40 source files with javac [debug parameters release 17] to target\classes
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.647 s
+[INFO] Finished at: 2026-03-05T06:31:00+01:00
+[INFO] ------------------------------------------------------------------------

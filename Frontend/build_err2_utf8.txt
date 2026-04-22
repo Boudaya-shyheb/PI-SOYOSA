@@ -1,0 +1,379 @@
+﻿
+> jungle-in-english-angular@0.0.1 build
+> ng build
+
+node.exe : - 
+Generating browser 
+application bundles 
+(phase: setup)...
+Au caractère 
+C:\Program Files\nodejs
+\npm.ps1:29 : 3
++   & $NODE_EXE 
+$NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (- Generating    
+ br...hase: setup).    
+..:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+Ô£ö Browser 
+application bundle 
+generation complete.
+Ô£ö Browser 
+application bundle 
+generation complete.
+[1m[33m
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.array.index-of.
+js'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.array.iterator.
+js'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.array.reduce.js
+'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.array.reverse.j
+s'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.promise.js'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.regexp.to-strin
+g.js'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.string.ends-wit
+h.js'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.string.includes
+.js'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.string.match.js
+'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.string.replace.
+js'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.string.split.js
+'. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.string.starts-w
+ith.js'. CommonJS or 
+AMD dependencies can 
+cause optimization 
+bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/es.string.trim.js'
+. CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'core-js/mod
+ules/web.dom-collection
+s.iterator.js'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'raf'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\node_modules
+\canvg\lib\index.es.js 
+depends on 'rgbcolor'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\src\app\feat
+ures\clubs\clubs.compon
+ent.ts depends on 
+'html2canvas'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\src\app\serv
+ices\chat.service.ts 
+depends on 
+'@stomp/stompjs'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\src\app\serv
+ices\chat.service.ts 
+depends on 
+'sockjs-client'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\src\app\user
+\auth\auth.component.ts
+ depends on 
+'sweetalert2'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+[39m[22m
+[1m[31m
+./src/app/app-routing.m
+odule.ts:6:0-65 - 
+Error: Module not 
+found: Error: Can't 
+resolve './guards/pendi
+ng-tutor.guard' in 'C:\
+Users\ahmed\Desktop\Nou
+veau dossier\Frontend\s
+rc\app'
+
+./src/app/features/inte
+rview/interview-routing
+.module.ts:6:0-69 - 
+Error: Module not 
+found: Error: Can't 
+resolve '../../guards/p
+ending-tutor.guard' in 
+'C:\Users\ahmed\Desktop
+\Nouveau dossier\Fronte
+nd\src\app\features\int
+erview'
+
+Error: [96msrc/app/app
+-routing.module.ts[0m:
+[93m7[0m:[93m35[0m 
+- [91merror[0m[90m 
+TS2307: [0mCannot 
+find module './guards/p
+ending-tutor.guard' or 
+its corresponding type 
+declarations.
+
+[7m7[0m import { 
+pendingTutorGuard } 
+from "./guards/pending-
+tutor.guard";
+[7m [0m [91m        
+                       
+   ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/interview/intervi
+ew-routing.module.ts[0
+m:[93m7[0m:[93m35[0
+m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../guar
+ds/pending-tutor.guard'
+ or its corresponding 
+type declarations.
+
+[7m7[0m import { 
+pendingTutorGuard } 
+from '../../guards/pend
+ing-tutor.guard';
+[7m [0m [91m        
+                       
+   ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~[0m
+
+
+[39m[22m

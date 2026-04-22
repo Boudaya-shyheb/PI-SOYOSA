@@ -1,0 +1,62 @@
+<div class="chat-window-container" *ngIf="conversation">
+    <div class="chat-window-header">
+        <div class="chat-window-title">
+            <h3>{{ conversation.name }}</h3>
+            <span class="chat-window-type" [class.group]="conversation.isGroup">
+        {{ conversation.isGroup ? 'Group Chat' : 'Private Chat' }}
+      </span>
+        </div>
+        <div class="chat-window-info">
+            <span class="member-info">
+                {{ conversation?.members?.length || 0 }} members
+            </span>
+        </div>
+    </div>
+
+    <div class="messages-container" #messagesContainer>
+        <div *ngIf="loading" class="loading">
+            <p>Loading messages...</p>
+        </div>
+
+        <div *ngIf="messages.length === 0" class="empty-messages">
+            <p>No messages yet. Start the conversation!</p>
+        </div>
+
+        <div *ngFor="let message of messages; let i = index" class="message-group">
+            <app-message-item
+                    [message]="message"
+                    [isOwnMessage]="isOwnMessage(message)"
+                    [canManageMessage]="canManageMessage(message)"
+                    [isEditing]="editingMessageId === message.id"
+                    [editingContent]="editingMessageContent"
+                    (onEdit)="startEditMessage(message)"
+                    (onSaveEdit)="saveEditMessage(message.id)"
+                    (onCancelEdit)="cancelEditMessage()"
+                    (onDelete)="deleteMessage(message.id)"
+                    (onEditContentChange)="editingMessageContent = $event"
+            ></app-message-item>
+        </div>
+    </div>
+
+    <!-- TYPING INDICATOR -->
+    <div class="typing-indicator" *ngIf="isTyping">
+        <span class="typing-text">{{ typingUser }} is typing...</span>
+    </div>
+
+    <div class="chat-window-input">
+    <textarea
+            [(ngModel)]="newMessageContent"
+            (keypress)="onKeyPress($event)"
+            placeholder="Type a message..."
+            class="message-input"
+            [disabled]="sendingMessage"
+    ></textarea>
+        <button
+                (click)="sendMessage()"
+                [disabled]="!newMessageContent.trim() || sendingMessage"
+                class="btn-send"
+        >
+            {{ sendingMessage ? 'Sending...' : 'Send' }}
+        </button>
+    </div>
+</div>

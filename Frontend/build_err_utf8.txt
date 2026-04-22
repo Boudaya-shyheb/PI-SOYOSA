@@ -1,0 +1,801 @@
+﻿
+> jungle-in-english-angular@0.0.1 build
+> ng build
+
+node.exe : - 
+Generating browser 
+application bundles 
+(phase: setup)...
+Au caractère 
+C:\Program Files\nodejs
+\npm.ps1:29 : 3
++   & $NODE_EXE 
+$NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (- Generating    
+ br...hase: setup).    
+..:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+Ô£ö Browser 
+application bundle 
+generation complete.
+Ô£ö Browser 
+application bundle 
+generation complete.
+[1m[33m
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\src\app\core
+\services\web-socket.se
+rvice.ts depends on 
+'@stomp/stompjs'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\src\app\core
+\services\web-socket.se
+rvice.ts depends on 
+'sockjs-client'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\ahmed
+\Desktop\Nouveau dossie
+r\Frontend\src\app\user
+\auth\auth.component.ts
+ depends on 
+'sweetalert2'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+[39m[22m
+[1m[31m
+./src/app/app-routing.m
+odule.ts:6:0-65 - 
+Error: Module not 
+found: Error: Can't 
+resolve './guards/pendi
+ng-tutor.guard' in 'C:\
+Users\ahmed\Desktop\Nou
+veau dossier\Frontend\s
+rc\app'
+
+./src/app/features/club
+s/clubs.component.ts:4:
+0-30 - Error: Module 
+not found: Error: 
+Can't resolve 'jspdf' 
+in 'C:\Users\ahmed\Desk
+top\Nouveau dossier\Fro
+ntend\src\app\features\
+clubs'
+
+./src/app/features/club
+s/clubs.component.ts:5:
+0-38 - Error: Module 
+not found: Error: 
+Can't resolve 
+'html2canvas' in 'C:\Us
+ers\ahmed\Desktop\Nouve
+au dossier\Frontend\src
+\app\features\clubs'
+
+./src/app/features/inte
+rview/interview-routing
+.module.ts:6:0-69 - 
+Error: Module not 
+found: Error: Can't 
+resolve '../../guards/p
+ending-tutor.guard' in 
+'C:\Users\ahmed\Desktop
+\Nouveau dossier\Fronte
+nd\src\app\features\int
+erview'
+
+./src/app/services/club
+-activity.service.ts:1:
+0-61 - Error: Module 
+not found: Error: 
+Can't resolve '../../en
+vironments/environment'
+ in 'C:\Users\ahmed\Des
+ktop\Nouveau dossier\Fr
+ontend\src\app\services
+'
+
+./src/app/services/club
+-member.service.ts:1:0-
+61 - Error: Module not 
+found: Error: Can't 
+resolve '../../environm
+ents/environment' in 'C
+:\Users\ahmed\Desktop\N
+ouveau dossier\Frontend
+\src\app\services'
+
+./src/app/services/club
+.service.ts:3:0-61 - 
+Error: Module not 
+found: Error: Can't 
+resolve '../../environm
+ents/environment' in 'C
+:\Users\ahmed\Desktop\N
+ouveau dossier\Frontend
+\src\app\services'
+
+./src/app/services/even
+t-category.service.ts:1
+:0-61 - Error: Module 
+not found: Error: 
+Can't resolve '../../en
+vironments/environment'
+ in 'C:\Users\ahmed\Des
+ktop\Nouveau dossier\Fr
+ontend\src\app\services
+'
+
+./src/app/services/even
+t-feedback.service.ts:1
+:0-61 - Error: Module 
+not found: Error: 
+Can't resolve '../../en
+vironments/environment'
+ in 'C:\Users\ahmed\Des
+ktop\Nouveau dossier\Fr
+ontend\src\app\services
+'
+
+./src/app/services/even
+t-participation.service
+.ts:2:0-61 - Error: 
+Module not found: 
+Error: Can't resolve '.
+./../environments/envir
+onment' in 'C:\Users\ah
+med\Desktop\Nouveau dos
+sier\Frontend\src\app\s
+ervices'
+
+./src/app/services/even
+t.service.ts:1:0-61 - 
+Error: Module not 
+found: Error: Can't 
+resolve '../../environm
+ents/environment' in 'C
+:\Users\ahmed\Desktop\N
+ouveau dossier\Frontend
+\src\app\services'
+
+Error: [96msrc/app/app
+-routing.module.ts[0m:
+[93m7[0m:[93m35[0m 
+- [91merror[0m[90m 
+TS2307: [0mCannot 
+find module './guards/p
+ending-tutor.guard' or 
+its corresponding type 
+declarations.
+
+[7m7[0m import { 
+pendingTutorGuard } 
+from "./guards/pending-
+tutor.guard";
+[7m [0m [91m        
+                       
+   ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m8[0m:
+[93m10[0m - 
+[91merror[0m[90m 
+TS2305: [0mModule '"..
+/../models/member.model
+"' has no exported 
+member 
+'ClubJoinRequest'.
+
+[7m8[0m import { 
+ClubJoinRequest, 
+ClubJoinRequestStatus, 
+ClubMember } from '../.
+./models/member.model';
+[7m [0m [91m        
+ ~~~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m8[0m:
+[93m27[0m - 
+[91merror[0m[90m 
+TS2305: [0mModule '"..
+/../models/member.model
+"' has no exported 
+member 'ClubJoinRequest
+Status'.
+
+[7m8[0m import { 
+ClubJoinRequest, 
+ClubJoinRequestStatus, 
+ClubMember } from '../.
+./models/member.model';
+[7m [0m [91m        
+                  ~~~~~
+~~~~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m9[0m:
+[93m23[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module 'jspdf' or 
+its corresponding type 
+declarations.
+
+[7m9[0m import { 
+jsPDF } from 'jspdf';
+[7m [0m [91m        
+              
+~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m10[0m
+:[93m25[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module 
+'html2canvas' or its 
+corresponding type 
+declarations.
+
+[7m10[0m import 
+html2canvas from 
+'html2canvas';
+[7m  [0m [91m       
+                 
+~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m252[0
+m:[93m33[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'isClient' does not 
+exist on type 
+'AuthService'.
+
+[7m252[0m     const 
+requests$ = 
+this.auth.isClient()
+[7m   [0m [91m      
+                       
+   ~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m262[0
+m:[93m40[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'getEmail' does not 
+exist on type 
+'AuthService'.
+
+[7m262[0m         
+const currentEmail = th
+is.auth.getEmail().toLo
+werCase();
+[7m   [0m [91m      
+                       
+          ~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m277[0
+m:[93m23[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'clubId' does not 
+exist on type 
+'ClubMember'.
+
+[7m277[0m           
+if (!member.clubId) {
+[7m   [0m [91m      
+                
+~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m280[0
+m:[93m56[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'clubId' does not 
+exist on type 
+'ClubMember'.
+
+[7m280[0m           
+const currentCount = co
+untsByClub.get(member.c
+lubId) ?? 0;
+[7m   [0m [91m      
+                       
+                       
+   ~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m281[0
+m:[93m35[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'clubId' does not 
+exist on type 
+'ClubMember'.
+
+[7m281[0m           c
+ountsByClub.set(member.
+clubId, currentCount + 
+1);
+[7m   [0m [91m      
+                       
+     ~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.compo
+nent.ts[0m:[93m283[0
+m:[93m38[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'clubId' does not 
+exist on type 
+'ClubMember'.
+
+[7m283[0m            
+ joinedClubIds.add(memb
+er.clubId);
+[7m   [0m [91m      
+                       
+        ~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/clubs.modul
+e.ts[0m:[93m27[0m:[
+93m5[0m - 
+[91merror[0m[90m 
+NG6002: [0mThis 
+import contains 
+errors, which may 
+affect components that 
+depend on this 
+NgModule.
+
+[7m27[0m     
+MembersModule
+[7m  [0m [91m    
+~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/members/com
+ponents/member-form/mem
+ber-form.component.ts[
+0m:[93m7[0m:[93m45[
+0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../../.
+./../services/user.serv
+ice' or its 
+corresponding type 
+declarations.
+
+[7m7[0m import { 
+SelectableUser, 
+UserService } from '../
+../../../../services/us
+er.service';
+[7m [0m [91m        
+                       
+             ~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/members/com
+ponents/member-form/mem
+ber-form.component.ts[
+0m:[93m41[0m:[93m13
+[0m - 
+[91merror[0m[90m 
+NG2003: [0mNo 
+suitable injection 
+token for parameter 
+'userService' of class 
+'MemberFormComponent'.
+  Consider using the 
+@Inject decorator to 
+specify an injection 
+token.
+
+[7m41[0m     private 
+userService: 
+UserService,
+[7m  [0m [91m       
+     ~~~~~~~~~~~[0m
+
+  [96msrc/app/features
+/clubs/members/componen
+ts/member-form/member-f
+orm.component.ts[0m:[
+93m41[0m:[93m26[0m
+    [7m41[0m     
+private userService: 
+UserService,
+    [7m  [0m [96m   
+                      
+~~~~~~~~~~~[0m
+    This type does not 
+have a value, so it 
+cannot be used as 
+injection token.
+
+
+Error: [96msrc/app/fea
+tures/clubs/members/com
+ponents/member-form/mem
+ber-form.component.ts[
+0m:[93m162[0m:[93m14
+[0m - 
+[91merror[0m[90m 
+TS7006: [0mParameter 
+'users' implicitly has 
+an 'any' type.
+
+[7m162[0m       
+next: (users) => {
+[7m   [0m [91m      
+       ~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/members/com
+ponents/member-list/mem
+ber-list.component.ts[
+0m:[93m4[0m:[93m10[
+0m - 
+[91merror[0m[90m 
+TS2305: [0mModule '"..
+/../../../../models/mem
+ber.model"' has no 
+exported member 
+'ClubJoinRequest'.
+
+[7m4[0m import { 
+ClubJoinRequest, 
+ClubMember } from '../.
+./../../../models/membe
+r.model';
+[7m [0m [91m        
+ ~~~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/clubs/members/mem
+bers.module.ts[0m:[93
+m13[0m:[93m5[0m - 
+[91merror[0m[90m 
+NG6001: [0mThe class 
+'MemberFormComponent' 
+is listed in the 
+declarations of the 
+NgModule 
+'MembersModule', but 
+is not a directive, a 
+component, or a pipe. 
+Either remove it from 
+the NgModule's 
+declarations, or add 
+an appropriate Angular 
+decorator.
+
+[7m13[0m     
+MemberFormComponent,
+[7m  [0m [91m    
+~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/app/features
+/clubs/members/componen
+ts/member-form/member-f
+orm.component.ts[0m:[
+93m22[0m:[93m14[0m
+    [7m22[0m export 
+class 
+MemberFormComponent 
+implements OnInit {
+    [7m  [0m [96m   
+          
+~~~~~~~~~~~~~~~~~~~[0m
+    
+'MemberFormComponent' 
+is declared here.
+
+
+Error: [96msrc/app/fea
+tures/events/event-deta
+ils/event-details.compo
+nent.ts[0m:[93m81[0m
+:[93m20[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'isClient' does not 
+exist on type 
+'AuthService'.
+
+[7m81[0m     if 
+(!this.auth.isClient() 
+|| !this.event?.id) {
+[7m  [0m [91m       
+            
+~~~~~~~~[0m
+
+
+Error: [96msrc/app/fea
+tures/events/participat
+e-event/participate-eve
+nt.component.ts[0m:[9
+3m50[0m:[93m31[0m - 
+[91merror[0m[90m 
+TS2551: [0mProperty 
+'getProfile' does not 
+exist on type 
+'AuthService'. Did you 
+mean 'getRole'?
+
+[7m50[0m     const 
+profile = 
+this.auth.getProfile();
+[7m  [0m [91m       
+                       
+~~~~~~~~~~[0m
+
+  [96msrc/app/services
+/auth.service.ts[0m:[
+93m134[0m:[93m3[0m
+    [7m134[0m   
+getRole(): Role {
+    [7m   [0m [96m  
+~~~~~~~[0m
+    'getRole' is 
+declared here.
+
+
+Error: [96msrc/app/fea
+tures/interview/intervi
+ew-routing.module.ts[0
+m:[93m7[0m:[93m35[0
+m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../guar
+ds/pending-tutor.guard'
+ or its corresponding 
+type declarations.
+
+[7m7[0m import { 
+pendingTutorGuard } 
+from '../../guards/pend
+ing-tutor.guard';
+[7m [0m [91m        
+                       
+   ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/ser
+vices/club-activity.ser
+vice.ts[0m:[93m5[0m:
+[93m29[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../envi
+ronments/environment' 
+or its corresponding 
+type declarations.
+
+[7m5[0m import { 
+environment } from '../
+../environments/environ
+ment';
+[7m [0m [91m        
+                    ~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~[0m
+
+
+Error: [96msrc/app/ser
+vices/club-member.servi
+ce.ts[0m:[93m4[0m:[
+93m10[0m - 
+[91merror[0m[90m 
+TS2305: [0mModule '"..
+/models/member.model"' 
+has no exported member 
+'ClubJoinRequest'.
+
+[7m4[0m import { 
+ClubJoinRequest, 
+ClubMember } from '../m
+odels/member.model';
+[7m [0m [91m        
+ ~~~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/ser
+vices/club-member.servi
+ce.ts[0m:[93m5[0m:[
+93m29[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../envi
+ronments/environment' 
+or its corresponding 
+type declarations.
+
+[7m5[0m import { 
+environment } from '../
+../environments/environ
+ment';
+[7m [0m [91m        
+                    ~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~[0m
+
+
+Error: [96msrc/app/ser
+vices/club.service.ts[
+0m:[93m6[0m:[93m29[
+0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../envi
+ronments/environment' 
+or its corresponding 
+type declarations.
+
+[7m6[0m import { 
+environment } from '../
+../environments/environ
+ment';
+[7m [0m [91m        
+                    ~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~[0m
+
+
+Error: [96msrc/app/ser
+vices/event-category.se
+rvice.ts[0m:[93m5[0m
+:[93m29[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../envi
+ronments/environment' 
+or its corresponding 
+type declarations.
+
+[7m5[0m import { 
+environment } from '../
+../environments/environ
+ment';
+[7m [0m [91m        
+                    ~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~[0m
+
+
+Error: [96msrc/app/ser
+vices/event-feedback.se
+rvice.ts[0m:[93m4[0m
+:[93m29[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../envi
+ronments/environment' 
+or its corresponding 
+type declarations.
+
+[7m4[0m import { 
+environment } from '../
+../environments/environ
+ment';
+[7m [0m [91m        
+                    ~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~[0m
+
+
+Error: [96msrc/app/ser
+vices/event-participati
+on.service.ts[0m:[93m
+6[0m:[93m29[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../envi
+ronments/environment' 
+or its corresponding 
+type declarations.
+
+[7m6[0m import { 
+environment } from '../
+../environments/environ
+ment';
+[7m [0m [91m        
+                    ~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~[0m
+
+
+Error: [96msrc/app/ser
+vices/event.service.ts
+[0m:[93m5[0m:[93m29
+[0m - 
+[91merror[0m[90m 
+TS2307: [0mCannot 
+find module '../../envi
+ronments/environment' 
+or its corresponding 
+type declarations.
+
+[7m5[0m import { 
+environment } from '../
+../environments/environ
+ment';
+[7m [0m [91m        
+                    ~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~[0m
+
+
+[39m[22m

@@ -1,0 +1,93 @@
+<div class="max-w-3xl mx-auto px-4 py-12">
+
+  <h2 class="text-3xl font-bold text-primary mb-8">
+    Participants �
+  </h2>
+
+  <div *ngIf="loading" class="text-gray-500">
+    Chargement des participants...
+  </div>
+
+  <div *ngIf="errorMessage"
+       class="mb-4 p-4 bg-red-100 text-red-600 rounded-lg">
+    {{ errorMessage }}
+  </div>
+
+  <div class="mb-8" *ngIf="canManageRequests">
+    <h3 class="text-xl font-semibold text-primary mb-3">Demandes en attente</h3>
+
+    <div *ngIf="requestMessage" class="mb-3 p-3 rounded bg-blue-50 text-blue-700 text-sm">
+      {{ requestMessage }}
+    </div>
+
+    <div *ngIf="loadingPending" class="text-gray-500">
+      Chargement des demandes...
+    </div>
+
+    <div *ngIf="!loadingPending && pendingRequests.length === 0" class="text-gray-400">
+      Aucune demande en attente.
+    </div>
+
+    <div *ngIf="!loadingPending && pendingRequests.length > 0" class="space-y-3">
+      <div *ngFor="let p of pendingRequests" class="bg-white p-5 rounded-xl shadow flex items-start justify-between">
+        <div class="space-y-1">
+          <div class="font-semibold text-gray-800">{{ p.fullName }}</div>
+          <div class="text-sm text-gray-500">{{ p.email }}</div>
+          <div class="text-sm text-gray-500" *ngIf="p.university">{{ p.university }}</div>
+          <div class="text-sm text-gray-500" *ngIf="p.level">{{ p.level }}</div>
+          <div class="text-sm text-gray-500" *ngIf="p.motivation">{{ p.motivation }}</div>
+        </div>
+        <div class="space-x-2">
+          <button
+            type="button"
+            (click)="approveRequest(p.id)"
+            [disabled]="processingRequestId === p.id"
+            class="px-3 py-1 bg-emerald-500 text-white rounded hover:bg-emerald-600 disabled:opacity-50">
+            Accepter
+          </button>
+          <button
+            type="button"
+            (click)="rejectRequest(p.id)"
+            [disabled]="processingRequestId === p.id"
+            class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50">
+            Refuser
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && participants.length === 0"
+       class="text-gray-400 text-center py-6">
+    Aucun participant pour le moment.
+  </div>
+
+  <div *ngIf="!loading && participants.length > 0" class="space-y-4">
+    <div *ngFor="let p of participants" class="bg-white p-6 rounded-2xl shadow-xl flex items-start justify-between">
+      <div class="space-y-1">
+        <div class="font-semibold text-gray-800">{{ p.fullName }}</div>
+        <div class="text-sm text-gray-500">{{ p.email }}</div>
+        <div class="text-sm text-gray-500" *ngIf="p.phone">{{ p.phone }}</div>
+        <div class="text-sm text-gray-500" *ngIf="p.university">{{ p.university }}</div>
+        <div class="text-sm text-gray-500" *ngIf="p.level">{{ p.level }}</div>
+        <div class="text-xs text-gray-400" *ngIf="p.participationDate">
+          {{ p.participationDate | date:'medium' }}
+        </div>
+      </div>
+      <button *ngIf="p.id && auth.isAdmin()"
+              (click)="cancelParticipation(p.id)"
+              class="text-red-500 hover:text-red-700 text-sm">
+        Annuler
+      </button>
+    </div>
+  </div>
+
+  <div class="flex gap-4 pt-8">
+    <button
+      (click)="goBack()"
+      class="bg-gray-200 px-6 py-2 rounded-lg">
+      Retour
+    </button>
+  </div>
+
+</div>

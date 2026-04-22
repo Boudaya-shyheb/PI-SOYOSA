@@ -1,0 +1,120 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white border border-gray-100 rounded-lg shadow-sm">
+    <!-- Header -->
+    <div class="border-b border-gray-100 px-6 py-4">
+      <h2 class="text-xl font-semibold text-gray-900">Add New Session</h2>
+      <p *ngIf="training" class="text-sm text-gray-500 mt-1">
+        for training: <span class="font-medium">{{ training.title }}</span>
+      </p>
+    </div>
+
+    <!-- Loading indicator -->
+    <div *ngIf="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary"></div>
+      <p class="mt-2 text-gray-500">Loading training data...</p>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage && !loading" class="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Form -->
+    <form *ngIf="!loading" [formGroup]="sessionForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+      
+      <!-- Basic Session Info - 2 columns -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Date Field -->
+        <div>
+          <label for="date" class="block text-sm font-medium text-gray-700 mb-1">
+            Date <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="date" 
+            id="date"
+            formControlName="date"
+            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            [class.border-red-300]="f['date'].touched && f['date'].invalid">
+          <div *ngIf="f['date'].touched && f['date'].invalid" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['date'].errors?.['required']">Date is required</div>
+            <div *ngIf="f['date'].errors?.['pastDate']">Session date must be today or in the future</div>
+          </div>
+        </div>
+        
+        <!-- Start Time Field -->
+        <div>
+          <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">
+            Start Time <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="time" 
+            id="startTime"
+            formControlName="startTime"
+            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            [class.border-red-300]="f['startTime'].touched && f['startTime'].invalid">
+          <div *ngIf="f['startTime'].touched && f['startTime'].invalid" class="mt-1 text-sm text-red-600">
+            Start time is required
+          </div>
+        </div>
+
+        <!-- Duration Field -->
+        <div>
+          <label for="duration" class="block text-sm font-medium text-gray-700 mb-1">
+            Duration (minutes) <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="number" 
+            id="duration"
+            formControlName="duration"
+            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            [class.border-red-300]="f['duration'].touched && f['duration'].invalid">
+          <div *ngIf="f['duration'].touched && f['duration'].invalid" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['duration'].errors?.['required']">Duration is required</div>
+            <div *ngIf="f['duration'].errors?.['min']">Duration must be at least 1 minute</div>
+          </div>
+        </div>
+      </div>
+      
+ 
+      <!-- Participants Info -->
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Max Participants Field -->
+        <div>
+          <label for="maxParticipants" class="block text-sm font-medium text-gray-700 mb-1">
+            Max Participants <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="number" 
+            id="maxParticipants"
+            formControlName="maxParticipants"
+            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            [class.border-red-300]="f['maxParticipants'].touched && f['maxParticipants'].invalid">
+          <div *ngIf="f['maxParticipants'].touched && f['maxParticipants'].invalid" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['maxParticipants'].errors?.['required']">Max participants is required</div>
+            <div *ngIf="f['maxParticipants'].errors?.['min']">Must be at least 1</div>
+            <div *ngIf="f['maxParticipants'].errors?.['max']">Cannot exceed 100 participants</div>
+          </div>
+          <p class="text-xs text-gray-400 mt-1">Available spots will be set automatically based on max participants.</p>
+        </div>
+      </div>
+      
+      <!-- Form Buttons -->
+      <div class="flex justify-between pt-4 border-t border-gray-100">
+        <button 
+          type="button"
+          (click)="cancel()"
+          class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+          Cancel
+        </button>
+        <button 
+          type="submit"
+          [disabled]="sessionForm.invalid || submitting"
+          class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
+          <span *ngIf="submitting" class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+          <span>{{ submitting ? 'Adding...' : 'Add Session' }}</span>
+        </button>
+      </div>
+      
+    </form>
+  </div>
+</div>

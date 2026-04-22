@@ -1,0 +1,16 @@
+/* You may want to add custom styles for fullcalendar here */
+.fc-toolbar-title {
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+}
+
+.fc-button-primary {
+  background-color: #6366f1 !important;
+  border-color: #6366f1 !important;
+}
+
+.fc-button-primary:hover {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+}

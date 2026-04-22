@@ -1,0 +1,17 @@
+/* Recommendations Component Styles */
+
+:host {
+  display: block;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+button.active {
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+}

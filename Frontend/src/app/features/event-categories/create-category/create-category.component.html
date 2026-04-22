@@ -1,0 +1,31 @@
+<div class="max-w-3xl mx-auto py-12">
+
+  <h2 class="text-3xl font-bold mb-6">
+    {{ isEditMode ? 'Edit Category' : 'Create Category' }}
+  </h2>
+
+  <form (ngSubmit)="submit()" class="space-y-6">
+
+    <input type="text"
+           [(ngModel)]="category.name"
+           name="name"
+           required
+           placeholder="Category Name"
+           class="w-full border p-4 rounded-xl">
+
+    <textarea [(ngModel)]="category.description"
+              name="description"
+              rows="4"
+              placeholder="Description"
+              class="w-full border p-4 rounded-xl"></textarea>
+
+    <button type="submit"
+            class="w-full bg-primary text-white py-4 rounded-xl">
+
+      {{ isEditMode ? 'Update' : 'Create' }}
+
+    </button>
+
+  </form>
+
+</div>

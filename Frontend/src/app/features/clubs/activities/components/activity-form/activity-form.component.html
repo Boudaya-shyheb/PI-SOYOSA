@@ -1,0 +1,64 @@
+<div class="max-w-2xl mx-auto p-8">
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-bold">
+      {{ isEditMode ? 'Edit' : 'Create' }} Activity
+    </h2>
+
+    <button type="button" (click)="cancel()"
+      class="px-4 py-2 text-sm border border-gray-300 rounded-xl hover:bg-gray-50 transition">
+      ← Back to list
+    </button>
+  </div>
+
+  <form [formGroup]="activityForm" (ngSubmit)="onSubmit()">
+
+    <!-- TITLE -->
+    <div class="mb-4">
+      <label class="block mb-1">Title *</label>
+      <input formControlName="title" type="text" class="w-full border rounded px-3 py-2" />
+      <div *ngIf="activityForm.get('title')?.invalid && activityForm.get('title')?.touched"
+        class="text-red-500 text-sm">
+        Title is required
+      </div>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="mb-4">
+      <label class="block mb-1">Description</label>
+      <textarea formControlName="description" class="w-full border rounded px-3 py-2"></textarea>
+    </div>
+
+    <!-- DATE -->
+    <div class="mb-4">
+      <label class="block mb-1">Date *</label>
+      <input formControlName="activityDate" type="date" class="w-full border rounded px-3 py-2" />
+      <div *ngIf="activityForm.get('activityDate')?.invalid && activityForm.get('activityDate')?.touched"
+        class="text-red-500 text-sm">
+        Date is required
+      </div>
+    </div>
+
+    <!-- LOCATION 🔥 IMPORTANT -->
+    <div class="mb-4">
+      <label class="block mb-1">Location *</label>
+      <input formControlName="location" type="text" class="w-full border rounded px-3 py-2" />
+      <div *ngIf="activityForm.get('location')?.invalid && activityForm.get('location')?.touched"
+        class="text-red-500 text-sm">
+        Location is required
+      </div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="flex space-x-2">
+      <button type="submit" [disabled]="activityForm.invalid || loading"
+        class="bg-primary text-white px-4 py-2 rounded">
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </button>
+
+      <button type="button" (click)="cancel()" class="bg-gray-300 px-4 py-2 rounded">
+        Cancel
+      </button>
+    </div>
+
+  </form>
+</div>

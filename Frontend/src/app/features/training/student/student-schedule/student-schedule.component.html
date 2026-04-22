@@ -1,0 +1,46 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header Area -->
+    <div class="mb-10 text-center">
+      <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-4">
+        My Personal <span class="text-primary italic">Schedule</span>
+      </h1>
+      <p class="text-lg text-gray-500 max-w-2xl mx-auto">
+        Stay organized and never miss a session. Your synchronized learning timeline, powered by Soyosa Academy.
+      </p>
+    </div>
+
+    <!-- Calendar Container -->
+    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 overflow-hidden transition-all duration-300 hover:shadow-2xl">
+      <div class="flex items-center justify-between mb-8">
+        <div class="flex items-center space-x-4">
+          <div class="p-3 bg-primary/10 rounded-2xl">
+            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 leading-tight">Academic Timeline</h2>
+            <p class="text-sm text-gray-500">View and manage your upcoming sessions</p>
+          </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="flex items-center space-x-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-indigo-600"></span>
+            <span class="text-sm font-medium text-gray-600">Online Session</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+            <span class="text-sm font-medium text-gray-600">In-Person</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="calendar-wrapper" *ngIf="calendarOptions">
+        <full-calendar [options]="calendarOptions"></full-calendar>
+      </div>
+    </div>
+  </div>
+</div>

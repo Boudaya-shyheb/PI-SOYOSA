@@ -1,0 +1,48 @@
+<div class="shop-theme py-10">
+  <div class="max-w-6xl mx-auto px-6 lg:px-10 space-y-6">
+    <div class="orders-header">
+      <div>
+        <div class="orders-pill">My deliveries</div>
+        <h1 class="orders-title">Your orders</h1>
+        <p class="orders-subtitle">Track live delivery and review what is on the way.</p>
+      </div>
+      <div class="orders-status" *ngIf="loading">Loading...</div>
+    </div>
+
+    <div *ngIf="errorMessage" class="orders-error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && !orders.length && !errorMessage" class="orders-empty">
+      You do not have any orders yet.
+    </div>
+
+    <div class="orders-grid" *ngIf="orders.length">
+      <div *ngFor="let order of orders" class="order-card">
+        <div class="order-card-header">
+          <div>
+            <div class="order-label">Order status</div>
+            <div class="order-status" [ngClass]="order.status?.toLowerCase()">{{ order.status }}</div>
+          </div>
+          <div class="order-total">
+            <span>Total</span>
+            <strong>{{ order.totalPrice }} TND</strong>
+          </div>
+        </div>
+        <div class="order-meta">
+          <span>{{ getItemCount(order) }} items</span>
+          <span>Prepared for delivery</span>
+        </div>
+        <div class="order-items" *ngIf="order.orderItems?.length">
+          <div *ngFor="let item of order.orderItems" class="order-item">
+            <div class="order-item-name">{{ item.productName || 'Product' }}</div>
+            <div class="order-item-qty">Qty {{ item.quantity }}</div>
+          </div>
+        </div>
+        <div class="order-card-actions">
+          <button (click)="trackOrder(order.id)" class="order-track-btn">Track delivery</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

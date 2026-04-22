@@ -1,0 +1,72 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="max-w-3xl mx-auto p-8 space-y-4">
+
+  <h2 class="text-2xl font-bold">
+    {{ isEditMode ? 'Edit Member' : 'Create Member' }}
+  </h2>
+
+  <div>
+    <a
+      [routerLink]="['/clubs', clubId, 'members']"
+      class="inline-flex items-center px-4 py-2 rounded bg-primary/10 text-primary font-semibold hover:bg-primary hover:text-white transition">
+      Members list
+    </a>
+  </div>
+
+  <!-- Loading état capacité -->
+  <div *ngIf="isCapacityLoading" class="p-3 rounded bg-blue-50 text-blue-700 text-sm">
+    Checking club capacity...
+  </div>
+
+  <!-- Message métier club plein -->
+  <div *ngIf="isClubFull" class="p-3 rounded bg-red-50 text-red-700 text-sm font-semibold">
+    This club has reached its maximum capacity.
+  </div>
+
+  <!-- Message erreur technique -->
+  <div *ngIf="errorMessage" class="p-3 rounded bg-red-50 text-red-700 text-sm">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="isUsersLoading" class="p-3 rounded bg-blue-50 text-blue-700 text-sm">
+    Chargement des utilisateurs...
+  </div>
+
+  <!-- Email -->
+  <div>
+    <select formControlName="email"
+            class="w-full border p-2 rounded"
+            [disabled]="isUsersLoading">
+      <option value="">Sélectionner un utilisateur</option>
+      <option *ngFor="let user of selectableUsers" [value]="user.email">
+        {{ user.firstName }} {{ user.lastName }} - {{ user.email }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Role -->
+  <div>
+    <select formControlName="role"
+            class="w-full border p-2 rounded">
+      <option value="">Select role</option>
+      <option *ngFor="let role of roles" [value]="role">
+        {{ role }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Buttons -->
+  <div class="flex gap-3">
+    <button type="submit"
+            [disabled]="form.invalid || isSubmitting || isCapacityLoading || isClubFull || isUsersLoading"
+            class="bg-primary text-white px-6 py-2 rounded disabled:opacity-60 disabled:cursor-not-allowed">
+      Save
+    </button>
+
+    <button type="button"
+            (click)="cancel()"
+            class="bg-gray-300 px-6 py-2 rounded">
+      Cancel
+    </button>
+  </div>
+
+</form>

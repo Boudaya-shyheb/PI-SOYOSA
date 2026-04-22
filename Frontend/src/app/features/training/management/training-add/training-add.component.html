@@ -1,0 +1,237 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="bg-white border border-gray-100 rounded-lg shadow-sm">
+    <!-- Header -->
+    <div class="border-b border-gray-100 px-6 py-4">
+      <h2 class="text-xl font-semibold text-gray-900">Add New Training</h2>
+      <p class="text-sm text-gray-500 mt-1">Create a new training program</p>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="mx-6 mt-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="trainingForm" (ngSubmit)="onSubmit()" class="p-6 space-y-6">
+      
+      <!-- Title Field -->
+      <div>
+        <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+          Title <span class="text-red-500">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="title"
+          formControlName="title"
+          class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          [class.border-red-300]="f['title'].touched && f['title'].invalid">
+        <div *ngIf="f['title'].touched && f['title'].invalid" class="mt-1 text-sm text-red-600">
+          <div *ngIf="f['title'].errors?.['required']">Title is required</div>
+          <div *ngIf="f['title'].errors?.['minlength']">Title must be at least 3 characters</div>
+          <div *ngIf="f['title'].errors?.['maxlength']">Title cannot exceed 100 characters</div>
+        </div>
+      </div>
+      
+      <!-- Description Field -->
+      <div>
+        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+          Description <span class="text-red-500">*</span>
+        </label>
+        <textarea 
+          id="description"
+          rows="4"
+          formControlName="description"
+          class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+          [class.border-red-300]="f['description'].touched && f['description'].invalid"></textarea>
+        <div *ngIf="f['description'].touched && f['description'].invalid" class="mt-1 text-sm text-red-600">
+          <div *ngIf="f['description'].errors?.['required']">Description is required</div>
+          <div *ngIf="f['description'].errors?.['minlength']">Description must be at least 10 characters</div>
+          <div *ngIf="f['description'].errors?.['maxlength']">Description cannot exceed 1000 characters</div>
+        </div>
+      </div>
+      
+      <!-- Level and Price Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Level Field -->
+        <div>
+          <label for="level" class="block text-sm font-medium text-gray-700 mb-1">
+            Level <span class="text-red-500">*</span>
+          </label>
+          <select 
+            id="level"
+            formControlName="level"
+            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20">
+            <option *ngFor="let level of levels" [value]="level">
+              {{ level }} - {{ levelDescriptions[level] }}
+            </option>
+          </select>
+          <p class="mt-1 text-xs text-gray-400">Select the CEFR level</p>
+        </div>
+        
+        <!-- Price Field -->
+        <div>
+          <label for="price" class="block text-sm font-medium text-gray-700 mb-1">
+            Price ($) <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="number" 
+            id="price"
+            formControlName="price"
+            min="0"
+            step="0.01"
+            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            [class.border-red-300]="f['price'].touched && f['price'].invalid">
+          <div *ngIf="f['price'].touched && f['price'].invalid" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['price'].errors?.['required']">Price is required</div>
+            <div *ngIf="f['price'].errors?.['min']">Price cannot be negative</div>
+            <div *ngIf="f['price'].errors?.['max']">Price cannot exceed $10,000</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Training Type Selection -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="type" class="block text-sm font-medium text-gray-700 mb-1">
+            Training Type <span class="text-red-500">*</span>
+          </label>
+          <select 
+            id="type"
+            formControlName="type"
+            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20">
+            <option *ngFor="let type of sessionTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <!-- Conditional Fields based on Type -->
+        <div *ngIf="f['type'].value === 'ONLINE'">
+          <label for="meetingLink" class="block text-sm font-medium text-gray-700 mb-1">
+            Meeting Link <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="url" 
+            id="meetingLink"
+            formControlName="meetingLink"
+            placeholder="https://zoom.us/j/..."
+            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            [class.border-red-300]="f['meetingLink'].touched && f['meetingLink'].invalid">
+          <div *ngIf="f['meetingLink'].touched && f['meetingLink'].invalid" class="mt-1 text-sm text-red-600">
+            <div *ngIf="f['meetingLink'].errors?.['required']">Meeting link is required for online trainings</div>
+            <div *ngIf="f['meetingLink'].errors?.['invalidUrl']">Please enter a valid URL (e.g., https://...)</div>
+          </div>
+        </div>
+
+        <div *ngIf="f['type'].value === 'OFFLINE'" class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="location" class="block text-sm font-medium text-gray-700 mb-1">
+              Location <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="location"
+              formControlName="location"
+              placeholder="Campus A"
+              class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              [class.border-red-300]="f['location'].touched && f['location'].invalid">
+            <div *ngIf="f['location'].touched && f['location'].invalid" class="mt-1 text-sm text-red-600">
+              <div *ngIf="f['location'].errors?.['required']">Location is required</div>
+            </div>
+          </div>
+          <div>
+            <label for="room" class="block text-sm font-medium text-gray-700 mb-1">
+              Room <span class="text-red-500">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="room"
+              formControlName="room"
+              placeholder="Room 101"
+              class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              [class.border-red-300]="f['room'].touched && f['room'].invalid">
+            <div *ngIf="f['room'].touched && f['room'].invalid" class="mt-1 text-sm text-red-600">
+              <div *ngIf="f['room'].errors?.['required']">Room is required</div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="f['type'].value === 'OFFLINE'" class="mt-2 md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Pin Location on Map <span class="text-red-500">*</span>
+          </label>
+          <app-map-location (locationSelected)="onLocationSelected($event)"></app-map-location>
+          <div *ngIf="f['type'].value === 'OFFLINE' && !f['latitude'].value && f['location'].touched" class="mt-1 text-sm text-red-600">
+            Please pick a location on the map.
+          </div>
+        </div>
+      </div>
+      
+
+      <!-- Image Picker Field -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Training Image
+        </label>
+        
+        <div class="flex flex-col gap-4">
+          <!-- Preview Area -->
+          <div *ngIf="f['imageUrl'].value && !uploading" class="relative w-full h-48 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center group">
+            <img [src]="f['imageUrl'].value" class="w-full h-full object-cover">
+            <button 
+              type="button"
+              (click)="this.trainingForm.patchValue({imageUrl: ''})"
+              class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Uploading State -->
+          <div *ngIf="uploading" class="w-full h-48 rounded-xl border-2 border-dashed border-primary bg-primary/5 flex flex-col items-center justify-center text-primary">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary/20 border-t-primary mb-3"></div>
+            <p class="text-sm font-medium animate-pulse">Uploading to Cloudinary...</p>
+          </div>
+
+          <!-- Empty State / Picker -->
+          <div 
+            *ngIf="!f['imageUrl'].value && !uploading"
+            (click)="imageInput.click()"
+            class="w-full h-48 rounded-xl border-2 border-dashed border-gray-200 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center text-gray-400 group">
+            <div class="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <i class="fas fa-cloud-upload-alt text-xl"></i>
+            </div>
+            <p class="text-sm font-medium">Click to upload training image</p>
+            <p class="text-xs mt-1">PNG, JPG up to 5MB</p>
+          </div>
+
+          <input 
+            #imageInput
+            type="file" 
+            class="hidden" 
+            accept="image/*"
+            (change)="onFileSelected($event)">
+          <div *ngIf="f['imageUrl'].errors?.['maxSize']" class="mt-1 text-sm text-red-600">
+            Image size exceeds 5MB limit. Please select a smaller image.
+          </div>
+        </div>
+        <input type="hidden" formControlName="imageUrl">
+      </div>
+      
+      <!-- Form Buttons -->
+      <div class="flex justify-between pt-4 border-t border-gray-100">
+        <button 
+          type="button"
+          (click)="cancel()"
+          class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+          Cancel
+        </button>
+        <button 
+          type="submit"
+          [disabled]="trainingForm.invalid || submitting || uploading"
+          class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
+          <span *ngIf="submitting" class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+          <span>{{ submitting ? 'Creating...' : 'Create Training' }}</span>
+        </button>
+      </div>
+      
+    </form>
+  </div>
+</div>

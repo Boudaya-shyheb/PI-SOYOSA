@@ -1,0 +1,120 @@
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="mb-8">
+    <h2 class="text-3xl font-bold text-primary mb-2">
+      {{ isEditMode ? 'Edit Club' : 'Create Club' }}
+    </h2>
+    <p class="text-gray-500">
+      {{ isEditMode ? 'Update the club details below.' : 'Fill the form to create a new club.' }}
+    </p>
+  </div>
+
+  <form [formGroup]="clubForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-2">Name</label>
+      <input type="text"
+             formControlName="name"
+             class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary">
+      <div *ngIf="clubForm.get('name')?.invalid && clubForm.get('name')?.touched"
+           class="mt-2 text-sm text-red-500">
+        Name is required
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+      <textarea formControlName="description"
+                rows="4"
+                class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary"></textarea>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-4">Meeting Location (Plan 2D)</label>
+      
+      <!-- 3D Holographic Map Container -->
+      <div class="relative bg-gradient-to-b from-gray-900 via-gray-800 to-black p-8 sm:p-20 md:p-32 rounded-[3rem] border-4 border-gray-900 overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.8)] [perspective:2000px]">
+        
+        <div class="absolute top-8 left-0 right-0 text-center font-black text-indigo-500/20 text-3xl sm:text-5xl tracking-[0.4em] uppercase z-0 pointer-events-none select-none">
+          Holo-Map 3D
+        </div>
+
+        <div class="mx-auto w-full max-w-3xl grid grid-cols-2 sm:grid-cols-5 gap-6 sm:gap-8 transition-transform duration-1000 ease-in-out [transform:rotateX(60deg)_rotateZ(-35deg)] hover:[transform:rotateX(55deg)_rotateZ(-25deg)] [transform-style:preserve-3d]">
+          
+          <!-- Floor Base Grid Decorator -->
+          <div class="absolute inset-[-40px] bg-indigo-500/5 border border-indigo-500/20 rounded-3xl [transform:translateZ(-1px)] shadow-[0_0_50px_rgba(99,102,241,0.1)] pointer-events-none"></div>
+
+          <!-- North Wing (Class 1 to 5) -->
+          <div *ngFor="let i of [1,2,3,4,5]" 
+               (click)="selectClass('Class ' + i)"
+               [ngClass]="getRoomStyle('Class ' + i)"
+               class="h-28 sm:h-36 rounded-2xl flex flex-col items-center justify-center font-bold backdrop-blur-md">
+            <span class="text-xs uppercase opacity-70 mb-1 drop-shadow-md">Salle</span>
+            <span class="text-3xl drop-shadow-lg">{{ i }}</span>
+            <div *ngIf="isOccupied('Class ' + i)" class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl">
+              <span class="text-red-500 text-[10px] px-3 py-1 rounded bg-red-500/10 border border-red-500 rotate-[-15deg] font-black uppercase tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.5)] backdrop-blur-sm">Occupé</span>
+            </div>
+          </div>
+
+          <!-- Corridor -->
+          <div class="col-span-2 sm:col-span-5 h-20 bg-gray-800/80 rounded-xl flex items-center justify-center border-y border-dashed border-gray-600 [transform:translateZ(2px)] backdrop-blur-sm shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+             <div class="flex items-center gap-4 opacity-40">
+                <span class="text-white/50 font-black tracking-[0.5em] uppercase text-xs sm:text-lg">Couloir Holographique</span>
+             </div>
+          </div>
+
+          <!-- South Wing (Class 6 to 10) -->
+          <div *ngFor="let i of [6,7,8,9,10]" 
+               (click)="selectClass('Class ' + i)"
+               [ngClass]="getRoomStyle('Class ' + i)"
+               class="h-28 sm:h-36 rounded-2xl flex flex-col items-center justify-center font-bold backdrop-blur-md">
+             <span class="text-xs uppercase opacity-70 mb-1 drop-shadow-md">Salle</span>
+             <span class="text-3xl drop-shadow-lg">{{ i }}</span>
+             <div *ngIf="isOccupied('Class ' + i)" class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-2xl">
+               <span class="text-red-500 text-[10px] px-3 py-1 rounded bg-red-500/10 border border-red-500 rotate-[15deg] font-black uppercase tracking-widest shadow-[0_0_15px_rgba(239,68,68,0.5)] backdrop-blur-sm">Occupé</span>
+             </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Hidden Input for Form Control -->
+      <input type="hidden" formControlName="meetingLocation">
+      
+      <!-- Error indicator for empty selection if touched -->
+      <div *ngIf="clubForm.get('meetingLocation')?.invalid && clubForm.get('meetingLocation')?.touched" class="mt-2 text-sm text-red-500 font-semibold">
+        Veuillez sélectionner une salle sur le plan.
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-2">Meeting Schedule</label>
+      <input type="text"
+             formControlName="meetingSchedule"
+             class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary">
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-2">Max Members</label>
+      <input type="number"
+             formControlName="maxMembers"
+             min="1"
+             class="w-full border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary">
+      <div *ngIf="clubForm.get('maxMembers')?.invalid && clubForm.get('maxMembers')?.touched"
+           class="mt-2 text-sm text-red-500">
+        Must be at least 1
+      </div>
+    </div>
+
+    <div class="flex flex-col sm:flex-row gap-4 pt-2">
+      <button type="submit"
+              class="w-full sm:w-auto bg-primary text-white py-3 px-6 rounded-xl font-semibold">
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </button>
+
+      <button type="button"
+              (click)="cancel()"
+              class="w-full sm:w-auto border border-gray-300 py-3 px-6 rounded-xl font-semibold text-gray-600 hover:bg-gray-50 transition">
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>

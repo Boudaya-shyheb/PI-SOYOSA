@@ -1,0 +1,299 @@
+node.exe : [1m[33m
+Au caractère C:\Program 
+Files\nodejs\npx.ps1:29 : 3
++   & $NODE_EXE $NPX_CLI_JS 
+$args
++   
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: ([1m[3  
+  3m:String) [], RemoteExc   
+ eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+Warning: 
+C:\Users\ahmed\Desktop\ahhh s
+ex\Frontend\src\app\user\rese
+t-password\reset-password.com
+ponent.ts depends on 
+'sweetalert2'. CommonJS or 
+AMD dependencies can cause 
+optimization bailouts.
+For more info see: https://an
+gular.dev/tools/cli/build#con
+figuring-commonjs-dependencie
+s
+
+[39m[22m
+[1m[31m
+./src/app/services/club-activ
+ity.service.ts:1:0-61 - 
+Error: Module not found: 
+Error: Can't resolve '../../e
+nvironments/environment' in 
+'C:\Users\ahmed\Desktop\ahhh 
+sex\Frontend\src\app\services
+'
+
+./src/app/services/club-membe
+r.service.ts:1:0-61 - Error: 
+Module not found: Error: 
+Can't resolve '../../environm
+ents/environment' in 
+'C:\Users\ahmed\Desktop\ahhh 
+sex\Frontend\src\app\services
+'
+
+./src/app/services/club.servi
+ce.ts:3:0-61 - Error: Module 
+not found: Error: Can't 
+resolve '../../environments/e
+nvironment' in 
+'C:\Users\ahmed\Desktop\ahhh 
+sex\Frontend\src\app\services
+'
+
+./src/app/services/event-cate
+gory.service.ts:1:0-61 - 
+Error: Module not found: 
+Error: Can't resolve '../../e
+nvironments/environment' in 
+'C:\Users\ahmed\Desktop\ahhh 
+sex\Frontend\src\app\services
+'
+
+./src/app/services/event-feed
+back.service.ts:1:0-61 - 
+Error: Module not found: 
+Error: Can't resolve '../../e
+nvironments/environment' in 
+'C:\Users\ahmed\Desktop\ahhh 
+sex\Frontend\src\app\services
+'
+
+./src/app/services/event-part
+icipation.service.ts:2:0-61 
+- Error: Module not found: 
+Error: Can't resolve '../../e
+nvironments/environment' in 
+'C:\Users\ahmed\Desktop\ahhh 
+sex\Frontend\src\app\services
+'
+
+./src/app/services/event.serv
+ice.ts:1:0-61 - Error: 
+Module not found: Error: 
+Can't resolve '../../environm
+ents/environment' in 
+'C:\Users\ahmed\Desktop\ahhh 
+sex\Frontend\src\app\services
+'
+
+Error: [96msrc/app/features/
+quiz/quiz.component.ts[0m:[
+93m3[0m:[93m23[0m - 
+[91merror[0m[90m TS2459: 
+[0mModule '"../../services/q
+uiz.service"' declares 
+'Quiz' locally, but it is 
+not exported.
+
+[7m3[0m import { 
+QuizService, Quiz, 
+QuizQuestion } from '../../se
+rvices/quiz.service';
+[7m [0m [91m              
+        ~~~~[0m
+
+  [96msrc/app/services/quiz.
+service.ts[0m:[93m3[0m:[9
+3m10[0m
+    [7m3[0m import { Quiz, 
+QuizQuestion } from 
+'../models/quiz-models';
+    [7m [0m [96m         
+~~~~[0m
+    'Quiz' is declared here.
+
+
+Error: [96msrc/app/features/
+quiz/quiz.component.ts[0m:[
+93m3[0m:[93m29[0m - 
+[91merror[0m[90m TS2459: 
+[0mModule '"../../services/q
+uiz.service"' declares 
+'QuizQuestion' locally, but 
+it is not exported.
+
+[7m3[0m import { 
+QuizService, Quiz, 
+QuizQuestion } from '../../se
+rvices/quiz.service';
+[7m [0m [91m              
+              
+~~~~~~~~~~~~[0m
+
+  [96msrc/app/services/quiz.
+service.ts[0m:[93m3[0m:[9
+3m16[0m
+    [7m3[0m import { Quiz, 
+QuizQuestion } from 
+'../models/quiz-models';
+    [7m [0m [96m          
+     ~~~~~~~~~~~~[0m
+    'QuizQuestion' is 
+declared here.
+
+
+Error: [96msrc/app/features/
+quiz/quiz.component.ts[0m:[
+93m57[0m:[93m5[0m - 
+[91merror[0m[90m TS2531: 
+[0mObject is possibly 
+'null'.
+
+[7m57[0m     this.quizServi
+ce.getQuiz(this.lessonId).sub
+scribe({
+[7m  [0m [91m    ~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~[0m
+
+
+Error: [96msrc/app/features/
+quiz/quiz.component.ts[0m:[
+93m57[0m:[93m45[0m - 
+[91merror[0m[90m TS2339: 
+[0mProperty 'subscribe' 
+does not exist on type 
+'Quiz'.
+
+[7m57[0m     this.quizServi
+ce.getQuiz(this.lessonId).sub
+scribe({
+[7m  [0m [91m             
+                             
+  ~~~~~~~~~[0m
+
+
+Error: [96msrc/app/features/
+quiz/quiz.component.ts[0m:[
+93m58[0m:[93m13[0m - 
+[91merror[0m[90m TS7006: 
+[0mParameter 'quiz' 
+implicitly has an 'any' type.
+
+[7m58[0m       next: quiz 
+=> {
+[7m  [0m [91m            
+~~~~[0m
+
+
+Error: [96msrc/app/features/
+quiz/quiz.component.ts[0m:[
+93m125[0m:[93m49[0m - 
+[91merror[0m[90m TS7006: 
+[0mParameter 'count' 
+implicitly has an 'any' type.
+
+[7m125[0m     const 
+correct = this.quiz.questions
+.reduce((count, question, 
+index) => {
+[7m   [0m [91m            
+                             
+       ~~~~~[0m
+
+
+Error: [96msrc/app/features/
+quiz/quiz.component.ts[0m:[
+93m125[0m:[93m56[0m - 
+[91merror[0m[90m TS7006: 
+[0mParameter 'question' 
+implicitly has an 'any' type.
+
+[7m125[0m     const 
+correct = this.quiz.questions
+.reduce((count, question, 
+index) => {
+[7m   [0m [91m            
+                             
+              ~~~~~~~~[0m
+
+
+Error: [96msrc/app/features/
+quiz/quiz.component.ts[0m:[
+93m125[0m:[93m66[0m - 
+[91merror[0m[90m TS7006: 
+[0mParameter 'index' 
+implicitly has an 'any' type.
+
+[7m125[0m     const 
+correct = this.quiz.questions
+.reduce((count, question, 
+index) => {
+[7m   [0m [91m            
+                             
+                        
+~~~~~[0m
+
+
+Error: [96msrc/app/features/
+training-details/training-det
+ails.component.ts[0m:[93m12
+[0m:[93m23[0m - 
+[91merror[0m[90m TS2459: 
+[0mModule '"../../services/q
+uiz.service"' declares 
+'Quiz' locally, but it is 
+not exported.
+
+[7m12[0m import { 
+QuizService, Quiz, 
+QuizQuestion } from '../../se
+rvices/quiz.service';
+[7m  [0m [91m             
+         ~~~~[0m
+
+  [96msrc/app/services/quiz.
+service.ts[0m:[93m3[0m:[9
+3m10[0m
+    [7m3[0m import { Quiz, 
+QuizQuestion } from 
+'../models/quiz-models';
+    [7m [0m [96m         
+~~~~[0m
+    'Quiz' is declared here.
+
+
+Error: [96msrc/app/features/
+training-details/training-det
+ails.component.ts[0m:[93m12
+[0m:[93m29[0m - 
+[91merror[0m[90m TS2459: 
+[0mModule '"../../services/q
+uiz.service"' declares 
+'QuizQuestion' locally, but 
+it is not exported.
+
+[7m12[0m import { 
+QuizService, Quiz, 
+QuizQuestion } from '../../se
+rvices/quiz.service';
+[7m  [0m [91m             
+               
+~~~~~~~~~~~~[0m
+
+  [96msrc/app/services/quiz.
+service.ts[0m:[93m3[0m:[9
+3m16[0m
+    [7m3[0m import { Quiz, 
+QuizQuestion } from 
+'../models/quiz-models';
+    [7m [0m [96m          
+     ~~~~~~~~~~~~[0m
+    'QuizQuestion' is 
+declared here.
+
+

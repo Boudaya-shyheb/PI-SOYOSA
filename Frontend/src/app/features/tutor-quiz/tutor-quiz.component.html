@@ -1,0 +1,454 @@
+<div class="tq-root" [class.dark]="darkMode">
+
+  <!-- ══════════════════════════════════ DASHBOARD VIEW ══════════════════════════════════ -->
+  <ng-container *ngIf="view === 'dashboard'">
+
+    <!-- Animated background blobs -->
+    <div class="tq-blobs" aria-hidden="true">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="blob blob-3"></div>
+    </div>
+
+    <div class="tq-dashboard">
+
+      <!-- Header -->
+      <header class="dash-header">
+        <div class="dash-header-left">
+          <h1 class="dash-title">
+            <span class="dash-icon">🎓</span>
+            Quiz Studio
+          </h1>
+          <p class="dash-subtitle">Create, manage, and track your quizzes with legendary precision.</p>
+        </div>
+        <div class="dash-header-right">
+          <button class="tq-btn icon-btn" (click)="darkMode = !darkMode" title="Toggle theme">
+            {{ darkMode ? '☀️' : '🌙' }}
+          </button>
+          <button class="tq-btn primary pulse" id="create-quiz-btn" (click)="createNew()">
+            <span>✦</span> Create Quiz
+          </button>
+        </div>
+      </header>
+
+      <!-- Stats Bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-value">{{ totalQuizzes }}</div>
+          <div class="stat-label">Total Quizzes</div>
+          <svg class="stat-svg" viewBox="0 0 60 55">
+            <rect x="5" y="30" width="8" height="20" rx="2" fill="currentColor" opacity="0.3"/>
+            <rect x="17" y="20" width="8" height="30" rx="2" fill="currentColor" opacity="0.5"/>
+            <rect x="29" y="10" width="8" height="40" rx="2" fill="currentColor" opacity="0.7"/>
+            <rect x="41" y="5" width="8" height="45" rx="2" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">{{ totalAttempts }}</div>
+          <div class="stat-label">Student Attempts</div>
+          <svg class="stat-svg" viewBox="0 0 60 55">
+            <circle cx="30" cy="27" r="22" stroke="currentColor" stroke-width="3" fill="none" opacity="0.2"/>
+            <path [attr.d]="'M30 5 A22 22 0 ' + (avgPassRate > 50 ? 1 : 0) + ' 1 ' + (30 + 22*Math.sin(avgPassRate/100*6.28)) + ' ' + (27 - 22*Math.cos(avgPassRate/100*6.28))"
+                  stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="stat-card highlight">
+          <div class="stat-value">{{ avgPassRate }}%</div>
+          <div class="stat-label">Avg Pass Rate</div>
+          <div class="stat-bar-wrap">
+            <div class="stat-bar-fill" [style.width.%]="avgPassRate"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-row">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search quizzes..." [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()" id="quiz-search-input"/>
+        </div>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div *ngIf="loadingDashboard" class="empty-state">
+        <div class="spinner"></div>
+        <p>Loading your quizzes...</p>
+      </div>
+
+      <!-- Quiz Grid -->
+      <div *ngIf="!loadingDashboard" class="quiz-grid">
+
+        <!-- Empty state -->
+        <div *ngIf="filteredQuizList.length === 0" class="empty-state col-span-full">
+          <div class="empty-emoji">🧠</div>
+          <h3>No quizzes yet!</h3>
+          <p>Create your first legendary quiz to get started.</p>
+          <button class="tq-btn primary mt-4" (click)="createNew()">+ Create First Quiz</button>
+        </div>
+
+        <!-- Quiz Card -->
+        <div *ngFor="let quiz of filteredQuizList; trackBy: trackByQuiz" class="quiz-card" [class.theme-galaxy]="quiz.theme==='galaxy'" [class.theme-ocean]="quiz.theme==='ocean'" [class.theme-forest]="quiz.theme==='forest'" [class.theme-candy]="quiz.theme==='candy'">
+          <div class="qc-top">
+            <span class="qc-theme-badge">{{ getTheme(quiz.theme ?? 'minimal').emoji }}</span>
+            <div class="qc-actions">
+              <button class="icon-action" title="Clone" (click)="cloneQuiz(quiz)">⧉</button>
+              <button class="icon-action" title="Edit" (click)="editQuiz(quiz)">✎</button>
+              <button class="icon-action danger" title="Delete" (click)="deleteQuiz(quiz, $event)">✕</button>
+            </div>
+          </div>
+          <h3 class="qc-title">{{ quiz.title || 'Untitled Quiz' }}</h3>
+          <div class="qc-meta">
+            <span class="qc-chip">📝 {{ quiz.questions?.length ?? 0 }} Qs</span>
+            <span class="qc-chip">⏱ {{ quiz.timeLimitMin }}m</span>
+            <span class="qc-chip">🎯 {{ quiz.passingScore }}%</span>
+          </div>
+
+          <!-- Mini SVG Bar Chart -->
+          <div class="qc-chart" *ngIf="statsMap[quiz.id ?? '']">
+            <svg viewBox="0 0 90 55" class="mini-chart">
+              <text x="0" y="52" font-size="7" fill="currentColor" opacity="0.6">Attempts</text>
+              <text x="35" y="52" font-size="7" fill="currentColor" opacity="0.6">Avg%</text>
+              <text x="65" y="52" font-size="7" fill="currentColor" opacity="0.6">Pass%</text>
+              <rect x="5" [attr.y]="50 - chartBarH(statsMap[quiz.id!]?.attempts, 50)" width="18" [attr.height]="chartBarH(statsMap[quiz.id!]?.attempts, 50)" rx="2" fill="var(--q-primary,#2D5757)" opacity="0.8"/>
+              <rect x="37" [attr.y]="50 - chartBarH(statsMap[quiz.id!]?.avgScore)" width="18" [attr.height]="chartBarH(statsMap[quiz.id!]?.avgScore)" rx="2" fill="#f59e0b" opacity="0.8"/>
+              <rect x="67" [attr.y]="50 - chartBarH(statsMap[quiz.id!]?.passRate)" width="18" [attr.height]="chartBarH(statsMap[quiz.id!]?.passRate)" rx="2" fill="#22c55e" opacity="0.8"/>
+            </svg>
+          </div>
+          <div class="qc-no-stats" *ngIf="!statsMap[quiz.id ?? '']">
+            <span>No attempts yet</span>
+          </div>
+
+          <div class="qc-footer">
+            <button class="tq-btn sm outline" (click)="editQuiz(quiz)">Edit Quiz</button>
+            <button class="tq-btn sm primary" (click)="editQuiz(quiz); goStep('preview')">Preview</button>
+          </div>
+        </div>
+
+      </div><!-- /quiz-grid -->
+    </div><!-- /tq-dashboard -->
+  </ng-container>
+
+  <!-- ══════════════════════════════════ BUILDER VIEW ══════════════════════════════════ -->
+  <ng-container *ngIf="view === 'builder' && editingQuiz">
+
+    <div class="tq-builder" [ngStyle]="themeStyle()">
+
+      <!-- Builder Top Bar -->
+      <div class="builder-topbar">
+        <button class="tq-btn icon-btn" (click)="cancelBuilder()" title="Back to Dashboard">
+          ← Dashboard
+        </button>
+        <div class="builder-steps">
+          <button *ngFor="let s of steps; let i = index; trackBy: trackByOption" class="step-pill"
+                  [class.active]="builderStep === s"
+                  [class.done]="stepIndex() > i"
+                  (click)="goStep(s)">
+            <span class="step-num">{{ i + 1 }}</span>
+            <span class="step-label">{{ s | titlecase | replace:'_':'' }}</span>
+          </button>
+        </div>
+        <div class="builder-save">
+          <span *ngIf="saveSuccess" class="save-success">✓ {{ saveSuccess }}</span>
+          <span *ngIf="saveError" class="save-error">⚠ {{ saveError }}</span>
+          <button class="tq-btn primary" [disabled]="savingQuiz" (click)="saveQuiz()" id="save-quiz-btn">
+            {{ savingQuiz ? 'Saving…' : '💾 Save Quiz' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="builder-progress">
+        <div class="builder-progress-fill" [style.width.%]="(stepIndex() + 1) / steps.length * 100"></div>
+      </div>
+
+      <div class="builder-body">
+
+        <!-- ── STEP 1: SETTINGS ── -->
+        <div *ngIf="builderStep === 'settings'" class="step-panel" [@fadeIn]>
+          <h2 class="step-heading">⚙️ Quiz Settings</h2>
+
+          <div class="field-grid">
+            <div class="field-group col-span-2">
+              <label>Quiz Title *</label>
+              <input type="text" [(ngModel)]="editingQuiz.title" placeholder="e.g. English Grammar Basics" id="quiz-title-input"/>
+            </div>
+            <div class="field-group">
+              <label>⏱ Time Limit (minutes)</label>
+              <input type="number" [(ngModel)]="editingQuiz.timeLimitMin" min="1"/>
+            </div>
+            <div class="field-group">
+              <label>🎯 Passing Score (%)</label>
+              <input type="number" [(ngModel)]="editingQuiz.passingScore" min="0" max="100"/>
+            </div>
+            <div class="field-group">
+              <label>🔄 Max Attempts</label>
+              <input type="number" [(ngModel)]="editingQuiz.maxAttempts" min="1"/>
+            </div>
+            <div class="field-group">
+              <label>⏳ Cooldown (minutes)</label>
+              <input type="number" [(ngModel)]="editingQuiz.cooldownMin" min="0"/>
+            </div>
+          </div>
+
+          <div class="danger-zone mt-8">
+            <h3 class="section-subheading danger">⚠️ Danger Zone</h3>
+            <p class="text-sm text-muted mb-4">Deleting a quiz will remove all student progress and stats associated with it.</p>
+            <button class="tq-btn outline danger" (click)="deleteQuiz(editingQuiz, $event); cancelBuilder()">
+              🗑 Delete This Quiz Permanently
+            </button>
+          </div>
+
+          <h3 class="section-subheading">🎮 Gamification</h3>
+          <div class="field-grid">
+            <div class="field-group">
+              <label>⚡ XP Reward</label>
+              <input type="number" [(ngModel)]="editingQuiz.xpReward" min="0"/>
+            </div>
+            <div class="field-group">
+              <label>🏅 Achievement Badge</label>
+              <select [(ngModel)]="editingQuiz.badge">
+                <option *ngFor="let b of BADGES" [value]="b">{{ b }}</option>
+              </select>
+            </div>
+          </div>
+
+          <h3 class="section-subheading">🔀 Behaviour</h3>
+          <div class="toggle-row">
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="editingQuiz.shuffleQuestions"/>
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              Randomize question order
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="editingQuiz.shuffleAnswers"/>
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              Randomize answer options
+            </label>
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="editingQuiz.showExplanations"/>
+              <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              Show explanations after submit
+            </label>
+          </div>
+
+          <div class="step-nav">
+            <span></span>
+            <button class="tq-btn primary" (click)="nextStep()">Questions →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 2: QUESTIONS ── -->
+        <div *ngIf="builderStep === 'questions'" class="step-panel">
+          <div class="questions-header">
+            <h2 class="step-heading">📝 Questions</h2>
+            <div class="add-question-menu">
+              <span class="add-label">Add:</span>
+              <button *ngFor="let t of QUESTION_TYPES" class="tq-btn sm outline type-chip" (click)="addQuestion(t.value)" [id]="'add-' + t.value">
+                {{ t.icon }} {{ t.label }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Drag-n-Drop Question List -->
+          <div class="questions-list">
+            <div *ngFor="let q of editingQuiz._editorQuestions; let qi = index; trackBy: trackByQuestion"
+                 class="question-builder-card"
+                 [class.drag-over]="dragOverIndex === qi"
+                 [class.dragging]="dragSourceIndex === qi"
+                 draggable="true"
+                 (dragstart)="onDragStart(qi)"
+                 (dragover)="onDragOver($event, qi)"
+                 (drop)="onDrop(qi)"
+                 (dragend)="onDragEnd()">
+
+              <div class="qbc-header">
+                <span class="drag-handle" title="Drag to reorder">⠿</span>
+                <span class="q-number">Q{{ qi + 1 }}</span>
+                <select class="type-select" [ngModel]="q.type" (ngModelChange)="changeQuestionType(qi, $event)">
+                  <option *ngFor="let t of QUESTION_TYPES; trackBy: trackByIndex" [value]="t.value">{{ t.icon }} {{ t.label }}</option>
+                </select>
+                <button class="icon-action danger sm" (click)="removeQuestion(qi)" [disabled]="editingQuiz._editorQuestions.length <= 1">✕</button>
+              </div>
+
+              <div class="qbc-body">
+                <div class="field-group">
+                  <label>Question Text *</label>
+                  <textarea [(ngModel)]="q.text" rows="2" placeholder="What does 'verbose' mean?" [id]="'q-text-' + qi"></textarea>
+                </div>
+
+                <!-- Media fields (MEDIA type) -->
+                <div *ngIf="q.type === 'MEDIA'" class="field-grid">
+                  <div class="field-group">
+                    <label>Media Type</label>
+                    <select [(ngModel)]="q.mediaType">
+                      <option value="IMAGE">🖼 Image</option>
+                      <option value="VIDEO">🎬 Video</option>
+                    </select>
+                  </div>
+                  <div class="field-group col-span-2">
+                    <label>Media URL</label>
+                    <input type="url" [(ngModel)]="q.mediaUrl" placeholder="https://..."/>
+                  </div>
+                </div>
+
+                <!-- Options (MCQ / True-False) -->
+                <div *ngIf="q.type === 'MULTIPLE_CHOICE' || q.type === 'TRUE_FALSE'" class="options-editor">
+                  <label>Answer Options</label>
+                  <div *ngFor="let opt of q._editorOptions; let oi = index; trackBy: trackByOption" class="option-row">
+                    <button class="correct-dot" [class.selected]="q.correctIndex === oi" (click)="q.correctIndex = oi" [title]="q.correctIndex === oi ? 'Correct answer' : 'Mark as correct'">
+                      {{ q.correctIndex === oi ? '●' : '○' }}
+                    </button>
+                    <span class="opt-letter">{{ letterLabel(oi) }}</span>
+                    <input type="text" [(ngModel)]="opt.text" class="opt-input" [placeholder]="'Option ' + letterLabel(oi)" [id]="'opt-' + qi + '-' + oi" [disabled]="q.type === 'TRUE_FALSE'"/>
+                    <button *ngIf="q.type === 'MULTIPLE_CHOICE'" class="icon-action sm" (click)="removeOption(qi, oi)" [disabled]="q._editorOptions.length <= 2">✕</button>
+                  </div>
+                  <button *ngIf="q.type === 'MULTIPLE_CHOICE'" class="tq-btn sm outline mt-2" (click)="addOption(qi)">+ Add Option</button>
+                </div>
+
+                <!-- Text answer (Fill-blank / Media) -->
+                <div *ngIf="q.type === 'FILL_BLANK' || q.type === 'MEDIA'" class="field-group">
+                  <label>Correct Answer (text)</label>
+                  <input type="text" [(ngModel)]="q.correctAnswer" placeholder="Expected answer..." [id]="'correct-ans-' + qi"/>
+                </div>
+
+                <!-- Explanation -->
+                <div class="field-group">
+                  <label>💡 Explanation / Hint (optional)</label>
+                  <input type="text" [(ngModel)]="q.explanation" placeholder="Why is this the correct answer?"/>
+                </div>
+              </div>
+            </div><!-- /question card -->
+          </div>
+
+          <div class="step-nav">
+            <button class="tq-btn outline" (click)="prevStep()">← Settings</button>
+            <button class="tq-btn primary" (click)="nextStep()">Theme →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 3: THEME ── -->
+        <div *ngIf="builderStep === 'theme'" class="step-panel">
+          <h2 class="step-heading">🎨 Appearance & Theme</h2>
+
+          <h3 class="section-subheading">Templates</h3>
+          <div class="theme-grid">
+            <button *ngFor="let t of THEMES; trackBy: trackByOption" class="theme-card" [class.selected]="editingQuiz.theme === t.id" (click)="selectTheme(t.id)" [id]="'theme-' + t.id">
+              <div class="theme-preview" [style.background]="t.bgGradient"></div>
+              <span class="theme-emoji">{{ t.emoji }}</span>
+              <span class="theme-name">{{ t.name }}</span>
+              <span *ngIf="editingQuiz.theme === t.id" class="theme-check">✓</span>
+            </button>
+          </div>
+
+          <h3 class="section-subheading">Custom Styling</h3>
+          <div class="field-grid">
+            <div class="field-group">
+              <label>Primary Color</label>
+              <div class="color-row">
+                <input type="color" [(ngModel)]="editingQuiz.customPrimary" class="color-picker"/>
+                <input type="text" [(ngModel)]="editingQuiz.customPrimary" class="color-text"/>
+              </div>
+            </div>
+            <div class="field-group">
+              <label>Font Family</label>
+              <select [(ngModel)]="editingQuiz.customFont">
+                <option *ngFor="let f of FONTS" [value]="f">{{ f }}</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Animation Speed</label>
+              <select [(ngModel)]="editingQuiz.animationSpeed">
+                <option value="slow">🐢 Slow</option>
+                <option value="normal">⚡ Normal</option>
+                <option value="fast">🚀 Fast</option>
+              </select>
+            </div>
+            <div class="field-group">
+              <label>Dark Mode</label>
+              <label class="toggle-label">
+                <input type="checkbox" [(ngModel)]="editingQuiz.darkMode"/>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+                Enable dark mode
+              </label>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button class="tq-btn outline" (click)="prevStep()">← Questions</button>
+            <button class="tq-btn primary" (click)="nextStep()">Preview →</button>
+          </div>
+        </div>
+
+        <!-- ── STEP 4: PREVIEW ── -->
+        <div *ngIf="builderStep === 'preview'" class="step-panel preview-step">
+          <h2 class="step-heading">👁 Student Preview</h2>
+          <p class="preview-note">This is exactly how students will experience your quiz.</p>
+
+          <div class="preview-shell" [ngStyle]="themeStyle()" [class.dark-shell]="editingQuiz.darkMode">
+            <!-- Preview Header -->
+            <div class="prev-header">
+              <span class="prev-title">{{ editingQuiz.title || 'Untitled Quiz' }}</span>
+              <span class="prev-badge">{{ editingQuiz.badge }}</span>
+            </div>
+
+            <!-- Progress -->
+            <div class="prev-progress">
+              <div class="prev-progress-fill" [style.width.%]="(previewQuestionIndex + 1) / (editingQuiz.questions?.length || 1) * 100"></div>
+            </div>
+            <div class="prev-progress-label">Question {{ previewQuestionIndex + 1 }} / {{ editingQuiz.questions?.length ?? 0 }}</div>
+
+            <!-- Current Question -->
+            <ng-container *ngIf="previewCurrentQuestion() as pq">
+              <div class="prev-question">
+                <!-- Media -->
+                <div *ngIf="pq.mediaUrl && (pq.type === 'MEDIA')" class="prev-media">
+                  <img *ngIf="pq.mediaType === 'IMAGE'" [src]="pq.mediaUrl" alt="Question media"/>
+                  <video *ngIf="pq.mediaType === 'VIDEO'" [src]="pq.mediaUrl" controls></video>
+                </div>
+
+                <p class="prev-q-text">{{ pq.text || '(Question text)' }}</p>
+
+                <!-- MCQ / TRUE-FALSE Options -->
+                <div *ngIf="pq.type === 'MULTIPLE_CHOICE' || pq.type === 'TRUE_FALSE'" class="prev-options">
+                  <button *ngFor="let opt of pq.options; let oi = index"
+                          class="prev-option"
+                          [class.selected]="previewAnswer === oi && !previewSubmitted"
+                          [class.correct]="previewSubmitted && pq.correctIndex === oi"
+                          [class.incorrect]="previewSubmitted && previewAnswer === oi && pq.correctIndex !== oi"
+                          [disabled]="previewSubmitted"
+                          (click)="previewAnswer = oi">
+                    <span class="prev-opt-letter">{{ letterLabel(oi) }}</span> {{ opt }}
+                  </button>
+                </div>
+
+                <!-- Fill blank -->
+                <div *ngIf="pq.type === 'FILL_BLANK' || pq.type === 'MEDIA'" class="prev-fill">
+                  <input type="text" [(ngModel)]="previewAnswer" placeholder="Your answer..." [disabled]="previewSubmitted" class="prev-fill-input"/>
+                </div>
+
+                <!-- Feedback -->
+                <div *ngIf="previewSubmitted" class="prev-feedback" [class.correct]="previewIsCorrect()" [class.incorrect]="!previewIsCorrect()">
+                  <span>{{ previewIsCorrect() ? '✓ Correct!' : '✕ Incorrect' }}</span>
+                  <p *ngIf="pq.explanation" class="prev-explanation">💡 {{ pq.explanation }}</p>
+                </div>
+
+                <div class="prev-actions">
+                  <button *ngIf="!previewSubmitted" class="tq-btn primary sm" (click)="previewSubmitAnswer()" [disabled]="previewAnswer === null || previewAnswer === ''">Check Answer</button>
+                  <button *ngIf="previewSubmitted && previewQuestionIndex < (editingQuiz._editorQuestions?.length ?? 0) - 1" class="tq-btn primary sm" (click)="previewNext()">Next →</button>
+                  <button *ngIf="previewSubmitted && previewQuestionIndex === (editingQuiz._editorQuestions?.length ?? 0) - 1" class="tq-btn primary sm" (click)="resetPreview()">Restart Preview</button>
+                </div>
+              </div>
+            </ng-container>
+          </div><!-- /preview-shell -->
+
+          <div class="step-nav">
+            <button class="tq-btn outline" (click)="prevStep()">← Theme</button>
+            <button class="tq-btn primary" (click)="saveQuiz()">💾 Save & Publish</button>
+          </div>
+        </div>
+
+      </div><!-- /builder-body -->
+    </div><!-- /tq-builder -->
+  </ng-container>
+
+</div>

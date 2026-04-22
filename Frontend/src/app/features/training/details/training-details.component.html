@@ -1,0 +1,661 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary"></div>
+    <p class="mt-2 text-gray-500">Loading training details...</p>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Training Details -->
+  <div *ngIf="!loading && training" class="space-y-6">
+    
+    <!-- Header with navigation and actions -->
+    <div class="flex justify-between items-center">
+      <button 
+        (click)="goBack()"
+        class="flex items-center text-gray-600 hover:text-primary transition">
+        <span class="mr-1">←</span> Back to Trainings
+      </button>
+      <div class="flex space-x-3">
+        <!-- Tutor Actions -->
+        <button 
+          *ngIf="authService.isTutor()"
+          (click)="editTraining()"
+          class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition flex items-center space-x-2">
+          <span>✏️</span>
+          <span>Edit</span>
+        </button>
+        <button 
+          *ngIf="authService.isTutor()"
+          (click)="deleteTraining()"
+          class="px-4 py-2 border border-red-200 rounded-lg text-red-600 hover:bg-red-50 transition flex items-center space-x-2">
+          <span>🗑️</span>
+          <span>Delete</span>
+        </button>
+        <button 
+          *ngIf="authService.isTutor()"
+          (click)="addSession()"
+          class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition flex items-center space-x-2">
+          <span>+</span>
+          <span>Add Session</span>
+        </button>
+
+        <!-- Student Actions - Buy Training Button (visible for students and guests) -->
+        <button 
+          *ngIf="!isEnrolledInTraining"
+          (click)="initiatePayment()"
+          [disabled]="enrolling"
+          class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition flex items-center space-x-2 disabled:opacity-50">
+          <span>🛒</span>
+          <span>{{ enrolling ? 'Processing...' : (authService.isAuthenticated() ? 'Buy Training' : 'Register to Buy') }}</span>
+        </button>
+        <span 
+          *ngIf="isEnrolledInTraining"
+          class="px-4 py-2 bg-green-100 text-green-800 rounded-lg flex items-center space-x-2 font-medium">
+          <span>✓</span>
+          <span>Purchased</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Training Info Card -->
+    <div class="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
+      <div class="md:flex">
+        <!-- Training Image -->
+        <div class="md:w-2/5 h-64 md:h-auto relative overflow-hidden">
+          <img 
+            [src]="training?.imageUrl || 'assets/images/training-placeholder.jpg'" 
+            [alt]="training?.title"
+            class="w-full h-full object-cover"
+            (error)="$any($event.target).src = 'assets/images/training-placeholder.jpg'">
+          <div class="absolute inset-0 bg-black/5"></div>
+        </div>
+
+        <div class="p-8 md:w-3/5">
+          <div class="flex flex-wrap items-center gap-2 mb-4">
+            <span *ngIf="training?.level" [class]="'px-3 py-1 rounded-full text-xs font-semibold ' + getLevelColor(training.level)">
+              Level: {{ training.level }}
+              <span *ngIf="levelDescriptions && levelDescriptions[training.level]" class="opacity-80 ml-1">
+                - {{ levelDescriptions[training.level] }}
+              </span>
+            </span>
+            <span [class]="'px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800'">
+              Training ID: {{ training?.id }}
+            </span>
+            <div class="ml-auto text-sm text-gray-500 font-mono">ID: {{ training?.id }}</div>
+          </div>
+          
+          <div class="mb-6">
+            <h1 class="text-3xl font-extrabold text-gray-900 leading-tight">{{ training?.title || 'Training Title' }}</h1>
+            <div class="flex items-center mt-2 text-yellow-500">
+              <span class="flex mr-2">
+                <span *ngFor="let s of getStarArray(averageRating)">★</span>
+                <span *ngFor="let s of getEmptyStarArray(averageRating)" class="text-gray-200">★</span>
+              </span>
+              <span class="text-sm font-bold text-gray-700">{{ averageRating | number:'1.1-1' }}</span>
+              <span class="text-xs text-gray-400 ml-1">({{ reviews.length }} reviews)</span>
+            </div>
+          </div>
+          
+          <!-- Description Section -->
+          <div class="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 flex items-center">
+              <span class="mr-2">📝</span> Description
+            </h3>
+            <div class="text-gray-700 leading-relaxed whitespace-pre-line text-sm min-h-[60px]">
+              {{ training?.description || 'This training does not have a detailed description yet.' }}
+            </div>
+          </div>
+
+            <!-- Price -->
+            <div class="p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition">
+              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Price</h3>
+              <p class="text-2xl font-black text-primary">{{ training?.price ? '$' + (training.price | number:'1.2-2') : 'Free' }}</p>
+            </div>
+            
+            <!-- Type and Location -->
+            <div class="p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition">
+              <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">
+                {{ training?.type === 'OFFLINE' ? '📍 Location' : '🌐 Meeting Link' }}
+              </h3>
+              <div class="flex items-center">
+                <ng-container *ngIf="training?.type === 'OFFLINE'">
+                  <div class="w-full flex w-full flex-col space-y-3">
+                    <div>
+                      <p class="text-sm font-bold text-gray-900">{{ training?.location || 'TBA' }}</p>
+                      <p class="text-xs text-gray-500" *ngIf="training?.room">Room: {{ training.room }}</p>
+                    </div>
+                    <div *ngIf="training?.type === 'OFFLINE' && training.latitude != null && training.longitude != null" class="w-full mt-2">
+                      <app-map-location 
+                         [latitude]="training.latitude" 
+                         [longitude]="training.longitude" 
+                         [readOnly]="true">
+                      </app-map-location>
+                    </div>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="training?.type === 'ONLINE'">
+                  <a *ngIf="training?.meetingLink" [href]="training.meetingLink" target="_blank" class="text-sm font-bold text-blue-600 hover:underline truncate max-w-[200px]">
+                    {{ training.meetingLink }}
+                  </a>
+                  <p *ngIf="!training?.meetingLink" class="text-sm text-gray-400 italic">Link not yet available</p>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sessions Section -->
+    <div class="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex flex-col md:flex-row md:justify-between md:items-center space-y-3 md:space-y-0">
+        <h2 class="text-lg font-semibold text-gray-900">Sessions</h2>
+        
+        <!-- Date Range Filter -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center space-x-2">
+            <label for="startDate" class="text-xs text-gray-500 font-medium uppercase">From:</label>
+            <input 
+              type="date" 
+              id="startDate"
+              [(ngModel)]="sessionStartDate"
+              (change)="onDateFilterChange()"
+              class="block px-3 py-1.5 text-sm border-gray-200 rounded-lg focus:ring-primary focus:border-primary transition bg-white">
+          </div>
+          
+          <div class="flex items-center space-x-2">
+            <label for="endDate" class="text-xs text-gray-500 font-medium uppercase">To:</label>
+            <input 
+              type="date" 
+              id="endDate"
+              [(ngModel)]="sessionEndDate"
+              (change)="onDateFilterChange()"
+              class="block px-3 py-1.5 text-sm border-gray-200 rounded-lg focus:ring-primary focus:border-primary transition bg-white">
+          </div>
+
+          <button 
+            *ngIf="sessionStartDate || sessionEndDate"
+            (click)="clearDateFilter()"
+            class="text-xs font-bold text-red-500 hover:text-red-700 transition uppercase tracking-wider"
+            title="Clear Range">
+            Clear
+          </button>
+          
+          <span class="text-sm text-gray-400 px-2 border-l border-gray-200">{{ sessionTotalItems }} results</span>
+        </div>
+      </div>
+
+      <!-- Loading sessions -->
+      <div *ngIf="loadingSessions" class="text-center py-8">
+        <div class="inline-block animate-spin rounded-full h-6 w-6 border-2 border-gray-200 border-t-primary"></div>
+        <p class="mt-2 text-sm text-gray-500">Loading sessions...</p>
+      </div>
+
+      <!-- No sessions message -->
+      <div *ngIf="!loadingSessions && sessions.length === 0" class="px-6 py-12 text-center">
+        <span class="text-4xl mb-3 block">📅</span>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">No sessions yet</h3>
+        <p class="text-gray-500 mb-4">Start by adding your first session to this training.</p>
+        <button 
+          *ngIf="authService.isTutor()"
+          (click)="addSession()"
+          class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition inline-flex items-center space-x-2">
+          <span>+</span>
+          <span>Add First Session</span>
+        </button>
+      </div>
+
+      <!-- Sessions list -->
+      <div *ngIf="!loadingSessions && sessions.length > 0" class="divide-y divide-gray-100">
+        <div *ngFor="let session of sessions" class="px-6 py-4 hover:bg-gray-50 transition">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <!-- Session header with status -->
+              <div class="flex items-center space-x-2 mb-2">
+                <span class="text-sm font-bold text-gray-900">
+                  Session #{{ session.id }}
+                </span>
+                <span [class]="'px-2 py-0.5 rounded-full text-xs font-medium ' + getStatusColor(session.status)">
+                  {{ session.status }}
+                </span>
+              </div>
+              
+              <!-- Session details grid -->
+              <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                <div>
+                  <span class="text-gray-500">Date:</span>
+                  <span class="ml-1 text-gray-900">{{ formatDate(session.date) }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Time:</span>
+                  <span class="ml-1 text-gray-900">{{ formatTime(session.startTime) }}</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Duration:</span>
+                  <span class="ml-1 text-gray-900">{{ session.duration }} min</span>
+                </div>
+                <div>
+                  <span class="text-gray-500">Spots:</span>
+                  <span class="ml-1 text-gray-900">{{ session.availableSpots }}/{{ session.maxParticipants }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Session actions -->
+            <div class="flex space-x-3 ml-4 items-center">
+              
+              <!-- Student Enrollment View (Always visible for Students) -->
+              <div *ngIf="authService.isStudent()">
+                <!-- State: Already Enrolled Status (Student) -->
+                <div *ngIf="enrolledSessionId === session.id" class="flex flex-col items-end space-y-1">
+                  <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full flex items-center">
+                    <span class="mr-1">✓</span> Enrolled
+                  </span>
+                  <span *ngIf="getStudentPresenceStatus(session.id!)" 
+                        [class]="'text-xs font-semibold ' + (getStudentPresenceStatus(session.id!) === 'Present' ? 'text-green-600' : 'text-orange-500')">
+                    Presence: {{ getStudentPresenceStatus(session.id!) }}
+                  </span>
+                  <!-- Download Certificate Button (Student) -->
+                  <button *ngIf="getStudentPresenceStatus(session.id!) === 'Present' && enrolledSessionId === session.id"
+                          (click)="viewMyCertificate(session.id!)"
+                          class="mt-1 text-xs font-bold text-primary hover:text-primary-dark transition flex items-center">
+                    <span class="mr-1">🎖️</span> View Certificate
+                  </button>
+                </div>
+
+                <!-- State: Not Enrolled in this session (Always Show) -->
+                <button 
+                  *ngIf="enrolledSessionId !== session.id"
+                  (click)="enrollInSession(session.id!)"
+                  [disabled]="enrolling || !isEnrolledInTraining || session.availableSpots <= 0"
+                  [class.opacity-50]="!isEnrolledInTraining || session.availableSpots <= 0"
+                  class="px-4 py-1.5 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary/90 transition flex items-center"
+                  [title]="!isEnrolledInTraining ? 'Buy training to unlock enrollment' : (session.availableSpots <= 0 ? 'No spots left' : 'Enroll')">
+                  <span *ngIf="!isEnrolledInTraining" class="mr-2">🔒</span>
+                  <span *ngIf="isEnrolledInTraining && session.availableSpots <= 0" class="mr-2">🚫</span>
+                  <span>{{ enrolling ? 'Processing...' : (session.availableSpots <= 0 ? 'Session Full' : 'Enroll') }}</span>
+                </button>
+              </div>
+
+              <!-- Tutor Actions -->
+              <ng-container *ngIf="authService.isTutor()">
+                <button 
+                  *ngIf="session.status === 'PLANNED'"
+                  (click)="markSessionCompleted(session.id!)"
+                  class="p-1 text-gray-400 hover:text-green-600 transition"
+                  title="Mark as Completed">
+                  ✅
+                </button>
+                <button 
+                  (click)="toggleAttendanceView(session.id!)"
+                  class="p-1 text-gray-400 hover:text-blue-600 transition"
+                  [title]="showAttendanceForSessionId === session.id ? 'Hide Attendance' : 'Mark Attendance'">
+                  📋
+                </button>
+                <button 
+                  (click)="editSession(session.id!)"
+                  class="p-1 text-gray-400 hover:text-primary transition"
+                  title="Edit session">
+                  ✏️
+                </button>
+                <button 
+                  (click)="deleteSession(session.id!)"
+                  class="p-1 text-gray-400 hover:text-red-600 transition"
+                  title="Delete session">
+                  🗑️
+                </button>
+              </ng-container>
+
+            </div>
+          </div>
+
+          <!-- Attendance Section (Tutor Only) -->
+          <div *ngIf="showAttendanceForSessionId === session.id" class="mt-4 pt-4 border-t border-gray-100 bg-blue-50/30 rounded-lg p-4">
+            <h4 class="text-sm font-bold text-gray-700 mb-3 flex items-center">
+              <span class="mr-2">👥</span> Attendance Management
+            </h4>
+            
+            <div *ngIf="loadingAttendees" class="text-center py-4">
+              <div class="inline-block animate-spin rounded-full h-5 w-5 border-2 border-gray-200 border-t-primary"></div>
+            </div>
+
+            <div *ngIf="!loadingAttendees && sessionAttendees.length === 0" class="text-sm text-gray-500 italic py-2">
+              No students are currently enrolled in this session.
+            </div>
+
+            <div *ngIf="!loadingAttendees && sessionAttendees.length > 0" class="overflow-x-auto">
+              <table class="min-w-full text-sm">
+                <thead class="text-gray-500 uppercase text-xs font-semibold">
+                  <tr>
+                    <th class="text-left pb-2">Student</th>
+                    <th class="text-center pb-2">Presence</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  <tr *ngFor="let attendee of sessionAttendees" class="text-gray-900 hover:bg-white/50 transition">
+                    <td class="py-2">
+                      <div class="flex flex-col">
+                        <span class="font-medium">
+                          {{ attendee.student?.name || (attendee.student ? 'Student #' + attendee.student : 'Unknown') }}
+                        </span>
+                        <span class="text-xs text-gray-500">
+                          {{ attendee.student?.email || 'ID: ' + (attendee.student || attendee.studentId || 'N/A') }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="py-2 text-center">
+                      <div class="flex items-center justify-center space-x-2">
+                        <!-- Toggle Presence -->
+                        <label class="relative inline-flex items-center cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            [checked]="attendee.present" 
+                            (change)="togglePresence(attendee, $event)"
+                            class="sr-only peer">
+                          <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:width-4 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
+
+                        <!-- Issue Certificate Action -->
+                        <button *ngIf="attendee.present && !attendee.certificateIssued"
+                                (click)="issueCertificate(attendee)"
+                                class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md transition"
+                                title="Issue Certificate">
+                          🎓
+                        </button>
+                        
+                        <!-- View Issued Certificate -->
+                        <button *ngIf="attendee.certificateIssued"
+                                (click)="viewCertificate(attendee)"
+                                class="p-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-md transition"
+                                title="View Certificate">
+                          🎖️
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div *ngIf="sessionTotalPages > 1" class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+          <span class="text-xs text-gray-500">
+            Total {{ sessionTotalItems }} sessions
+          </span>
+          <div class="flex space-x-2">
+            <button 
+              [disabled]="sessionPage === 0"
+              (click)="onSessionPageChange(sessionPage - 1)"
+              class="px-3 py-1 bg-white border border-gray-200 rounded text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition">
+              Previous
+            </button>
+            <div class="flex items-center px-2 text-xs font-bold text-gray-700">
+              Page {{ sessionPage + 1 }} of {{ sessionTotalPages }}
+            </div>
+            <button 
+              [disabled]="sessionPage >= sessionTotalPages - 1"
+              (click)="onSessionPageChange(sessionPage + 1)"
+              class="px-3 py-1 bg-white border border-gray-200 rounded text-xs font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition">
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS SECTION -->
+    <div class="bg-white border border-gray-100 rounded-lg shadow-sm overflow-hidden mt-8">
+      <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+        <h2 class="text-lg font-semibold text-gray-900 font-serif">Student Reviews</h2>
+        <div class="flex items-center space-x-2">
+          <div class="flex text-yellow-400">
+            <span *ngFor="let s of getStarArray(averageRating)">★</span>
+            <span *ngFor="let s of getEmptyStarArray(averageRating)" class="text-gray-300">★</span>
+          </div>
+          <span class="text-sm font-bold text-gray-700 italic">{{ (averageRating | number:'1.1-1') || 'N/A' }}</span>
+        </div>
+      </div>
+
+      <!-- Loading Reviews -->
+      <div *ngIf="loadingReviews" class="p-8 text-center">
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary"></div>
+      </div>
+
+      <!-- Review Content -->
+      <div *ngIf="!loadingReviews" class="p-6">
+        
+        <!-- Leave a Review Form (Only for eligible students who haven't reviewed) -->
+        <div *ngIf="authService.isStudent() && isEligibleToReview && !hasUserReviewed" 
+             class="mb-8 p-6 bg-primary/5 rounded-2xl border border-primary/10 shadow-inner">
+          <h3 class="text-md font-bold text-gray-800 mb-4 flex items-center font-serif">
+            <span class="mr-2">✍️</span> Share your experience
+          </h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Rating</label>
+              <div class="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-100 w-fit">
+                <button 
+                  *ngFor="let star of [1,2,3,4,5]"
+                  (click)="reviewForm.rating = star"
+                  class="text-3xl transition hover:scale-125 focus:outline-none"
+                  [class.text-yellow-400]="reviewForm.rating >= star"
+                  [class.text-gray-200]="reviewForm.rating < star">
+                  ★
+                </button>
+              </div>
+            </div>
+            <div>
+              <label for="reviewComment" class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Comment</label>
+              <textarea 
+                id="reviewComment"
+                [(ngModel)]="reviewForm.comment"
+                rows="3"
+                placeholder="What did you like or dislike?"
+                class="w-full px-4 py-3 border border-gray-100 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition bg-white shadow-sm"></textarea>
+            </div>
+            <div class="flex justify-end">
+              <button 
+                (click)="submitReview()"
+                [disabled]="!reviewForm.comment"
+                class="bg-primary text-white px-8 py-3 rounded-xl hover:bg-primary-dark transition disabled:opacity-50 font-bold shadow-lg shadow-primary/20 uppercase tracking-widest text-xs">
+                Submit Review
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ineligibility Message (Student enrolled but logic was relaxed, or not enrolled) -->
+        <div *ngIf="authService.isStudent() && !isEligibleToReview && !hasUserReviewed" 
+             class="mb-8 p-6 bg-gray-50 rounded-2xl border border-gray-100 border-dashed text-center">
+          <p class="text-gray-500 text-sm mb-4">
+            {{ isEnrolledInTraining ? 'Enrollment verified! You can now share your thoughts below.' : 'You must be enrolled in this training to leave a review.' }}
+          </p>
+          <button *ngIf="!isEnrolledInTraining" (click)="initiatePayment()"
+                  class="inline-flex items-center px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-dark transition uppercase tracking-widest">
+            Enroll Now to Review
+          </button>
+        </div>
+
+        <!-- Success Message if already reviewed -->
+        <div *ngIf="hasUserReviewed" class="mb-8 p-4 bg-green-50 text-green-700 rounded-xl border border-green-100 flex items-center space-x-3 text-sm font-medium animate-in slide-in-from-top duration-500">
+          <span class="text-xl" >✨</span>
+          <span>You have already shared your feedback. Thank you for contributing!</span>
+        </div>
+
+        <!-- Reviews List -->
+        <div *ngIf="reviews.length > 0" class="space-y-8">
+          <div *ngFor="let review of reviews" class="pb-8 border-b border-gray-50 last:border-0 last:pb-0 group">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex items-center space-x-4">
+                <div class="h-12 w-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full flex items-center justify-center font-bold text-primary border border-gray-200 shadow-sm transition group-hover:scale-110">
+                  {{ review.studentName?.charAt(0) }}
+                </div>
+                <div>
+                  <h4 class="font-bold text-gray-900 text-sm">{{ review.studentName }}</h4>
+                  <p class="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">{{ review.createdAt | date:'mediumDate' }}</p>
+                </div>
+              </div>
+              <div class="flex text-yellow-400 text-sm bg-yellow-50 px-2 py-1 rounded-lg">
+                <span *ngFor="let s of getStarArray(review.rating)">★</span>
+                <span *ngFor="let s of getEmptyStarArray(review.rating)" class="text-gray-200">★</span>
+              </div>
+            </div>
+            <p class="text-gray-600 text-sm leading-relaxed italic pl-16">"{{ review.comment }}"</p>
+          </div>
+        </div>
+
+        <!-- No Reviews -->
+        <div *ngIf="reviews.length === 0" class="text-center py-16 text-gray-400">
+          <div class="text-4xl mb-3 opacity-20">💬</div>
+          <p class="italic font-serif">No reviews yet for this training. Be the first to share your experience!</p>
+        </div>
+  </div>
+</div>
+
+<!-- Stripe Payment Modal -->
+<div *ngIf="showPaymentModal" class="fixed inset-0 z-50 overflow-y-auto">
+  <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0 bg-gray-900/50">
+    <div class="relative transform overflow-visible rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md p-6 w-full">
+      <h3 class="text-xl font-bold mb-4 text-gray-900">Complete Payment</h3>
+      
+      <div class="mb-6 bg-gray-50 border border-gray-100 p-4 rounded-lg">
+        <div class="flex justify-between items-center text-sm mb-1">
+          <span class="text-gray-600">Training:</span>
+          <span class="font-medium text-gray-900 truncate max-w-[200px]">{{ training.title }}</span>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-600">Total Price:</span>
+          <span class="font-bold text-gray-900">${{ training.price }}</span>
+        </div>
+      </div>
+
+      <div id="payment-element" class="mb-6 min-h-[200px]">
+        <!-- Stripe elements will mount here -->
+      </div>
+      
+      <div class="flex justify-end space-x-3 mt-4 pt-4 border-t border-gray-100">
+        <button 
+          (click)="closePaymentModal()" 
+          [disabled]="paymentProcessing"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition">
+          Cancel
+        </button>
+        <button 
+          (click)="confirmPayment()" 
+          [disabled]="paymentProcessing"
+          class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center transition">
+          <span *ngIf="paymentProcessing" class="mr-2 inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></span>
+          {{ paymentProcessing ? 'Processing...' : 'Pay Now' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- PREMIUM CERTIFICATE MODAL -->
+<!-- ========================================== -->
+<div *ngIf="showCertificateModal" 
+     class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+  
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl relative overflow-hidden flex flex-col max-h-[90vh] print:max-h-none print:shadow-none print:rounded-none">
+    
+    <!-- Modal Header (Hidden on Print) -->
+    <div class="p-4 border-b border-gray-100 flex justify-between items-center print:hidden">
+      <h3 class="text-xl font-bold text-gray-800">Certificate of Achievement</h3>
+      <div class="flex items-center space-x-3">
+        <button (click)="printCertificate()" 
+                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition flex items-center shadow-lg shadow-primary/20">
+          <span class="mr-2">🖨️</span> Print / PDF
+        </button>
+        <button (click)="closeCertificateModal()" 
+                class="p-2 text-gray-400 hover:text-gray-600 transition">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Certificate Border Design -->
+    <div class="flex-1 overflow-y-auto p-8 bg-gray-50 flex items-center justify-center print:p-0 print:bg-white print:overflow-visible">
+      
+      <!-- Premium Certificate Content -->
+      <div class="bg-white w-full max-w-[800px] aspect-[1.414/1] relative p-12 shadow-lg print:shadow-none border-[12px] border-double border-yellow-600/30 overflow-hidden">
+        
+        <!-- Corner Decorations -->
+        <div class="absolute top-0 left-0 w-32 h-32 border-t-[6px] border-l-[6px] border-yellow-600/40 rounded-tl-xl translate-x-4 translate-y-4"></div>
+        <div class="absolute top-0 right-0 w-32 h-32 border-t-[6px] border-r-[6px] border-yellow-600/40 rounded-tr-xl -translate-x-4 translate-y-4"></div>
+        <div class="absolute bottom-0 left-0 w-32 h-32 border-b-[6px] border-l-[6px] border-yellow-600/40 rounded-bl-xl translate-x-4 -translate-y-4"></div>
+        <div class="absolute bottom-0 right-0 w-32 h-32 border-b-[6px] border-r-[6px] border-yellow-600/40 rounded-br-xl -translate-x-4 -translate-y-4"></div>
+
+        <!-- Watermark Background -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+           <span class="text-[120px] font-black uppercase tracking-widest rotate-[-30deg]">CERTIFIED</span>
+        </div>
+
+        <!-- Certificate Content -->
+        <div class="relative z-10 flex flex-col items-center text-center h-full border border-yellow-600/10 p-4">
+          
+          <div class="mb-6">
+            <h1 class="text-4xl font-serif text-yellow-800 tracking-widest uppercase mb-2">Certificate</h1>
+            <p class="text-lg text-yellow-700/60 font-medium tracking-[0.2em] uppercase">of achievement</p>
+          </div>
+
+          <p class="text-gray-500 italic mb-8 font-serif">This certificate is proudly awarded to:</p>
+
+          <h2 class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-700 via-yellow-600 to-yellow-800 mb-6 font-serif tracking-tight px-4 uppercase">
+            {{ selectedCertificate?.student?.name || userDisplayName || 'Authorized Student' }}
+          </h2>
+
+          <div class="w-1/3 h-px bg-gradient-to-r from-transparent via-yellow-600/30 to-transparent mb-8"></div>
+
+          <p class="text-xl text-gray-700 max-w-lg mb-8 leading-relaxed font-serif">
+            For successfully completing and attending the session
+            <br>
+            <span class="font-bold text-gray-900">"{{ selectedCertificate?.session?.name }}"</span>
+            <br>
+            <span class="text-sm text-gray-500 italic">within the training</span>
+            <br>
+            <span class="text-lg font-semibold text-primary">"{{ training.title }}"</span>
+          </p>
+
+          <!-- Signatures Section -->
+          <div class="mt-auto flex justify-between w-full px-12 mb-4">
+            <div class="text-center">
+              <div class="w-32 h-px bg-gray-400 mb-2 mx-auto"></div>
+              <p class="text-xs text-gray-400 uppercase tracking-widest">Date</p>
+              <p class="text-sm font-bold text-gray-800">{{ selectedCertificate?.certificateIssuedDate | date:'mediumDate' }}</p>
+            </div>
+
+            <!-- Golden Seal (Simple SVG) -->
+            <div class="relative flex items-center justify-center">
+              <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-full shadow-lg flex items-center justify-center transform hover:scale-110 transition cursor-help border-4 border-yellow-200">
+                <span class="text-white text-3xl">🏅</span>
+              </div>
+              <div class="absolute -bottom-8 flex space-x-1">
+                <div class="w-2 h-8 bg-yellow-600 rounded-b-lg"></div>
+                <div class="w-2 h-8 bg-yellow-600 rounded-b-lg"></div>
+              </div>
+            </div>
+
+            <div class="text-center">
+              <div class="w-40 h-px bg-gray-400 mb-2 mx-auto"></div>
+              <p class="text-xs text-gray-400 uppercase tracking-widest">Instructor</p>
+              <p class="text-sm font-bold text-gray-800">{{ training.tutor?.name }}</p>
+            </div>
+          </div>
+
+          <!-- Bottom Footer -->
+          <p class="text-[10px] text-gray-300 mt-6 tracking-[0.3em] uppercase">Official Soyosa Academy Certification</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

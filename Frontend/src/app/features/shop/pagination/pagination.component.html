@@ -1,0 +1,116 @@
+<div class="w-full">
+  <!-- Page Size Selector -->
+  <div class="flex items-center justify-between mb-6 bg-gray-50 rounded-lg p-4">
+    <div class="flex items-center gap-3">
+      <label for="pageSize" class="text-sm font-semibold text-primary">Items per page:</label>
+      <select
+        id="pageSize"
+        [value]="pageSize"
+        (change)="onPageSizeChange($event.target.value)"
+        class="px-3 py-2 rounded-lg border border-gray-300 focus:border-primary outline-none text-sm font-medium"
+      >
+        <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+      </select>
+    </div>
+    <div class="text-sm text-gray-600">
+      <span *ngIf="pageResponse">
+        Total: <strong>{{ pageResponse.totalElements }}</strong> products
+      </span>
+    </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div
+      *ngFor="let product of products"
+      class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition"
+    >
+      <img
+        [src]="product.imageUrl || 'https://picsum.photos/seed/product/200/200'"
+        alt="{{ product.name }}"
+        class="w-full h-40 object-cover rounded-lg mb-3"
+      />
+      <h4 class="font-semibold text-sm text-primary mb-2 line-clamp-2">{{ product.name }}</h4>
+      <p class="text-xs text-gray-600 mb-3 line-clamp-2">{{ product.description }}</p>
+      <div class="flex items-center justify-between">
+        <span class="font-bold text-primary">{{ product.price }} TND</span>
+        <span *ngIf="product.averageRating" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+          ⭐ {{ product.averageRating }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-8">
+    <p class="text-gray-500">⏳ Loading products...</p>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div *ngIf="pageResponse && !isLoading" class="flex items-center justify-center gap-2 py-6">
+    <!-- Previous Button -->
+    <button
+      (click)="previousPage()"
+      [disabled]="currentPage === 0"
+      class="px-3 py-2 rounded-lg border border-gray-300 text-primary font-semibold hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      ← Prev
+    </button>
+
+    <!-- Page Numbers -->
+    <div class="flex gap-1">
+      <!-- First Page & Ellipsis -->
+      <button
+        *ngIf="getPageNumbers()[0] > 0"
+        (click)="goToPage(0)"
+        class="px-3 py-2 rounded-lg border border-gray-300 text-primary hover:bg-gray-50 transition"
+      >
+        1
+      </button>
+      <span *ngIf="getPageNumbers()[0] > 1" class="px-3 py-2">...</span>
+
+      <!-- Page Number Buttons -->
+      <button
+        *ngFor="let page of getPageNumbers()"
+        (click)="goToPage(page)"
+        [class.bg-primary]="currentPage === page"
+        [class.text-white]="currentPage === page"
+        [class.text-primary]="currentPage !== page"
+        [class.border-primary]="currentPage === page"
+        [class.border-gray-300]="currentPage !== page"
+        class="px-3 py-2 rounded-lg border font-semibold hover:bg-opacity-90 transition"
+      >
+        {{ page + 1 }}
+      </button>
+
+      <!-- Last Page & Ellipsis -->
+      <span
+        *ngIf="getPageNumbers()[getPageNumbers().length - 1] < pageResponse.totalPages - 1"
+        class="px-3 py-2"
+      >
+        ...
+      </span>
+      <button
+        *ngIf="getPageNumbers()[getPageNumbers().length - 1] < pageResponse.totalPages - 1"
+        (click)="goToPage(pageResponse.totalPages - 1)"
+        class="px-3 py-2 rounded-lg border border-gray-300 text-primary hover:bg-gray-50 transition"
+      >
+        {{ pageResponse.totalPages }}
+      </button>
+    </div>
+
+    <!-- Next Button -->
+    <button
+      (click)="nextPage()"
+      [disabled]="pageResponse.isLast || currentPage >= pageResponse.totalPages - 1"
+      class="px-3 py-2 rounded-lg border border-gray-300 text-primary font-semibold hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      Next →
+    </button>
+  </div>
+
+  <!-- Current Page Info -->
+  <div *ngIf="pageResponse" class="text-center text-sm text-gray-600 py-4">
+    Page <strong>{{ currentPage + 1 }}</strong> of <strong>{{ pageResponse.totalPages }}</strong>
+  </div>
+</div>

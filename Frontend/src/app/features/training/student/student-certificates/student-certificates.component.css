@@ -1,0 +1,53 @@
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .print-container, .print-container * {
+        visibility: visible;
+    }
+    .print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    /* Hide modal elements on print */
+    .print\:hidden {
+        display: none !important;
+    }
+    /* Simple reset for certificate */
+    .aspect-\[1\.414\/1\] {
+        aspect-ratio: 1.414/1 !important;
+        width: 100% !important;
+        max-width: none !important;
+        border: 20px double #d4af37 !important;
+    }
+}
+
+/* Modal animation */
+.animate-in {
+    animation-duration: 0.3s;
+    animation-fill-mode: both;
+}
+
+.fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.slide-in-from-top {
+    from { transform: translateY(-20px); }
+    to { transform: translateY(0); }
+}
+
+/* Responsive grid height fix */
+.aspect-\[1\.414\/1\] {
+    aspect-ratio: 1.414/1;
+}
+
+/* Custom shadow */
+.shadow-primary\/20 {
+    box-shadow: 0 10px 15px -3px rgba(var(--primary-rgb), 0.2);
+}

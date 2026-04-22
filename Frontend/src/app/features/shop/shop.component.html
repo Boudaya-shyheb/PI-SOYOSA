@@ -1,0 +1,146 @@
+<div class="shop-theme space-y-0">
+  <section class="shop-hero relative bg-white pt-10 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div class="inline-flex items-center space-x-2 bg-primary/10 text-primary text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider mb-6">
+            <span>Shop essentials</span>
+            <span>✨</span>
+          </div>
+          <h1 class="text-5xl font-extrabold text-primary leading-tight mb-6">
+            Everything you need for focused learning.
+          </h1>
+          <p class="text-xl text-gray-600 mb-8 max-w-lg">
+            Explore curated tools and digital packs that support your English journey. Designed for students, built for daily progress.
+          </p>
+          <div class="flex flex-wrap gap-4">
+            <button routerLink="/shop/catalog" class="bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-90 transition shadow-lg shadow-primary/20 flex items-center space-x-2">
+              <span>Start shopping</span>
+              <span>🛒</span>
+            </button>
+            <button routerLink="/shop/bundles" class="bg-secondary/70 text-primary px-8 py-3 rounded-full font-bold hover:bg-secondary transition">
+              Browse bundles
+            </button>
+            <button routerLink="/shop/admin" class="bg-primary/10 text-primary px-8 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition">
+              Admin dashboard
+            </button>
+            <button routerLink="/shop/orders" class="bg-primary/10 text-primary px-8 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition">
+              See orders
+            </button>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="rounded-3xl overflow-hidden shadow-2xl">
+            <img src="https://picsum.photos/seed/shop-hero/900/700" alt="Shop hero" class="w-full h-full object-cover" />
+          </div>
+          <div class="absolute -bottom-6 -left-6 bg-accent p-6 rounded-2xl shadow-xl max-w-xs">
+            <div class="text-sm text-dark font-semibold">Trusted by 10k+ active students</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-14 bg-secondary/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+        <div>
+          <h2 class="text-3xl font-bold text-primary mb-2">Shop by category</h2>
+          <p class="text-gray-500">Pick a collection and start building your toolkit.</p>
+        </div>
+        <a routerLink="/shop/catalog" class="flex items-center space-x-3 text-primary font-bold">
+          <span>All categories</span>
+          <span>➡️</span>
+        </a>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <button *ngFor="let category of categories"
+                [routerLink]="['/shop/catalog']"
+                [queryParams]="{ category: category.name }"
+                class="bg-white rounded-2xl p-5 border border-gray-100 hover:shadow-md transition text-left">
+          <div class="text-3xl">{{ category.icon }}</div>
+          <div class="mt-4 font-bold text-primary">{{ category.name }}</div>
+          <div class="text-xs text-gray-500">{{ category.count }} items</div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Popular Picks Section (Original) -->
+  <section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+        <div>
+          <h2 class="text-3xl font-bold text-primary mb-2">Popular picks</h2>
+          <p class="text-gray-500">Curated products our learners love the most.</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <button routerLink="/shop/catalog" class="bg-primary/10 text-primary px-6 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition flex items-center space-x-2">
+            <span>View all products</span>
+            <span>→</span>
+          </button>
+          <div *ngIf="cartError" class="text-xs text-rose-600 font-semibold">{{ cartError }}</div>
+          <div *ngIf="cartSuccess" class="text-xs text-emerald-600 font-semibold">{{ cartSuccess }}</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div *ngFor="let product of products.slice(0, 9)" class="shop-card bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-lg transition group">
+          <a [routerLink]="['/shop/product', product.id]" class="aspect-[4/3] overflow-hidden block">
+            <img [src]="product.image" [alt]="product.title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+          </a>
+          <div class="p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-primary bg-primary/10 px-3 py-1 rounded-full font-bold uppercase">{{ product.category }}</span>
+              <span *ngIf="product.tag" class="text-xs text-white bg-accent px-3 py-1 rounded-full font-bold uppercase">{{ product.tag }}</span>
+            </div>
+            <h3 class="text-xl font-bold text-primary leading-tight">
+              <a [routerLink]="['/shop/product', product.id]" class="hover:text-opacity-80 transition">
+                {{ product.title }}
+              </a>
+            </h3>
+            <p class="text-gray-500 text-sm line-clamp-2">{{ product.description }}</p>
+            <div class="flex items-center justify-between pt-4 border-t border-gray-50">
+              <div>
+                <div class="flex items-baseline space-x-2">
+                  <span class="text-2xl font-black text-primary">{{ product.price }} <small class="text-xs">TND</small></span>
+                  <span *ngIf="product.oldPrice" class="text-sm text-gray-400 line-through font-medium">{{ product.oldPrice }} TND</span>
+                </div>
+                <div *ngIf="product.discountEndsAt && getDiscountCountdown(product.discountEndsAt)" class="text-xs text-rose-600 font-semibold">Ends in {{ getDiscountCountdown(product.discountEndsAt) }}</div>
+              </div>
+              <div class="flex gap-2">
+                <button [routerLink]="['/shop/product', product.id]" class="bg-primary/10 text-primary px-3 py-2 rounded-lg font-bold hover:bg-primary hover:text-white transition text-xs">
+                   View Details
+                </button>
+                <button (click)="addToCart(product)" class="bg-primary text-white px-3 py-2 rounded-lg font-bold hover:bg-opacity-90 transition text-xs flex items-center gap-1">
+                  <span>🛒</span>
+                  <span>Add</span>
+                </button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-400">
+              <span>⭐ {{ product.rating }}</span>
+              <span>{{ product.reviews }} reviews</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Shop Here Section (Original) -->
+  <section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold text-primary mb-3">Why learners shop here</h2>
+        <p class="text-gray-500 max-w-2xl mx-auto">Supportive, reliable, and focused on what helps you study better.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div *ngFor="let benefit of benefits" class="bg-white rounded-2xl p-6 border border-gray-100 text-center">
+          <div class="text-lg font-bold text-primary mb-2">{{ benefit.title }}</div>
+          <p class="text-sm text-gray-500">{{ benefit.description }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

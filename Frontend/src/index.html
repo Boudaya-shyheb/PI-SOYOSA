@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Jungle In English - Step in and Let's start your English Journey</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: '#2D5757',
+              secondary: '#F7EDE2',
+              accent: '#F6BD60',
+              danger: '#C84630',
+              dark: '#3D3D60'
+            }
+          }
+        }
+      }
+    </script>
+    <script>
+      if (typeof global === 'undefined') {
+        var global = window;
+      }
+    </script>
+  </head>
+  <body class="custom-scrollbar" style="font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc;">
+    <app-root></app-root>
+  </body>
+</html>

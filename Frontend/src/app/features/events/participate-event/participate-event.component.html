@@ -1,0 +1,135 @@
+<div class="max-w-3xl mx-auto px-4 py-12">
+
+  <h2 class="text-3xl font-bold text-primary mb-2">
+    Event Registration 🎟️
+  </h2>
+
+  <p *ngIf="eventId" class="text-sm text-gray-500 mb-8">
+    Event ID: {{ eventId }}
+  </p>
+
+  <!-- 🔥 ERROR MESSAGE -->
+  <div *ngIf="errorMessage"
+       class="mb-4 p-4 bg-red-100 text-red-600 rounded-lg">
+    {{ errorMessage }}
+  </div>
+
+  <!-- 🔥 SUCCESS MESSAGE -->
+  <div *ngIf="successMessage"
+       class="mb-4 p-4 bg-emerald-100 text-emerald-700 rounded-lg success-message"
+       [class.success-visible]="successVisible">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="blockedMessage"
+       class="mb-4 p-4 bg-blue-100 text-blue-700 rounded-lg">
+    {{ blockedMessage }}
+  </div>
+
+  <!-- 🔥 FORM -->
+  <form *ngIf="eventId && auth.isAuthenticated() && canSubmit"
+        (ngSubmit)="submit()"
+        class="space-y-6 bg-white p-8 rounded-2xl shadow-xl">
+
+    <!-- FULL NAME -->
+    <div>
+      <label class="block mb-2 font-medium text-gray-700">
+        Full Name (from your profile) *
+      </label>
+      <input type="text"
+             [(ngModel)]="form.fullName"
+             name="fullName"
+             required
+             readonly
+             class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-primary"
+             placeholder="Enter your full name">
+    </div>
+
+    <!-- EMAIL -->
+    <div>
+      <label class="block mb-2 font-medium text-gray-700">
+        Email Address (from your profile) *
+      </label>
+      <input type="email"
+             [(ngModel)]="form.email"
+             name="email"
+             required
+             readonly
+             class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-primary"
+             placeholder="Enter your email">
+    </div>
+
+    <!-- PHONE -->
+    <div>
+      <label class="block mb-2 font-medium text-gray-700">
+        Phone Number (from your profile)
+      </label>
+      <input type="text"
+             [(ngModel)]="form.phone"
+             name="phone"
+             readonly
+             class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-primary"
+             placeholder="Enter your phone number">
+    </div>
+
+    <!-- UNIVERSITY -->
+    <div>
+      <label class="block mb-2 font-medium text-gray-700">
+        University
+      </label>
+      <input type="text"
+             [(ngModel)]="form.university"
+             name="university"
+             class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-primary"
+             placeholder="Your university">
+    </div>
+
+    <!-- LEVEL -->
+    <div>
+      <label class="block mb-2 font-medium text-gray-700">
+        Education Level (from your profile)
+      </label>
+      <input type="text"
+             [(ngModel)]="form.level"
+             name="level"
+             readonly
+             class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-primary"
+             placeholder="L1, L2, Master, Engineer...">
+    </div>
+
+    <!-- MOTIVATION -->
+    <div>
+      <label class="block mb-2 font-medium text-gray-700">
+        Motivation
+      </label>
+      <textarea [(ngModel)]="form.motivation"
+                name="motivation"
+                rows="3"
+                class="w-full border p-3 rounded-lg focus:ring-2 focus:ring-primary"
+                placeholder="Why do you want to attend this event?">
+      </textarea>
+    </div>
+
+    <!-- SUBMIT BUTTON -->
+    <button type="submit"
+            [disabled]="loading"
+            class="w-full bg-primary text-white py-4 rounded-xl font-semibold hover:shadow-lg transition disabled:opacity-50">
+
+      {{ loading ? 'Submitting...' : 'Confirm Registration 🚀' }}
+
+    </button>
+
+  </form>
+
+  <div *ngIf="eventId" class="mt-8 flex justify-center gap-4">
+    <a *ngIf="auth.isAdmin()" [routerLink]="['/events', eventId, 'participants']"
+       class="bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 transition">
+      Voir les participants 👥
+    </a>
+    <a [routerLink]="['/events', eventId]"
+       class="bg-gray-200 px-6 py-3 rounded-xl hover:bg-gray-300 transition">
+      Retour à l’événement
+    </a>
+  </div>
+
+</div>

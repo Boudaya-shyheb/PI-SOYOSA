@@ -1,0 +1,179 @@
+<div class="shop-theme bg-white">
+  <!-- Comparison Bar (if products selected) -->
+  <div *ngIf="comparisonProducts.length > 0" class="sticky top-0 z-50 bg-gradient-to-r from-primary/95 to-primary/85 backdrop-blur-md border-b-2 border-primary/30 py-3 px-0 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-3 flex-wrap">
+          <span class="text-white font-bold text-sm">⚖️ Comparing: {{ comparisonProducts.length }}/4</span>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          <button *ngIf="comparisonProducts.length >= 2" (click)="goToComparison()" class="bg-white text-primary px-4 py-2 rounded-full font-bold hover:bg-opacity-95 transition text-sm">
+            ⚖️ View Comparison
+          </button>
+          <button (click)="clearComparison()" class="bg-white/20 text-white px-4 py-2 rounded-full font-bold hover:bg-white/30 transition text-sm">
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <div class="inline-block text-3xl mb-4">⏳</div>
+        <p class="text-gray-500 font-semibold">Loading product details...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Details -->
+  <div *ngIf="!isLoading && product" class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <button routerLink="/shop/catalog" class="bg-secondary/70 text-primary px-6 py-2 rounded-full font-bold hover:bg-secondary transition">
+          Back to catalog
+        </button>
+        <button routerLink="/shop/cart" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition">
+          View cart
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div class="relative">
+          <div class="rounded-3xl overflow-hidden shadow-2xl">
+            <div class="aspect-[4/3] overflow-hidden">
+              <img [src]="product.image" [alt]="product.title" class="w-full h-full object-cover" />
+            </div>
+          </div>
+          <div *ngIf="product.tag" class="absolute top-4 left-4 bg-accent text-white text-xs font-bold px-4 py-2 rounded-full uppercase">
+            {{ product.tag }}
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <div class="inline-flex items-center space-x-2 bg-primary/10 text-primary text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider">
+              <span>{{ product.category }}</span>
+            </div>
+            <h1 class="text-4xl font-extrabold text-primary">{{ product.title }}</h1>
+            <div *ngIf="product.isbn" class="text-sm text-gray-400">ISBN {{ product.isbn }}</div>
+            <p class="text-gray-500 text-lg">{{ product.description }}</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-baseline space-x-2">
+              <span class="text-3xl font-black text-primary">{{ product.price }} <small class="text-sm">TND</small></span>
+              <span *ngIf="product.oldPrice" class="text-lg text-gray-400 line-through font-semibold">{{ product.oldPrice }} TND</span>
+            </div>
+            <span *ngIf="product.discountEndsAt && getDiscountCountdown(product.discountEndsAt)" class="text-sm text-rose-600 font-semibold">Ends in {{ getDiscountCountdown(product.discountEndsAt) }}</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+            <span>⭐ {{ product.rating }} rating</span>
+            <span>{{ product.reviews }} reviews</span>
+            <button (click)="openReviewModal()" class="text-primary font-semibold hover:underline">
+              Write review
+            </button>
+          </div>
+          <div *ngIf="reviewSuccess" class="text-sm text-emerald-600 font-semibold">{{ reviewSuccess }}</div>
+
+          <div class="bg-secondary/40 rounded-2xl p-6">
+            <div class="text-sm text-gray-500 mb-3">What you get</div>
+            <ul class="space-y-2 text-primary font-semibold">
+              <li *ngFor="let point of product.highlights" class="flex items-center space-x-2">
+                <span>✔</span>
+                <span>{{ point }}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="flex flex-wrap gap-4">
+            <button (click)="addToCart()" class="bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-90 transition shadow-lg shadow-primary/20 flex items-center space-x-2">
+              <span>Add to cart</span>
+              <span>🛒</span>
+            </button>
+            <button 
+              (click)="addToComparison()"
+              [class.bg-primary]="isInComparison()"
+              [class.text-white]="isInComparison()"
+              [class.bg-gray-100]="!isInComparison()"
+              [class.text-gray-700]="!isInComparison()"
+              class="px-8 py-3 rounded-full font-bold transition flex items-center space-x-2">
+              <span>⚖️</span>
+              <span>{{ isInComparison() ? 'In Comparison' : 'Add to Compare' }}</span>
+            </button>
+          </div>
+          <div *ngIf="cartError" class="text-sm text-rose-600 font-semibold">{{ cartError }}</div>
+        </div>
+      </div>
+
+      <div class="shop-card bg-white rounded-3xl border border-gray-100 p-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <h2 class="text-2xl font-bold text-primary mb-2">Need it delivered fast?</h2>
+            <p class="text-gray-500">Orders before 5 PM ship the same day across Tunisia.</p>
+          </div>
+          <button routerLink="/shop/cart" class="bg-primary/10 text-primary px-6 py-3 rounded-full font-bold hover:bg-primary hover:text-white transition">
+            Go to checkout
+          </button>
+        </div>
+      </div>
+
+      <app-shop-recommendations *ngIf="product?.id" [productId]="product.id"></app-shop-recommendations>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!isLoading && error" class="py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+        <div class="text-3xl mb-4">❌</div>
+        <p class="text-red-800 font-semibold">{{ error }}</p>
+        <button routerLink="/shop/catalog" class="mt-4 bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition">
+          Back to Catalog
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="reviewModalOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center px-4">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-xl p-6 space-y-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-xs text-gray-400 uppercase tracking-wide">Product review</div>
+          <div class="text-2xl font-bold text-primary">Rate this product</div>
+        </div>
+        <button (click)="closeReviewModal()" class="bg-secondary/70 text-primary px-4 py-2 rounded-full font-bold hover:bg-secondary transition">Close</button>
+      </div>
+
+      <div class="space-y-3">
+        <input type="number" min="1" name="reviewCustomerId" [(ngModel)]="reviewForm.customerId" placeholder="Customer ID" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+        <select name="reviewRating" [(ngModel)]="reviewForm.rating" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none bg-white">
+          <option [ngValue]="5">5 - Excellent</option>
+          <option [ngValue]="4">4 - Good</option>
+          <option [ngValue]="3">3 - Okay</option>
+          <option [ngValue]="2">2 - Poor</option>
+          <option [ngValue]="1">1 - Bad</option>
+        </select>
+        <input type="text" name="reviewTitle" [(ngModel)]="reviewForm.title" placeholder="Review title" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+        <textarea rows="4" name="reviewComment" [(ngModel)]="reviewForm.comment" placeholder="Share your experience" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none"></textarea>
+        <label class="flex items-center gap-2 text-sm text-gray-600">
+          <input type="checkbox" [(ngModel)]="reviewForm.verifiedPurchase" />
+          Verified purchase
+        </label>
+        <div *ngIf="reviewError" class="text-sm text-rose-600 font-semibold">{{ reviewError }}</div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button (click)="submitReview()" class="bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition" [disabled]="isSubmittingReview">
+          Submit review
+        </button>
+        <button (click)="closeReviewModal()" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition" [disabled]="isSubmittingReview">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

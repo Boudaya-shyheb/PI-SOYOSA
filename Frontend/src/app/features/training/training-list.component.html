@@ -1,0 +1,199 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+    <div>
+      <h1 class="text-4xl font-black text-gray-900 mb-2">Available Trainings</h1>
+      <div class="flex flex-wrap items-center gap-4">
+        <p class="text-gray-500">Master new skills with our expert-led sessions.</p>
+        
+        <!-- Tutor Actions -->
+        <a *ngIf="auth.isTutor()" 
+           routerLink="/trainings/management/add" 
+           class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-primary/90 transition shadow-lg shadow-primary/20 flex items-center">
+          <span class="mr-2">+</span> Add New Training
+        </a>
+
+        <!-- Student Actions -->
+        <div *ngIf="auth.isStudent()" class="flex gap-3">
+          <a routerLink="/trainings/student/my-enrollments" 
+             class="bg-white text-gray-900 border border-gray-100 px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-50 transition shadow-sm flex items-center">
+            <span class="mr-2">📚</span> My Enrollments
+          </a>
+          <a routerLink="/trainings/student/schedule" 
+             class="bg-white text-gray-900 border border-gray-100 px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-50 transition shadow-sm flex items-center">
+            <span class="mr-2">📅</span> My Schedule
+          </a>
+          <a routerLink="/trainings/student/certificates" 
+             class="bg-white text-gray-900 border border-gray-100 px-4 py-2 rounded-xl text-sm font-bold hover:bg-gray-50 transition shadow-sm flex items-center">
+            <span class="mr-2">🎖️</span> My Certificates
+          </a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="relative max-w-sm w-full">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+        placeholder="Search trainings..."
+        class="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-100 shadow-sm focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"
+      />
+      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+    </div>
+  </div>
+
+  <!-- Placement Test Overlay -->
+  <div *ngIf="showPlacementTest" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4 overflow-y-auto">
+    <div class="relative w-full max-w-2xl">
+      <button (click)="showPlacementTest = false" class="absolute -top-4 -right-4 bg-white text-gray-500 hover:text-red-500 w-10 h-10 rounded-full shadow-lg flex items-center justify-center z-10">✕</button>
+      <app-placement-test (testCompleted)="onTestCompleted($event)"></app-placement-test>
+    </div>
+  </div>
+
+  <!-- Recommendations / Placement Banner -->
+  <div class="mb-16">
+    <!-- Placement Test Promotion -->
+    <div *ngIf="userLevel === null && auth.isStudent() && !loading" class="bg-gradient-to-r from-primary to-primary/80 rounded-[40px] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
+      <div class="relative z-10 max-w-2xl">
+        <span class="text-xs font-bold tracking-[0.2em] uppercase opacity-70 mb-4 block">Personalize your journey</span>
+        <h2 class="text-4xl md:text-5xl font-black mb-6 leading-tight">Don't know where to start? Take our level test.</h2>
+        <p class="text-lg opacity-80 mb-8 leading-relaxed">It only takes 2 minutes and helps us recommend the perfect trainings tailored to your current English skills.</p>
+        <button (click)="startTest()" class="bg-white text-primary px-8 py-4 rounded-2xl font-black hover:bg-gray-50 transition transform hover:-translate-y-1 shadow-xl">
+          Start Assessment →
+        </button>
+      </div>
+      <div class="absolute right-[-50px] top-[-50px] w-[300px] h-[300px] bg-white/10 rounded-full blur-3xl"></div>
+      <div class="absolute right-10 bottom-10 text-8xl opacity-10 select-none">🎯</div>
+    </div>
+
+    <!-- Recommendations Section -->
+    <div *ngIf="recommendedTrainings.length > 0 && !showPlacementTest" class="animate-fade-in text-left">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h2 class="text-2xl font-black text-gray-900">Recommended for You</h2>
+          <p class="text-gray-500 text-sm">Based on your level ({{ userLevel || 'Initial' }}) and popular interest.</p>
+        </div>
+      </div>
+      
+      <div class="flex overflow-x-auto pb-8 -mx-4 px-4 scrollbar-hide gap-6 snap-x">
+        <div *ngFor="let training of recommendedTrainings" class="min-w-[320px] max-w-[320px] snap-start">
+          <a [routerLink]="['/trainings', training.id]" class="block bg-white rounded-3xl p-4 border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <div class="relative h-40 rounded-2xl overflow-hidden mb-4">
+              <img [src]="training.imageUrl || 'assets/images/training-placeholder.jpg'" class="w-full h-full object-cover">
+              <div class="absolute top-2 right-2">
+                <span [class]="'px-3 py-1 rounded-full text-[10px] font-bold shadow-sm ' + getLevelColor(training.level)">{{ training.level }}</span>
+              </div>
+            </div>
+            <h3 class="text-sm font-bold text-gray-900 mb-1 line-clamp-1">{{ training.title }}</h3>
+            <div class="flex items-center justify-between">
+              <span class="text-primary font-black text-lg">{{ training.price }} TND</span>
+              <div class="text-[10px] text-gray-400 font-bold flex items-center gap-1">
+                ⭐ <span class="text-gray-600">{{ training.averageRating || 0 | number:'1.1-1' }}</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Results Count -->
+  <div *ngIf="!loading && searchTerm" class="mb-8">
+    <p class="text-gray-500"><span class="font-bold text-gray-900">{{ totalElements }}</span> results found for "{{ searchTerm }}"</p>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center items-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+
+  <div *ngIf="errorMessage" class="bg-red-50 text-red-600 p-4 rounded-xl mb-6">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && trainings.length === 0" class="text-center py-20">
+    <div class="text-6xl mb-4">📭</div>
+    <h3 class="text-xl font-bold text-gray-900">No trainings found</h3>
+    <p class="text-gray-500">Try adjusting your search terms.</p>
+  </div>
+
+  <!-- Regular Training Grid -->
+  <div *ngIf="!loading && trainings.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <a *ngFor="let training of trainings" 
+       [routerLink]="['/trainings', training.id]"
+       class="group bg-white rounded-[32px] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-50 flex flex-col cursor-pointer">
+       <!-- Training Image -->
+      <div class="relative h-48 overflow-hidden rounded-t-xl group">
+        <img 
+          [src]="training.imageUrl || 'assets/images/training-placeholder.jpg'" 
+          [alt]="training.title"
+          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          (error)="$any($event.target).src = 'assets/images/training-placeholder.jpg'">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <div class="absolute top-4 right-4">
+          <span [class]="'px-3 py-1 rounded-full text-xs font-semibold shadow-sm ' + getLevelColor(training.level)">
+            {{ training.level }}
+          </span>
+        </div>
+      </div>
+
+      <div class="p-6 flex-1 flex flex-col">
+        <div class="flex items-center justify-between mb-3 text-xs font-bold text-primary uppercase tracking-widest">
+          <div class="flex items-center gap-2">
+            <span>{{ training.level }} Level</span>
+            <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+            <span [class]="training.type === 'ONLINE' ? 'text-blue-500' : 'text-orange-500'">{{ training.type || 'ONLINE' }}</span>
+          </div>
+          <div class="flex items-center text-yellow-400">
+            <i class="fas fa-star text-xs"></i>
+            <span class="ml-1 text-gray-600">{{ training.averageRating || 0 | number:'1.1-1' }}</span>
+          </div>
+        </div>
+
+        <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors line-clamp-1">
+          {{ training.title }}
+        </h3>
+        
+        <p class="text-gray-500 text-sm line-clamp-2 mb-4 h-10">
+          {{ training.description }}
+        </p>
+        
+        <div class="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+          <div class="flex flex-col">
+            <span class="text-xs text-gray-400 font-medium line-through" *ngIf="training.price > 100">{{ training.price * 1.2 | number:'1.0-0' }} TND</span>
+            <span class="text-2xl font-black text-primary">{{ training.price }} TND</span>
+          </div>
+          <div class="bg-gray-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold group-hover:bg-primary transition-all duration-300 transform group-hover:translate-x-1 flex items-center">
+            <span>Details</span>
+            <span class="ml-2">→</span>
+          </div>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && totalPages > 1" class="flex justify-center items-center gap-2 mt-12 pb-12">
+    <button 
+      (click)="changePage(currentPage - 1)" 
+      [disabled]="currentPage === 0"
+      class="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center hover:bg-primary hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+      <span class="text-sm">←</span>
+    </button>
+
+    <div class="flex items-center gap-2">
+      <button 
+        *ngFor="let p of [].constructor(totalPages); let i = index"
+        (click)="changePage(i)"
+        [class]="'w-10 h-10 rounded-xl font-bold transition shadow-sm ' + (i === currentPage ? 'bg-primary text-white' : 'bg-white text-gray-900 border border-gray-100 hover:bg-gray-50')">
+        {{ i + 1 }}
+      </button>
+    </div>
+
+    <button 
+      (click)="changePage(currentPage + 1)" 
+      [disabled]="currentPage === totalPages - 1"
+      class="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center hover:bg-primary hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
+      <span class="text-sm">→</span>
+    </button>
+  </div>
+</div>

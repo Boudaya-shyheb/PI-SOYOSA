@@ -1,0 +1,14 @@
+<div class="ai-tutor-container">
+  <div class="chat-history">
+    <div *ngFor="let message of messages" class="message" [ngClass]="{'user-message': message.role === 'user', 'ai-message': message.role === 'assistant'}">
+      <p>{{message.content}}</p>
+    </div>
+  </div>
+  <div class="chat-input">
+    <input type="text" [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Type your message...">
+    <button (click)="sendMessage()">Send</button>
+    <button (click)="toggleVoiceRecognition()" [ngClass]="{'recording': isRecording}">
+      {{ isRecording ? 'Stop' : 'Speak' }}
+    </button>
+  </div>
+</div>

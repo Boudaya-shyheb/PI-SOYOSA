@@ -1,0 +1,226 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Header Section -->
+    <div class="mb-12">
+        <h1 class="text-3xl font-bold text-primary mb-4">Blog</h1>
+        <p class="text-gray-600 max-w-2xl">
+            Explore our latest articles, tips, and insights to help you on your journey to mastering the English language.
+        </p>
+        <p class="text-gray-500 mt-2 italic">Stay updated with the latest from our community! 📝</p>
+    </div>
+
+    <!-- Search + Filter -->
+    <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-10">
+
+        <!-- Search -->
+        <div class="relative w-full md:w-1/2">
+            <input
+                    type="text"
+                    [(ngModel)]="searchTerm"
+                    (input)="onSearchChange()"
+                    placeholder="Search by title or user..."
+                    class="w-full pl-12 pr-6 py-3 rounded-full border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition"
+            />
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
+        🔎
+      </span>
+        </div>
+
+        <!-- Sort -->
+        <div class="relative w-full md:w-64">
+            <select
+                    [(ngModel)]="sortOption"
+                    (change)="onSortChange()"
+                    class="w-full px-6 py-3 rounded-full border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none appearance-none bg-white"
+            >
+                <option value="newest">Newest</option>
+                <option value="mostLiked">Most Liked</option>
+                <option value="mostCommented">Most Commented</option>
+            </select>
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+        ▼
+      </span>
+        </div>
+
+    </div>
+
+    <!-- Add Blog Button -->
+    <div *ngIf="authService.isLoggedIn()" class="flex justify-end mb-8">
+        <button
+                (click)="openModal()"
+                class="bg-primary text-white px-6 py-3 rounded-full font-bold shadow-lg hover:bg-primary/90 transition">
+            ➕ Add Blog
+        </button>
+    </div>
+
+    <!-- Blog Grid -->
+    <div *ngIf="blogs.length > 0; else noBlogs"
+         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+        <div *ngFor="let post of blogs"
+             class="bg-white rounded-[32px] border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 group flex flex-col">
+
+            <div class="relative h-64 overflow-hidden">
+                <img
+                        *ngIf="post.images?.length"
+                        [src]="post.images[0]"
+                        [alt]="post.title"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                />
+            </div>
+
+            <div class="p-6 flex-1 flex flex-col space-y-4">
+
+                <div class="flex items-center text-xs text-gray-400 space-x-2">
+                    <span>{{ post.createdAt | date:'mediumDate' }}</span>
+                    <span>•</span>
+                    <span>User {{ post.userId }}</span>
+                </div>
+
+                <h3 class="text-xl font-bold text-primary group-hover:text-primary/80 transition line-clamp-2">
+                    {{ post.title }}
+                </h3>
+
+                <div class="pt-4 mt-auto flex justify-between items-center">
+
+                    <button
+                            [routerLink]="['/blog', post.blogId]"
+                            class="flex items-center space-x-2 text-primary font-bold hover:translate-x-1 transition-transform">
+                        <span>Read more</span>
+                        <span>➡️</span>
+                    </button>
+
+                    <div class="text-sm text-gray-500">
+                        ❤️ {{ post.likes || 0 }}
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- No Blogs Found -->
+    <ng-template #noBlogs>
+        <div class="text-center py-20 text-gray-400">
+            <p class="text-xl font-semibold">No blogs found 😔</p>
+            <p class="text-sm mt-2">Try changing search or filter.</p>
+        </div>
+    </ng-template>
+
+    <!-- Load More Button -->
+    <div class="flex justify-center mt-12"
+         *ngIf="currentPage < totalPages - 1">
+
+        <button
+                (click)="loadMore()"
+                class="bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-primary/90 transition shadow-lg">
+            Load More
+        </button>
+
+    </div>
+
+    <!-- Newsletter Section -->
+    <div class="mt-24 border-t border-gray-100 pt-20">
+        <div class="flex flex-col items-center text-center space-y-8">
+            <div class="flex items-center space-x-3 text-gray-400 text-sm uppercase tracking-widest">
+                <div class="w-12 h-px bg-gray-400"></div>
+                <span>Stay Updated</span>
+                <div class="w-12 h-px bg-gray-400"></div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-center space-x-3">
+                    <span class="text-3xl">📧</span>
+                    <h2 class="text-4xl font-black text-primary">Join our Newsletter</h2>
+                </div>
+                <p class="text-gray-500 max-w-2xl mx-auto text-lg leading-relaxed">
+                    Get the latest learning tips, grammar guides, and community updates delivered straight to your inbox. 🚀
+                </p>
+            </div>
+
+            <div class="flex w-full max-w-md bg-white border border-gray-100 rounded-full p-2 shadow-lg">
+                <input type="email" placeholder="Your email address"
+                       class="flex-1 px-6 bg-transparent outline-none text-gray-700" />
+                <button class="bg-primary text-white font-bold px-8 py-3 rounded-full hover:bg-primary/90 transition shadow-md">
+                    Subscribe
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div *ngIf="isModalOpen"
+     class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+
+    <div class="bg-white w-full max-w-2xl rounded-[32px] p-8 shadow-2xl relative">
+
+        <!-- Close Button -->
+        <button (click)="closeModal()"
+                class="absolute top-4 right-6 text-gray-400 hover:text-gray-600 text-xl">
+            ✖
+        </button>
+
+        <h2 class="text-2xl font-bold text-primary mb-6">Create New Blog</h2>
+
+        <div class="space-y-5">
+
+            <!-- Title -->
+            <input
+                    [(ngModel)]="blog.title"
+                    type="text"
+                    placeholder="Blog title"
+                    class="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+            />
+
+            <!-- Content -->
+            <textarea
+                    [(ngModel)]="blog.content"
+                    rows="5"
+                    placeholder="Write your content..."
+                    class="w-full px-6 py-4 rounded-2xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+            ></textarea>
+
+            <!-- Image Upload -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-600 mb-2">
+                    Upload Images (Max 3)
+                </label>
+
+                <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        (change)="onImageSelected($event)"
+                        class="w-full px-4 py-3 rounded-2xl border border-gray-200 cursor-pointer"
+                />
+
+                <p class="text-xs text-gray-400 mt-2">
+                    You can upload up to 3 images.
+                </p>
+
+                <!-- Preview -->
+                <div class="flex gap-4 mt-4 flex-wrap">
+                    <div *ngFor="let img of imagePreviews; let i = index" class="relative">
+                        <img [src]="img" class="w-24 h-24 object-cover rounded-xl border" />
+                        <button
+                                (click)="removeImage(i)"
+                                class="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs">
+                            ✖
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="flex justify-end pt-4">
+                <button
+                        (click)="submitBlog()"
+                        class="bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-primary/90 transition shadow-md">
+                    Publish Blog 🚀
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="flex flex-col items-center justify-center min-h-[60vh] text-center p-8">
+  <div class="flex justify-center mb-10">
+    <div class="px-6 py-2 rounded-full bg-primary text-white font-bold whitespace-nowrap">
+      2. Pending
+    </div>
+  </div>
+  <div *ngIf="interview?.status === 'PENDING'" class="bg-yellow-50 p-16 rounded-[40px] shadow-sm border border-yellow-100">
+    <h1 class="text-6xl md:text-8xl font-black text-yellow-500 mb-6 uppercase">{{ interview.status }}</h1>
+    <p class="text-xl text-gray-600 max-w-md mx-auto">
+      Your tutor application is currently under review. Please wait for an administrator to contact you for the next steps.
+    </p>
+    <div class="mt-10 flex justify-center">
+      <div class="animate-bounce text-4xl">⏳</div>
+    </div>
+  </div>
+
+  <div *ngIf="interview?.status === 'SCHEDULED'" class="bg-blue-50 p-16 rounded-[40px] shadow-sm border border-blue-100">
+    <h1 class="text-6xl md:text-8xl font-black text-blue-500 mb-6 uppercase">{{ interview.status }}</h1>
+    <p class="text-xl text-gray-600 max-w-md mx-auto">
+      Your tutor interview has been scheduled! Please be ready at the following time:
+    </p>
+    <div class="mt-8 p-6 bg-white rounded-2xl border border-blue-200 inline-block">
+      <div class="text-3xl font-bold text-blue-600 mb-2">
+        📅 {{ interview.date | date:'longDate' }}
+      </div>
+      <div class="text-2xl font-semibold text-gray-700">
+        ⏰ {{ interview.time | slice:0:5}}
+      </div>
+    </div>
+    <div class="mt-10 flex justify-center">
+      <div class="animate-pulse text-4xl">🚀</div>
+    </div>
+  </div>
+
+  <div *ngIf="interview?.status === 'PASSED'" class="bg-green-50 p-16 rounded-[40px] shadow-sm border border-green-100">
+    <h1 class="text-6xl md:text-8xl font-black text-green-500 mb-6 uppercase">{{ interview.status }}</h1>
+    <p class="text-xl text-gray-600 max-w-md mx-auto">
+      Congratulations! Your job interview has passed successfully.
+    </p>
+    <div class="mt-10 flex justify-center">
+      <div class="animate-bounce text-4xl">🎉</div>
+    </div>
+      <div class="mt-10 flex justify-center">
+          <h3>you'll be redirected to the home page...</h3>
+      </div>
+  </div>
+
+  <div *ngIf="interview?.status === 'FAILED'" class="bg-red-50 p-16 rounded-[40px] shadow-sm border border-red-100">
+    <h1 class="text-6xl md:text-8xl font-black text-red-500 mb-6 uppercase">{{ interview.status }}</h1>
+    <p class="text-xl text-gray-600 max-w-md mx-auto">
+      We regret to inform you that your tutor application has been rejected at this time.
+    </p>
+    <div class="mt-10 flex justify-center">
+      <div class="animate-pulse text-4xl">❌</div>
+    </div>
+    <div class="mt-10 flex justify-center">
+      <p class="text-gray-500 italic">Please contact the administration for more information.</p>
+    </div>
+  </div>
+</div>

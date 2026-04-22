@@ -1,0 +1,410 @@
+/* Modal Overlay */
+.certificate-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.certificate-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Close Button */
+.close-btn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+  opacity: 0.7;
+}
+
+/* Certificate */
+.certificate {
+  width: 800px;
+  max-width: 100%;
+  aspect-ratio: 800 / 560;
+  background: #fff;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+/* Waves */
+.wave-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+}
+
+.wave-top svg {
+  width: 100%;
+  height: 100%;
+}
+
+.wave-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+}
+
+.wave-bottom svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Gold Borders */
+.gold-border {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  border: 2px solid #C9A84C;
+  pointer-events: none;
+}
+
+.inner-gold-border {
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  right: 28px;
+  bottom: 28px;
+  border: 1px solid #C9A84C;
+  pointer-events: none;
+}
+
+/* Seal Badge */
+.seal-badge {
+  position: absolute;
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 80px;
+  height: 80px;
+  z-index: 10;
+}
+
+.seal-inner {
+  width: 100%;
+  height: 100%;
+  background: #2D5757;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #C9A84C;
+}
+
+.seal-text {
+  color: #C9A84C;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Award Badge */
+.award-badge {
+  position: absolute;
+  right: 40px;
+  top: 40px;
+  width: 80px;
+  z-index: 10;
+}
+
+.award-ribbon {
+  position: absolute;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  border-top: 30px solid #C9A84C;
+}
+
+.award-inner {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #d4af37 0%, #C9A84C 50%, #b8963f 100%);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(201, 168, 76, 0.4);
+  position: relative;
+  z-index: 1;
+}
+
+.award-text-best {
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.award-text-award {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+/* Certificate Content */
+.certificate-content {
+  position: absolute;
+  top: 80px;
+  left: 100px;
+  right: 100px;
+  bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.logo-text {
+  font-size: 24px;
+  color: #2D5757;
+  border: 2px solid #2D5757;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.company-name {
+  font-size: 8px;
+  color: #888;
+  letter-spacing: 2px;
+  margin-top: 4px;
+}
+
+/* Title */
+.certificate-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 56px;
+  color: #2D5757;
+  font-weight: normal;
+  margin: 0;
+  line-height: 1;
+}
+
+.certificate-subtitle {
+  font-size: 12px;
+  color: #888;
+  letter-spacing: 4px;
+  margin: 5px 0 20px 0;
+}
+
+/* Presented To */
+.presented-to {
+  font-size: 10px;
+  color: #C9A84C;
+  letter-spacing: 3px;
+  margin: 0 0 10px 0;
+  background: linear-gradient(90deg, transparent, #2D5757, transparent);
+  padding: 8px 30px;
+}
+
+/* Recipient Name */
+.recipient-name {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 36px;
+  color: #333;
+  font-weight: normal;
+  font-style: italic;
+  margin: 0 0 15px 0;
+  border-bottom: 1px solid #C9A84C;
+  padding-bottom: 8px;
+  min-width: 300px;
+}
+
+/* Description */
+.certificate-description {
+  max-width: 500px;
+  margin-bottom: 20px;
+}
+
+.certificate-description p {
+  font-size: 9px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 8px 0;
+  letter-spacing: 0.5px;
+}
+
+.description-secondary {
+  font-size: 8px !important;
+  color: #888 !important;
+}
+
+/* Signatures */
+.signatures {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 400px;
+  margin-top: auto;
+}
+
+.signature-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.signature-line {
+  width: 120px;
+  height: 1px;
+  background-color: #333;
+  margin-bottom: 8px;
+}
+
+.signature-label {
+  font-size: 9px;
+  color: #666;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+/* Download Button */
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  background-color: #2D5757;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.download-btn:hover {
+  background-color: #1f4444;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .certificate {
+    width: 100%;
+  }
+
+  .certificate-content {
+    left: 60px;
+    right: 60px;
+    top: 70px;
+    bottom: 80px;
+  }
+
+  .certificate-title {
+    font-size: 40px;
+  }
+
+  .recipient-name {
+    font-size: 28px;
+  }
+
+  .seal-badge {
+    width: 60px;
+    height: 60px;
+    left: 30px;
+  }
+
+  .seal-inner {
+    border-width: 2px;
+  }
+
+  .seal-text {
+    font-size: 8px;
+  }
+
+  .award-badge {
+    width: 60px;
+    right: 30px;
+    top: 30px;
+  }
+
+  .award-inner {
+    width: 60px;
+    height: 60px;
+  }
+
+  .award-text-best {
+    font-size: 12px;
+  }
+
+  .award-text-award {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .certificate-modal {
+    padding: 1rem;
+  }
+
+  .certificate-content {
+    left: 40px;
+    right: 40px;
+  }
+
+  .certificate-title {
+    font-size: 32px;
+  }
+
+  .recipient-name {
+    font-size: 22px;
+    min-width: 200px;
+  }
+
+  .signatures {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .signature-line {
+    width: 100px;
+  }
+}

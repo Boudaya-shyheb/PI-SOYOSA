@@ -1,0 +1,90 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">My Enrollments</h1>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-200 border-t-primary"></div>
+    <p class="mt-2 text-gray-500">Loading your courses...</p>
+  </div>
+
+  <div *ngIf="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && enrollments.length === 0" class="text-center py-12 bg-gray-50 rounded-lg border border-gray-100">
+    <span class="text-4xl mb-3 block">🎓</span>
+    <h3 class="text-lg font-medium text-gray-900 mb-1">No enrollments yet</h3>
+    <p class="text-gray-500 mb-4">Start exploring and buy your first training program.</p>
+    <button routerLink="/trainings" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition">
+      Explore Trainings
+    </button>
+  </div>
+
+  <div *ngIf="!loading && enrollments.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div *ngFor="let enrollment of enrollments" class="bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition">
+      <div class="p-6 flex flex-col h-full">
+        <!-- Status badge -->
+        <div class="mb-3">
+            <span *ngIf="enrollment.session" class="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full uppercase tracking-wide">
+                Enrolled in Session
+            </span>
+            <span *ngIf="!enrollment.session" class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full uppercase tracking-wide">
+                Action Required: Pick Session
+            </span>
+        </div>
+
+        <h3 class="text-lg font-semibold text-gray-900">{{ enrollment.training.title }}</h3>
+        <p class="text-gray-600 text-sm mb-4 flex-grow">{{ enrollment.training.description | slice:0:100 }}...</p>
+        
+        <div class="bg-gray-50 p-4 rounded-lg mb-4 text-sm mt-auto">
+            <p class="font-medium text-gray-900 mb-1">Session Details</p>
+            <ng-container *ngIf="enrollment.session">
+                <div class="flex flex-col space-y-1 text-gray-600">
+                    <span>📅 {{ enrollment.session.date | date }}</span>
+                    <span>⏰ {{ enrollment.session.startTime }} ({{ enrollment.session.duration }} mins)</span>
+                    <span *ngIf="enrollment.session.sessionType === 'ONLINE'">💻 {{ enrollment.session.meetingLink }}</span>
+                    <span *ngIf="enrollment.session.sessionType === 'OFFLINE'">🏢 {{ enrollment.session.location }} - Room {{ enrollment.session.room }}</span>
+                </div>
+            </ng-container>
+            <div *ngIf="!enrollment.session" class="text-gray-500 italic">
+                You haven't selected a session yet. View the training to pick one.
+            </div>
+        </div>
+
+        <button 
+          (click)="viewTraining(enrollment.training.id)"
+          class="w-full px-4 py-2 border border-primary text-primary rounded-lg text-sm hover:bg-primary hover:text-white transition font-medium">
+          {{ enrollment.session ? 'View Training Material' : 'Choose a Session' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div *ngIf="!loading && totalPages > 1" class="flex justify-between items-center mt-12 pt-6 border-t border-gray-200">
+    <div class="text-sm text-gray-500 font-medium">
+      Total <span class="text-gray-900">{{ totalElements }}</span> enrollments
+    </div>
+    
+    <div class="flex items-center space-x-2">
+      <button 
+        (click)="onPageChange(page - 1)" 
+        [disabled]="page === 0"
+        class="p-2 border border-gray-200 rounded-xl text-sm hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed group">
+        <span class="group-hover:-translate-x-0.5 transition-transform inline-block">←</span>
+      </button>
+      
+      <div class="px-4 py-2 bg-gray-50 rounded-xl text-sm font-bold text-gray-700">
+        Page {{ page + 1 }} of {{ totalPages }}
+      </div>
+      
+      <button 
+        (click)="onPageChange(page + 1)" 
+        [disabled]="page >= totalPages - 1"
+        class="p-2 border border-gray-200 rounded-xl text-sm hover:bg-gray-50 transition disabled:opacity-40 disabled:cursor-not-allowed group">
+        <span class="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
+      </button>
+    </div>
+  </div>
+</div>

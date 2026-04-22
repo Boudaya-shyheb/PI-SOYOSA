@@ -1,0 +1,92 @@
+<div class="space-y-0">
+  <section class="relative bg-white pt-10 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <h1 class="text-5xl font-extrabold text-primary leading-tight mb-6">
+            Your Future Speaks English
+          </h1>
+          <p class="text-xl text-gray-600 mb-8 max-w-lg">
+            Step in and Let's start your English Journey. Dive into immersive experiences designed to build confidence.
+          </p>
+          <button class="bg-primary text-white px-8 py-3 rounded-full font-bold hover:bg-opacity-90 transition shadow-lg shadow-primary/20 flex items-center space-x-2">
+            <span>Book an appointment</span>
+            <span>➡️</span>
+          </button>
+        </div>
+        <div class="relative">
+          <div class="rounded-3xl overflow-hidden shadow-2xl">
+            <img src="https://picsum.photos/seed/hero/800/600" alt="Learning English" class="w-full h-full object-cover" />
+          </div>
+          <div class="absolute -bottom-6 -left-6 bg-accent p-6 rounded-2xl shadow-xl max-w-xs">
+            <div class="text-sm text-dark">Join 10k+ active students today!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-primary py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div>
+          <div class="text-4xl font-bold text-white mb-1">200K+</div>
+          <div class="text-secondary opacity-80 text-sm">Global Students</div>
+        </div>
+        <div>
+          <div class="text-4xl font-bold text-white mb-1">10K+</div>
+          <div class="text-secondary opacity-80 text-sm">Courses</div>
+        </div>
+        <div>
+          <div class="text-4xl font-bold text-white mb-1">50+</div>
+          <div class="text-secondary opacity-80 text-sm">Subjects</div>
+        </div>
+        <div>
+          <div class="text-4xl font-bold text-white mb-1">80K+</div>
+          <div class="text-secondary opacity-80 text-sm">Satisfied Learners</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-secondary/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-end mb-12">
+        <div>
+          <h2 class="text-3xl font-bold text-primary mb-2">Our Events</h2>
+          <p class="text-gray-500">Explore upcoming gatherings and workshops.</p>
+        </div>
+        <a routerLink="/events" class="text-primary font-bold flex items-center space-x-2">
+          <span>Show all</span>
+          <span>➡️</span>
+        </a>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <ng-container *ngIf="events$ | async as events">
+          <app-event-card *ngFor="let event of events" [event]="event"></app-event-card>
+        </ng-container>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl font-bold text-primary mb-4 flex items-center justify-center space-x-2">
+          <span>Our Instructors</span>
+          <span class="text-accent text-xl">✨</span>
+        </h2>
+        <p class="text-gray-500 max-w-2xl mx-auto">Meet our amazing team.</p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <ng-container *ngIf="instructors$ | async as instructors">
+          <div *ngFor="let inst of instructors" class="text-center">
+            <img [src]="inst.image" [alt]="inst.name" class="w-24 h-24 rounded-full mx-auto mb-3" />
+            <div class="font-bold text-primary">{{ inst.name }}</div>
+            <div class="text-sm text-gray-500">{{ inst.role }}</div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </section>
+</div>

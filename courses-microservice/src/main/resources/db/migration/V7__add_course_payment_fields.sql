@@ -1,0 +1,8 @@
+ALTER TABLE course ADD COLUMN is_paid BOOLEAN;
+ALTER TABLE course ADD COLUMN price NUMERIC(10,2);
+
+UPDATE course SET is_paid = FALSE WHERE is_paid IS NULL;
+UPDATE course SET price = 0.00 WHERE price IS NULL;
+
+ALTER TABLE course ALTER COLUMN is_paid SET NOT NULL;
+ALTER TABLE course ALTER COLUMN price SET NOT NULL;

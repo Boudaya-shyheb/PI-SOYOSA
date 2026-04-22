@@ -1,0 +1,53 @@
+<div class="chat-list-container">
+    <div class="chat-list-header">
+        <h2>Messages</h2>
+        <button *ngIf="canCreateGroup" class="btn-create-group" (click)="openCreateGroupDialog()" title="Create Group">
+            + Group
+        </button>
+    </div>
+
+    <div class="chat-list-search">
+        <input type="text" placeholder="Search conversations..." [(ngModel)]="searchQuery" class="search-input" />
+    </div>
+
+    <div class="chat-list-content">
+        <div *ngIf="loading" class="loading">
+            <p>Loading conversations...</p>
+        </div>
+
+        <div *ngIf="!loading && filteredConversations.length === 0" class="empty-state">
+            <p>No conversations yet</p>
+        </div>
+
+        <div *ngFor="let conversation of filteredConversations" class="conversation-item"
+            [class.selected]="selectedConversationId === conversation.id" (click)="selectConversation(conversation)">
+            <div class="conversation-info">
+                <div class="conversation-header">
+                    <span class="conversation-name">
+                        {{ getConversationName(conversation) }}
+                    </span>
+                    <span class="online-indicator" *ngIf="!conversation.isGroup && isConversationOnline(conversation)"
+                        title="Online"></span>
+                    <span class="conversation-badge" [class.group]="conversation.isGroup">
+                        {{ conversation.isGroup ? 'Group' : 'Private' }}
+                    </span>
+                </div>
+                <div class="conversation-preview">
+                    {{ getLastMessagePreview(conversation) }}
+                </div>
+                <div class="conversation-meta">
+                    <span class="member-count">
+                        {{ conversation.members.length }} member<span *ngIf="conversation.members.length !== 1">s</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="conversation-actions">
+                <button class="btn-delete" (click)="deleteConversation(conversation.id, $event)"
+                    title="Delete conversation">
+                    ✕
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

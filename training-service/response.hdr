@@ -1,0 +1,31 @@
+* Host localhost:8082 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:8082...
+* Established connection to localhost (::1 port 8082) from ::1 port 61286 
+* using HTTP/1.x
+> GET /api/training HTTP/1.1
+> Host: localhost:8082
+> User-Agent: curl/8.16.0
+> Accept: */*
+>  Authorization: Bearer mock
+> 
+* Request completely sent off
+< HTTP/1.1 500 
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 0
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+< Content-Length: 0
+< Date: Thu, 05 Mar 2026 05:44:07 GMT
+< Connection: close
+< 
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+* shutting down connection #0

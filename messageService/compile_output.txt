@@ -1,0 +1,60 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ---------------------< com.example:messageService >---------------------
+[INFO] Building messageService 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.3.2:clean (default-clean) @ messageService ---
+[INFO] Deleting D:\SOYOSA back\messageService\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ messageService ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ messageService ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 35 source files with javac [debug parameters release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /D:/SOYOSA back/messageService/src/main/java/com/example/messageservice/service/UserServiceClient.java:[22,28] cannot find symbol
+  symbol:   class NestedUser
+  location: class com.example.messageservice.dto.UserDTO
+[ERROR] /D:/SOYOSA back/messageService/src/main/java/com/example/messageservice/service/UserServiceClient.java:[22,60] cannot find symbol
+  symbol:   class NestedUser
+  location: class com.example.messageservice.dto.UserDTO
+[ERROR] /D:/SOYOSA back/messageService/src/main/java/com/example/messageservice/service/UserServiceClient.java:[36,20] cannot find symbol
+  symbol:   class NestedUser
+  location: class com.example.messageservice.dto.UserDTO
+[ERROR] /D:/SOYOSA back/messageService/src/main/java/com/example/messageservice/service/UserServiceClient.java:[36,60] cannot find symbol
+  symbol:   class NestedUser
+  location: class com.example.messageservice.dto.UserDTO
+[INFO] 4 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  33.107 s
+[INFO] Finished at: 2026-04-14T12:35:30+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.13.0:compile (default-compile) on project messageService: Compilation failure: Compilation failure: 
+[ERROR] /D:/SOYOSA back/messageService/src/main/java/com/example/messageservice/service/UserServiceClient.java:[22,28] cannot find symbol
+[ERROR]   symbol:   class NestedUser
+[ERROR]   location: class com.example.messageservice.dto.UserDTO
+[ERROR] /D:/SOYOSA back/messageService/src/main/java/com/example/messageservice/service/UserServiceClient.java:[22,60] cannot find symbol
+[ERROR]   symbol:   class NestedUser
+[ERROR]   location: class com.example.messageservice.dto.UserDTO
+[ERROR] /D:/SOYOSA back/messageService/src/main/java/com/example/messageservice/service/UserServiceClient.java:[36,20] cannot find symbol
+[ERROR]   symbol:   class NestedUser
+[ERROR]   location: class com.example.messageservice.dto.UserDTO
+[ERROR] /D:/SOYOSA back/messageService/src/main/java/com/example/messageservice/service/UserServiceClient.java:[36,60] cannot find symbol
+[ERROR]   symbol:   class NestedUser
+[ERROR]   location: class com.example.messageservice.dto.UserDTO
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

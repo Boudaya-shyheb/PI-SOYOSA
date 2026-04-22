@@ -1,0 +1,26 @@
+<div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition group">
+  <div class="relative h-48 overflow-hidden">
+    <img [src]="event.image" [alt]="event.title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+    <div class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold" [ngClass]="isPast ? 'bg-orange-500 text-white' : 'bg-primary text-white'">
+      • {{ event.status }}
+    </div>
+    <div class="absolute bottom-4 left-4 bg-white px-3 py-1 rounded text-xs font-bold text-primary">
+      {{ event.date }}
+    </div>
+  </div>
+  <div class="p-5">
+    <h3 class="font-bold text-gray-900 mb-4 line-clamp-2 h-12 leading-tight">
+      {{ event.title }}
+    </h3>
+    <div class="space-y-2 text-sm text-gray-500">
+      <div class="flex items-center space-x-2">
+        <span class="text-primary">📍</span>
+        <span>{{ event.location }}</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="text-primary">⏰</span>
+        <span>from {{ event.time }}</span>
+      </div>
+    </div>
+  </div>
+</div>

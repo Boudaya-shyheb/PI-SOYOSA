@@ -1,0 +1,29 @@
+<div class="map-wrapper border border-gray-200 rounded-lg overflow-hidden relative">
+  <div #mapElement class="map-container w-full h-full min-h-[300px]"></div>
+  <div *ngIf="readOnly && latitude && longitude" class="absolute bottom-4 left-0 right-0 flex flex-col items-center z-[1000] pointer-events-none px-4">
+    
+    <div *ngIf="routingError" class="bg-red-500/90 text-white px-4 py-2 rounded-lg shadow-xl mb-3 text-xs pointer-events-auto backdrop-blur-sm border border-red-400">
+      ⚠️ {{ routingError }}
+    </div>
+    
+    <div class="flex flex-wrap justify-center gap-2">
+      <button 
+        (click)="getDirectionsOnMap()"
+        [disabled]="isLocating"
+        class="bg-blue-600/90 backdrop-blur-md text-white px-4 py-2.5 rounded-xl shadow-2xl hover:bg-blue-700 transition flex items-center space-x-2 pointer-events-auto border border-white/20 disabled:opacity-50 group">
+        
+        <span *ngIf="isLocating" class="inline-block animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-1"></span>
+        <span *ngIf="!isLocating" class="group-hover:scale-125 transition">🗺️</span>
+        
+        <span class="font-bold text-sm">{{ isLocating ? 'Locating...' : 'Get Directions' }}</span>
+      </button>
+
+      <button 
+        (click)="openExternalGoogleMaps()"
+        class="bg-green-600/90 backdrop-blur-md text-white px-4 py-2.5 rounded-xl shadow-2xl hover:bg-green-700 transition flex items-center space-x-2 pointer-events-auto border border-white/20 group">
+        <span class="group-hover:scale-125 transition">🚗</span>
+        <span class="font-bold text-sm">Google Maps</span>
+      </button>
+    </div>
+  </div>
+</div>

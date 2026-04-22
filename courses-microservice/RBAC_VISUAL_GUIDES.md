@@ -1,0 +1,746 @@
+# RBAC Visual Guides & Architecture Diagrams
+
+## 1. User Role Hierarchy
+
+```
+┌─────────────────────────────────────────┐
+│          ADMIN                          │
+│  (Full System Control)                  │
+│  └─ Can manage everything                │
+└─────────────────────────────────────────┘
+         ▲
+         │ (includes all below)
+         │
+┌─────────────────────────────────────────┐
+│       TEACHER/TUTOR                     │
+│  (Own Content Control)                  │
+│  ├─ Create own courses                   │
+│  ├─ Edit own courses                     │
+│  ├─ Delete own courses                   │
+│  └─ Cannot modify other tutors' courses │
+└─────────────────────────────────────────┘
+         ▲
+         │ (includes all below)
+         │
+┌─────────────────────────────────────────┐
+│         STUDENT                         │
+│  (Enrollment & Learning)                │
+│  ├─ View all courses                     │
+│  ├─ Enroll in courses                    │
+│  ├─ Access enrolled content              │
+│  └─ Cannot create or modify courses     │
+└─────────────────────────────────────────┘
+         ▲
+         │ (includes all below)
+         │
+┌─────────────────────────────────────────┐
+│           USER (Guest)                  │
+│  (Read-Only Access)                     │
+│  ├─ View all courses                     │
+│  ├─ View course details                  │
+│  └─ Cannot enroll or create              │
+└─────────────────────────────────────────┘
+```
+
+---
+
+## 2. Request Flow Diagram
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                     USER MAKES REQUEST                           │
+│                   (e.g., Create Course)                          │
+└──────────────────┬───────────────────────────────────────────────┘
+                   │
+                   ▼
+        ┌──────────────────────┐
+        │  Route Guard Check    │ ◄─ ContentModificationGuard
+        │  (Frontend Layer)     │
+        └──────┬───────┬────────┘
+               │       │
+        YES   │       │ NO
+              ▼       ▼
+           ✅ OK   ❌ REDIRECT
+                     to /
+                   │
+                   ▼
+    ┌──────────────────────┐
+    │  Component Loaded    │
+    │  (CourseFormComponent)│
+    └──────┬───────────────┘
+           │
+           ▼
+    ┌──────────────────────┐
+    │  Form Submitted      │
+    │  (User Clicks Save)  │
+    └──────┬───────────────┘
+           │
+           ▼
+    ┌──────────────────────┐
+    │ Service Permission   │ ◄─ coursesApi.createCourse()
+    │    Check             │    Checks: canModifyContent()
+    └──────┬───────┬───────┘
+           │       │
+      YES │       │ NO
+         ▼       ▼
+        ✅ OK   ❌ ERROR
+               message
+        │
+        ▼
+    ┌──────────────────────┐
+    │ Add Headers:         │
+    │ X-User-Id: user-001  │ ◄─ AuthInterceptor
+    │ X-Role: TEACHER      │
+    └──────┬───────────────┘
+           │
+           ▼
+    ┌──────────────────────┐
+    │  HTTP Request        │
+    │  POST /api/courses   │
+    └──────┬───────────────┘
+           │
+           ▼
+    ┌──────────────────────┐
+    │  BACKEND VALIDATION  │ ◄─ CRITICAL!
+    │  (Server Layer)      │    Never trust headers
+    │                      │    • Extract from JWT
+    │  • Validate JWT      │    • Re-check role
+    │  • Validate role     │    • Log attempt
+    │  • Log access        │
+    └──────┬───────┬───────┘
+           │       │
+      VALID│       │INVALID
+         ▼       ▼
+        ✅      ❌
+      CREATE   403
+      Course   ERROR
+        │
+        ▼
+    ┌──────────────────────┐
+    │  Return Response     │
+    └──────┬───────────────┘
+           │
+           ▼
+    ┌──────────────────────┐
+    │  Handle in Frontend  │
+    │  Update UI           │
+    │  Success/Error msg   │
+    └──────────────────────┘
+```
+
+---
+
+## 3. Component Access Matrix
+
+```
+ROUTE                          GUEST  STUDENT  TUTOR  ADMIN  GUARD
+─────────────────────────────────────────────────────────────────────
+/                              ✅     ✅       ✅     ✅     NONE
+/courses                       ✅     ✅       ✅     ✅     NONE
+/courses/:id                   ✅     ✅       ✅     ✅     NONE
+/courses/my-courses            ❌     ❌       ✅     ✅     Content
+/courses/create                ❌     ❌       ✅     ✅     Content
+/courses/:id/edit              ❌     ❌       ~*    ✅     Content
+/enrolled-courses              ❌     ✅       ❌     ❌     Student
+/login                         ✅     ✅       ✅     ✅     NONE
+/admin                         ❌     ❌       ❌     ✅     Admin
+
+LEGEND:
+✅ = Full Access
+❌ = No Access (Redirect)
+~* = Own resources only (Validated in component)
+```
+
+---
+
+## 4. Service Method Access Control
+
+```
+COURSESAPISERVICE METHOD      GUEST  STUDENT  TUTOR  ADMIN
+────────────────────────────────────────────────────────────
+getAllCourses()              ✅     ✅       ✅     ✅
+getCourseById(id)            ✅     ✅       ✅     ✅
+getMyTutorCourses()          ❌     ❌       ✅     ✅
+getEnrolledCourses()         ❌     ✅       ❌     ❌
+createCourse(req)            ❌     ❌       ✅     ✅
+updateCourse(id, req)        ❌     ❌       ~*    ✅
+deleteCourse(id)             ❌     ❌       ~*    ✅
+setActivation(id, active)    ❌     ❌       ~*    ✅
+canModifyCourse(course)      ❌     ❌       ✅*   ✅
+canDeleteCourse(course)      ❌     ❌       ✅*   ✅
+
+LEGEND:
+✅ = Allowed
+❌ = Throws Error
+~* = Own courses only
+✅* = Own + Admin override
+```
+
+---
+
+## 5. Authentication Flow
+
+```
+                    ┌─────────────────────┐
+                    │   User Visits App   │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │  Check Auth State   │
+                    │  localStorage/JWT   │
+                    └──────────┬──────────┘
+                               │
+                 ┌─────────────┴──────────┐
+                 │                        │
+        Found    │                        │ Not Found
+                 ▼                        ▼
+           ┌─────────────┐         ┌────────────┐
+           │ Load Token  │         │ Set Role   │
+           │ Extract     │         │ = USER     │
+           │ Role & ID   │         │ (Guest)    │
+           └──────┬──────┘         └────┬───────┘
+                  │                     │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │  AuthService State  │
+                  │  Initialized        │
+                  │                     │
+                  │  isLoggedIn: bool   │
+                  │  role: Role         │
+                  │  userId: string     │
+                  └──────────┬──────────┘
+                             │
+                             ▼
+                  ┌─────────────────────┐
+                  │  App Ready          │
+                  │  Guards Active      │
+                  │  Interceptors Ready │
+                  └─────────────────────┘
+
+
+Login Process:
+──────────────
+┌─────────────────────────┐
+│  User enters credentials│
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ Backend validates &     │
+│ returns JWT token       │
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ Extract role from JWT   │
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ authService.login()     │
+│ - Set userId            │
+│ - Set role              │
+│ - isLoggedIn = true     │
+│ - Store token in        │
+│   localStorage          │
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ Navigate to dashboard   │
+└─────────────────────────┘
+
+
+Logout Process:
+───────────────
+┌─────────────────────────┐
+│ User clicks "Logout"    │
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ authService.logout()    │
+│ - Clear userId          │
+│ - Set role = USER       │
+│ - isLoggedIn = false    │
+│ - Clear localStorage    │
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ Clear API cache         │
+└──────────┬──────────────┘
+           │
+           ▼
+┌─────────────────────────┐
+│ Navigate to home        │
+└─────────────────────────┘
+```
+
+---
+
+## 6. Guard Chain Execution
+
+```
+User navigates to /courses/create
+            │
+            ▼
+┌───────────────────────────────────┐
+│ Router checks Route Guards        │
+│ [ContentModificationGuard]        │
+└───────────┬───────────────────────┘
+            │
+            ▼
+┌───────────────────────────────────┐
+│ ContentModificationGuard.canActivate()
+│                                   │
+│ Check: authService.canModifyContent()
+│        === (TEACHER || ADMIN)     │
+└───────────┬───────────────────────┘
+            │
+     ┌──────┴──────┐
+     │             │
+   YES            NO
+     │             │
+     ▼             ▼
+  ✅ ALLOW    ❌ REDIRECT
+  Navigate    to /
+  to route
+
+
+Multiple Guards (hypothetical):
+─────────────────────────────────
+[Guard1] ─────┐
+              ├─► Must ALL return TRUE
+[Guard2] ─────┤   for navigation to succeed
+              │
+[Guard3] ─────┘
+
+ALL TRUE  ─────► ✅ Navigate to Component
+ANY FALSE ─────► ❌ Redirect/Deny
+
+Example: Tutor Course Edit
+[ContentModificationGuard] ──► TEACHER/ADMIN? ✅
+[OwnershipGuard]           ──► Own course?    ✅  
+[Course Exists Guard]      ──► Course valid?  ✅
+                               ════════════════
+                               Navigate ✅
+```
+
+---
+
+## 7. Ownership Validation Flow (Tutor Edit)
+
+```
+User: tutorId = 'tutor-001'
+Route: /courses/course-123/edit
+
+                    ┌──────────────────────┐
+                    │ Load Course Details  │
+                    │ From API             │
+                    │ courseId: course-123 │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ Course Data:         │
+                    │ {                    │
+                    │   id: 'course-123'   │
+                    │   tutorId: 'tutor-002'
+                    │   title: "..."       │
+                    │ }                    │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │ Call canModify()     │
+                    │                      │
+                    │ coursesApi.          │
+                    │ canModifyCourse(c)   │
+                    └──────────┬───────────┘
+                               │
+                    ┌──────────┴──────────┐
+                    │                     │
+              Check User Role      Check Ownership
+                    │                     │
+         ┌──────────▼──────────┐  ┌──────▼─────────┐
+         │ Is ADMIN?           │  │ tutorId ===    │
+         │                     │  │ currentUserId? │
+         │ tutor-001 vs        │  │                │
+         │ ADMIN?              │  │ tutor-002 ===  │
+         │                     │  │ tutor-001?     │
+         └────┬────────┬───────┘  └────┬────┬─────┘
+              │        │               │    │
+            NO        YES             NO   YES
+              │        │               │    │
+              ▼        ▼               ▼    ▼
+           Next     CAN            CANNOT  CAN
+           Check    MODIFY          MODIFY MODIFY
+              │     ✅              ❌    ✅
+              │
+              ▼
+         ┌─────────────────────┐
+         │ Ownership Match?    │
+         │ tutorId === userId? │
+         │ tutor-002 ===       │
+         │ tutor-001?          │
+         └────┬────────┬───────┘
+              │        │
+             NO       YES
+              │        │
+              ▼        ▼
+         ❌ DENY   ✅ ALLOW
+         Show err Display form
+         Message  Pre-filled
+         
+Result: User sees error
+        "You can only edit your own courses"
+```
+
+---
+
+## 8. API Call With Headers
+
+```
+Frontend: coursesApi.updateCourse(courseId, data)
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Service Method        │
+                  │ Checks Permissions    │
+                  │ canModifyContent()?   │
+                  │ canModifyCourse()?    │
+                  └───────────┬───────────┘
+                              │
+                 YES ✅        │        NO ❌
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Interceptor activates │
+                  │ Auth.Interceptor      │
+                  └───────────┬───────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Adds Headers:         │
+                  │ X-User-Id: tutor-001  │
+                  │ X-Role: TEACHER       │
+                  │                       │
+                  │ (Intercepts request)  │
+                  └───────────┬───────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ Outgoing Request:     │
+                  │                       │
+                  │ PUT /api/courses/xyz  │
+                  │ Headers:              │
+                  │  X-User-Id: tutor-001│
+                  │  X-Role: TEACHER      │
+                  │  Content-Type: app/json
+                  │                       │
+                  │ Body: {...courseData} │
+                  └───────────┬───────────┘
+                              │
+                              ▼
+                  ┌───────────────────────┐
+                  │ BACKEND SERVER        │
+                  │ (Java Spring Boot)    │
+                  │                       │
+                  │ 1. Extract JWT token  │
+                  │ 2. Validate JWT       │
+                  │ 3. Get real userId    │
+                  │ 4. Get real role      │
+                  │ 5. Validate resource  │
+                  │ 6. Validate ownership │
+                  │ 7. Process request    │
+                  └───────────┬───────────┘
+                              │
+                    ┌─────────┴──────────┐
+                    │                    │
+              VALID ✅            INVALID ❌
+                    │                    │
+                    ▼                    ▼
+            ┌──────────────┐      ┌──────────────┐
+            │ 200 OK       │      │ 403 FORBIDDEN│
+            │ {...success} │      │              │
+            └──────┬───────┘      │ {error: ...} │
+                   │              └──────┬───────┘
+                   └──────────┬──────────┘
+                              │
+                              ▼
+                   ┌──────────────────────┐
+                   │ HTTP Response        │
+                   │ Back to Frontend     │
+                   └──────────┬───────────┘
+                              │
+                    ┌─────────┴──────────┐
+                    │                    │
+            Success │            Error   │
+            (200)   │            (4xx)   │
+                    │                    │
+                    ▼                    ▼
+              ┌──────────┐         ┌──────────┐
+              │ Subscribe:│         │Subscribe:│
+              │ next()    │         │ error()  │
+              │ Update UI │         │ Show err │
+              └──────────┘         └──────────┘
+```
+
+---
+
+## 9. Permission Check Decision Tree
+
+```
+Want to perform action: "Update Course"
+                    │
+                    ▼
+         ┌──────────────────────┐
+         │ Is user logged in?   │
+         └────┬────────┬────────┘
+              │        │
+            YES       NO
+              │        │
+              ▼        ▼
+         ┌─────────┐  ❌ DENY
+         │ Check   │  Route to login
+         │ Role    │
+         └────┬─┬──┘
+              │ │
+    ┌─────────┴─┴─────┬──────────┐
+    │                 │          │
+ ADMIN           TEACHER       OTHER
+    │                 │          │
+    ▼                 ▼          ▼
+  ✅                ✅           ❌
+  CAN              Check        DENY
+           ┌─────────┐
+           │ Course  │
+           │ Owner?  │
+           └────┬────┘
+                │
+          ┌─────┴─────┐
+          │           │
+         YES         NO
+          │           │
+          ▼           ▼
+        ✅           ❌
+        CAN         DENY
+        Modify      Error:
+       Course       "You can
+                     only edit
+                     your own"
+```
+
+---
+
+## 10. State Management Flow
+
+```
+AuthService (BehaviorSubject)
+│
+├─ roleSubject: 'USER' | 'STUDENT' | 'TEACHER' | 'ADMIN'
+│  │
+│  └─► getRole()
+│
+├─ userIdSubject: string | null
+│  │
+│  └─► getUserId()
+│
+├─ isLoggedInSubject: boolean
+│  │
+│  └─► isLoggedIn()
+│
+├─ Methods:
+│  ├─ login(userId, role)     ─► Updates all subjects
+│  ├─ logout()                ─► Resets to defaults
+│  ├─ roleChanges()           ─► Observable for role updates
+│  ├─ loginStatusChanges()    ─► Observable for login status
+│  │
+│  ├─ Helper Methods:
+│  ├─ isStudent()             ─► role === 'STUDENT'
+│  ├─ isTutor()               ─► role === 'TEACHER'
+│  ├─ isAdmin()               ─► role === 'ADMIN'
+│  ├─ isGuest()               ─► role === 'USER'
+│  ├─ canModifyContent()      ─► TEACHER || ADMIN
+│  └─ canEnroll()             ─► isLoggedIn && STUDENT
+
+
+Component Usage:
+────────────────
+Component
+    │
+    ├─ Subscribe to roleChanges()
+    │  ├─ When role changes ─► RE-RENDER
+    │  └─ Update buttons/elements
+    │
+    ├─ Subscribe to loginStatusChanges()
+    │  ├─ When login status changes ─► RE-RENDER
+    │  └─ Show/hide auth elements
+    │
+    └─ Call helper methods
+       ├─ *ngIf="authService.canModifyContent()"
+       └─ Show editor-only buttons
+```
+
+---
+
+## 11. Component Hierarchy
+
+```
+AppComponent
+│
+├─ AppModule
+│  ├─ HttpClientModule
+│  ├─ HTTP_INTERCEPTORS: AuthInterceptor
+│  ├─ HTTP_INTERCEPTORS: HttpErrorInterceptor
+│  └─ Routing
+│
+└─ AppRoutingModule
+   ├─ / ─► Home
+   ├─ /login ─► Login
+   └─ /courses
+      │
+      └─ CoursesModule
+         ├─ CourseListComponent ✅
+         │  └─ [All roles can access]
+         │
+         ├─ CourseDetailComponent (nested route)
+         │  └─ [All roles can access]
+         │
+         ├─ TutorCourseManagementComponent ✨
+         │  ├─ Guard: ContentModificationGuard
+         │  ├─ Route: /courses/my-courses
+         │  └─ [TEACHER/ADMIN only]
+         │
+         ├─ CourseFormComponent ✨
+         │  ├─ Guard: ContentModificationGuard
+         │  ├─ Routes:
+         │  │  ├─ /courses/create
+         │  │  └─ /courses/:courseId/edit
+         │  └─ [TEACHER/ADMIN only]
+         │
+         └─ Nested Routes
+            ├─ QuizModule
+            └─ TrainingDetailsModule
+```
+
+---
+
+## 12. Error Handling Flow
+
+```
+User Action (e.g., Delete Course)
+                    │
+                    ▼
+            ┌──────────────────┐
+            │ Frontend Check   │
+            │ Permission?      │
+            └────┬────────┬────┘
+                 │        │
+            YES  │        │ NO
+                 ▼        ▼
+          ┌──────────┐  ERROR
+          │ Show     │  Message
+          │Confirm   │  "You don't
+          │Dialog    │   have
+          └────┬─────┘   permission"
+               │
+         User confirms
+               │
+               ▼
+        ┌──────────────────┐
+        │ Send API Request │
+        │ DELETE /api/...  │
+        └────┬────────┬────┘
+             │        │
+        200  │        │ 403/400
+             ▼        ▼
+         ✅ SUCCESS  ❌ BACKEND
+         Update UI   ERROR
+         Remove      └─ Error object:
+         from list      {
+                          status: 403
+                          message: "..."
+         or click         details: "..."
+         "Retry"        }
+                          │
+                          ▼
+                    ┌──────────────────┐
+                    │ Service catches  │
+                    │ error()          │
+                    │                  │
+                    │ Map to           │
+                    │ user-friendly    │
+                    │ message          │
+                    └────┬─────────────┘
+                         │
+                         ▼
+                    ┌──────────────────┐
+                    │ Component        │
+                    │ displays error   │
+                    │ message          │
+                    └──────────────────┘
+```
+
+---
+
+## 13. Quick Reference Card
+
+```
+╔════════════════════════════════════════════════════════════╗
+║           RBAC QUICK REFERENCE                            ║
+╠════════════════════════════════════════════════════════════╣
+║ USER ROLES                                                 ║
+║ ┌─────────────────────────────────────────────────────┐  ║
+║ │ USER (Guest)    → View only                         │  ║
+║ │ STUDENT         → Enroll & learn                    │  ║
+║ │ TEACHER (Tutor) → Create & manage own              │  ║
+║ │ ADMIN           → Full control                      │  ║
+║ └─────────────────────────────────────────────────────┘  ║
+║                                                            ║
+║ KEY COMPONENTS                                             ║
+║ ┌─────────────────────────────────────────────────────┐  ║
+║ │ authService         → Auth state management        │  ║
+║ │ coursesApi          → RBAC-enforced API            │  ║
+║ │ Guards              → Route protection             │  ║
+║ │ Interceptor         → Auto-add headers             │  ║
+║ └─────────────────────────────────────────────────────┘  ║
+║                                                            ║
+║ KEY METHODS                                                ║
+║ ┌─────────────────────────────────────────────────────┐  ║
+║ │ authService.login(id, role)                        │  ║
+║ │ authService.logout()                               │  ║
+║ │ authService.canModifyContent()                     │  ║
+║ │ coursesApi.canModifyCourse(course)                │  ║
+║ │ coursesApi.createCourse(request)                  │  ║
+║ │ coursesApi.updateCourse(id, request)              │  ║
+║ │ coursesApi.deleteCourse(id)                       │  ║
+║ └─────────────────────────────────────────────────────┘  ║
+║                                                            ║
+║ KEY ROUTES                                                 ║
+║ ┌─────────────────────────────────────────────────────┐  ║
+║ │ /courses              → All users                    │  ║
+║ │ /courses/my-courses   → TEACHER/ADMIN (guarded)    │  ║
+║ │ /courses/create       → TEACHER/ADMIN (guarded)    │  ║
+║ │ /courses/:id/edit     → TEACHER/ADMIN (guarded)    │  ║
+║ └─────────────────────────────────────────────────────┘  ║
+║                                                            ║
+║ KEY FILES                                                  ║
+║ ┌─────────────────────────────────────────────────────┐  ║
+║ │ auth.service.ts                                     │  ║
+║ │ courses-api.service.ts                              │  ║
+║ │ content-modification.guard.ts                       │  ║
+║ │ auth.interceptor.ts                                 │  ║
+║ │ tutor-course-management.component.*                │  ║
+║ │ course-form.component.*                             │  ║
+║ └─────────────────────────────────────────────────────┘  ║
+╚════════════════════════════════════════════════════════════╝
+```
+
+---
+
+This visual guide should help you understand the complete RBAC architecture!

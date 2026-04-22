@@ -1,0 +1,86 @@
+<div class="max-w-6xl mx-auto p-8 space-y-6">
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-bold text-primary">
+      Members statistics
+    </h2>
+    <button
+      type="button"
+      (click)="goToMembersList()"
+      class="px-4 py-2 rounded bg-primary/10 text-primary font-semibold hover:bg-primary hover:text-white transition">
+      Members list
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-gray-500">
+    Loading statistics...
+  </div>
+
+  <div *ngIf="errorMessage" class="p-4 rounded bg-red-50 text-red-700">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && !errorMessage && club" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="p-4 rounded-xl border border-gray-100 bg-white">
+        <div class="text-gray-500 text-sm">Club</div>
+        <div class="text-lg font-bold text-primary">{{ club.name }}</div>
+      </div>
+      <div class="p-4 rounded-xl border border-gray-100 bg-white">
+        <div class="text-gray-500 text-sm">Members</div>
+        <div class="text-lg font-bold">{{ members.length }}</div>
+      </div>
+      <div class="p-4 rounded-xl border border-gray-100 bg-white">
+        <div class="text-gray-500 text-sm">Max Members</div>
+        <div class="text-lg font-bold">{{ club.maxMembers ?? 0 }}</div>
+      </div>
+      <div class="p-4 rounded-xl border border-gray-100 bg-white">
+        <div class="text-gray-500 text-sm">Average Age</div>
+        <div class="text-lg font-bold">{{ averageAge }}</div>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-xl border border-gray-100 bg-white space-y-2">
+      <div class="flex items-center justify-between text-sm text-gray-500">
+        <span>Capacity usage</span>
+        <span>{{ fillPercent }}%</span>
+      </div>
+      <div class="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+        <div class="h-full bg-primary transition-all duration-300" [style.width.%]="fillPercent"></div>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-xl border border-gray-100 bg-white">
+      <div class="text-sm text-gray-500 mb-3">Role distribution</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div *ngFor="let role of roleStats" class="p-3 rounded-lg bg-primary/5">
+          <div class="text-sm text-gray-500">{{ role.role }}</div>
+          <div class="text-lg font-bold text-primary">{{ role.count }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-xl border border-gray-100 bg-white">
+      <div class="text-sm text-gray-500 mb-3">Members details</div>
+      <div class="space-y-3">
+        <div
+          *ngFor="let member of members"
+          class="border border-gray-100 rounded-lg p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold">{{ member.firstName }} {{ member.lastName }}</div>
+            <div class="text-xs text-gray-500">{{ member.role }}</div>
+          </div>
+          <div class="text-sm text-gray-500">{{ member.email }}</div>
+          <div class="w-full h-2 rounded-full bg-gray-100 overflow-hidden">
+            <div
+              class="h-full bg-green-500 transition-all duration-300"
+              [style.width.%]="getMemberCompletion(member)">
+            </div>
+          </div>
+          <div class="text-xs text-gray-500">
+            Profile completeness: {{ getMemberCompletion(member) }}%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

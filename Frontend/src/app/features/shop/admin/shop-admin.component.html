@@ -1,0 +1,976 @@
+<div class="shop-theme bg-white py-10">
+  <div class="w-full px-6 lg:px-10">
+    <div class="admin-layout">
+      <aside class="admin-sidebar">
+        <div class="text-xs text-gray-400 uppercase tracking-[0.2em] mb-4">Admin panel</div>
+        <nav class="space-y-2">
+          <div class="admin-section-label">Overview</div>
+          <a routerLink="/shop/admin" class="admin-link" [class.admin-link-active]="isSection('overview')">Dashboard</a>
+          <div class="admin-section-label">Management</div>
+          <a routerLink="/shop/admin/products" class="admin-link" [class.admin-link-active]="isSection('products')">Product management</a>
+          <a routerLink="/shop/admin/categories" class="admin-link" [class.admin-link-active]="isSection('categories')">Category management</a>
+          <a routerLink="/shop/admin/bundles" class="admin-link" [class.admin-link-active]="isSection('bundles')">Bundle management</a>
+          <a routerLink="/shop/admin/coupons" class="admin-link" [class.admin-link-active]="isSection('coupons')">Coupon management</a>
+          <a routerLink="/shop/admin/orders" class="admin-link" [class.admin-link-active]="isSection('orders')">Order management</a>
+          <div class="admin-section-label">Insights</div>
+          <a routerLink="/shop/admin/analytics" class="admin-link" [class.admin-link-active]="isSection('analytics')">Analytics</a>
+          <a routerLink="/shop/admin/insights" class="admin-link">External insights</a>
+        </nav>
+        <div class="mt-6 space-y-3">
+          <button routerLink="/shop" class="w-full bg-secondary/70 text-primary px-4 py-2 rounded-full font-bold hover:bg-secondary transition">
+            Back to shop
+          </button>
+          <button routerLink="/shop/catalog" class="w-full bg-primary/10 text-primary px-4 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition">
+            View catalog
+          </button>
+          <button routerLink="/shop/bundles" class="w-full bg-primary text-white px-4 py-2 rounded-full font-bold hover:bg-opacity-90 transition">
+            Bundles
+          </button>
+          <button (click)="refreshData()" class="w-full bg-primary/10 text-primary px-4 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition">
+            Refresh
+          </button>
+        </div>
+      </aside>
+
+      <div class="admin-content space-y-12">
+        <div class="admin-topbar">
+          <div>
+            <div class="inline-flex items-center space-x-2 bg-primary/10 text-primary text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider mb-3">
+              <span>Shop admin</span>
+              <span>🛠️</span>
+            </div>
+            <h1 class="text-3xl lg:text-4xl font-extrabold text-primary">{{ getSectionTitle() }}</h1>
+            <p class="text-gray-500">Operate the ecommerce back office with focused tools.</p>
+          </div>
+          <div class="admin-topbar-actions"></div>
+        </div>
+
+    <div class="fixed top-6 right-6 z-50 space-y-3 w-80" *ngIf="toasts.length">
+      <div *ngFor="let toast of toasts" class="border rounded-2xl px-4 py-3 text-sm shadow-lg flex items-start gap-3 bg-white" [ngClass]="{
+        'border-emerald-200 text-emerald-700 bg-emerald-50': toast.type === 'success',
+        'border-rose-200 text-rose-700 bg-rose-50': toast.type === 'error',
+        'border-sky-200 text-sky-700 bg-sky-50': toast.type === 'info'
+      }">
+        <div class="flex-1">{{ toast.message }}</div>
+        <button type="button" (click)="dismissToast(toast.id)" class="text-xs text-gray-400 hover:text-gray-600">✕</button>
+      </div>
+    </div>
+
+        <section id="section-overview" class="admin-dashboard" *ngIf="isSection('overview')">
+          <div class="admin-kpi-grid">
+            <div *ngFor="let stat of stats" class="admin-kpi-card">
+              <div class="text-xs text-gray-400 uppercase tracking-wide">{{ stat.label }}</div>
+              <div class="text-3xl font-black text-primary mt-3">{{ stat.value }}</div>
+              <div class="text-xs text-gray-400 mt-2">{{ stat.note }}</div>
+            </div>
+          </div>
+
+          <div class="admin-dashboard-grid">
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <div>
+                  <div class="text-sm text-gray-400">Search insights</div>
+                  <div class="text-xl font-bold text-primary">Top searches</div>
+                </div>
+                <a routerLink="/shop/admin/analytics" class="text-xs text-primary font-semibold">View all</a>
+              </div>
+              <div class="space-y-3" *ngIf="topSearches.length; else emptyOverviewSearches">
+                <div *ngFor="let item of topSearches" class="space-y-2">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="font-semibold text-primary">{{ item.keyword }}</span>
+                    <span class="text-gray-400">{{ item.count }}</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-secondary/40">
+                    <div class="h-2 rounded-full bg-primary" [style.width]="getBarWidth(item.count, getMaxSearchCount(topSearches))"></div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #emptyOverviewSearches>
+                <div class="text-sm text-gray-400">No search data yet.</div>
+              </ng-template>
+            </div>
+
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <div>
+                  <div class="text-sm text-gray-400">Operations</div>
+                  <div class="text-xl font-bold text-primary">Order status snapshot</div>
+                </div>
+                <a routerLink="/shop/admin/orders" class="text-xs text-primary font-semibold">Manage orders</a>
+              </div>
+              <div class="admin-status-grid">
+                <div class="admin-status-pill">
+                  <span class="text-xs text-gray-400">Pending</span>
+                  <span class="text-lg font-bold text-primary">{{ getOrderCountByStatus('PENDING') }}</span>
+                </div>
+                <div class="admin-status-pill">
+                  <span class="text-xs text-gray-400">Confirmed</span>
+                  <span class="text-lg font-bold text-primary">{{ getOrderCountByStatus('CONFIRMED') }}</span>
+                </div>
+                <div class="admin-status-pill">
+                  <span class="text-xs text-gray-400">Shipped</span>
+                  <span class="text-lg font-bold text-primary">{{ getOrderCountByStatus('SHIPPED') }}</span>
+                </div>
+                <div class="admin-status-pill">
+                  <span class="text-xs text-gray-400">Delivered</span>
+                  <span class="text-lg font-bold text-primary">{{ getOrderCountByStatus('DELIVERED') }}</span>
+                </div>
+                <div class="admin-status-pill">
+                  <span class="text-xs text-gray-400">Cancelled</span>
+                  <span class="text-lg font-bold text-primary">{{ getOrderCountByStatus('CANCELLED') }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <div>
+                  <div class="text-sm text-gray-400">Recent activity</div>
+                  <div class="text-xl font-bold text-primary">Audit log</div>
+                </div>
+                <a routerLink="/shop/admin/analytics" class="text-xs text-primary font-semibold">View logs</a>
+              </div>
+              <div class="admin-activity" *ngIf="auditLogs.length; else emptyOverviewAudit">
+                <div *ngFor="let log of auditLogs | slice:0:6" class="admin-activity-item">
+                  <div>
+                    <div class="text-xs text-gray-400">{{ log.createdAt | date:'short' }}</div>
+                    <div class="font-semibold text-primary">{{ log.action }}</div>
+                  </div>
+                  <div class="text-xs text-gray-500">{{ log.description }}</div>
+                </div>
+              </div>
+              <ng-template #emptyOverviewAudit>
+                <div class="text-sm text-gray-400">No audit logs yet.</div>
+              </ng-template>
+            </div>
+
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <div>
+                  <div class="text-sm text-gray-400">Inventory focus</div>
+                  <div class="text-xl font-bold text-primary">Product health</div>
+                </div>
+                <a routerLink="/shop/admin/products" class="text-xs text-primary font-semibold">Manage</a>
+              </div>
+              <div class="space-y-3">
+                <div class="admin-status-pill">
+                  <span class="text-xs text-gray-400">Active products</span>
+                  <span class="text-lg font-bold text-primary">{{ stats[0]?.value || 0 }}</span>
+                </div>
+                <div class="admin-status-pill">
+                  <span class="text-xs text-gray-400">Categories in use</span>
+                  <span class="text-lg font-bold text-primary">{{ stats[1]?.value || 0 }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <section id="section-products" class="grid grid-cols-1 lg:grid-cols-3 gap-8" *ngIf="isSection('products')">
+      <div class="lg:col-span-2 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-xl font-bold text-primary">All products</h3>
+            <p class="text-sm text-gray-500">Review inventory, then select a product to edit.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input type="text" [(ngModel)]="productQuery" (ngModelChange)="resetProductPagination()" placeholder="Search products" class="w-full md:w-64 px-4 py-2 rounded-full border border-gray-200 focus:border-primary outline-none text-sm" />
+            <button (click)="clearProductImage(); productForm.id = null" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-semibold hover:bg-primary hover:text-white transition">
+              New product
+            </button>
+          </div>
+          <div class="text-xs text-gray-400" *ngIf="loading">Loading...</div>
+        </div>
+        <div class="text-xs text-gray-400 mb-3" *ngIf="filteredProducts.length > productPageSize">
+          Page {{ productPage }} of {{ productTotalPages }} · {{ filteredProducts.length }} total products
+        </div>
+        <div class="space-y-4" *ngIf="filteredProducts.length; else emptyProducts">
+          <div class="admin-row admin-row-header">
+            <div class="admin-row-main">
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Product</span>
+            </div>
+            <div class="admin-row-meta">
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Stock</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Price</span>
+            </div>
+            <span class="text-xs text-gray-400 uppercase tracking-wide">Action</span>
+          </div>
+          <div *ngFor="let product of pagedProducts" class="admin-row">
+            <div class="admin-row-main">
+              <div class="admin-row-media">
+                <img *ngIf="product.imageUrl" [src]="product.imageUrl" alt="Product image" />
+                <span *ngIf="!product.imageUrl">No image</span>
+              </div>
+              <div>
+                <div class="text-sm text-gray-400">#{{ product.id }}</div>
+                <div class="font-bold text-primary">{{ product.name }}</div>
+                <div class="text-xs text-gray-500">{{ product.categoryName || 'Category ' + product.categoryId }}</div>
+              </div>
+            </div>
+            <div class="admin-row-meta">
+              <div class="text-sm text-gray-500">Stock <span class="font-semibold text-primary">{{ product.quantityAvailable }}</span></div>
+              <div class="text-sm font-bold text-primary">
+                {{ product.price }} TND
+                <span *ngIf="product.originalPrice && product.originalPrice > product.price" class="text-xs text-gray-400 line-through font-medium ml-2">
+                  {{ product.originalPrice }} TND
+                </span>
+              </div>
+            </div>
+            <button (click)="selectProduct(product)" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-xs hover:bg-primary hover:text-white transition">
+              Edit
+            </button>
+          </div>
+        </div>
+        <div class="admin-pagination" *ngIf="filteredProducts.length > productPageSize">
+          <button (click)="goToProductPage(productPage - 1)" [disabled]="productPage === 1" class="admin-page-btn">Prev</button>
+          <div class="admin-page-indicator">Page {{ productPage }} of {{ productTotalPages }}</div>
+          <button (click)="goToProductPage(productPage + 1)" [disabled]="productPage === productTotalPages" class="admin-page-btn">Next</button>
+        </div>
+        <ng-template #emptyProducts>
+          <div class="bg-secondary/20 rounded-2xl p-6 text-sm text-gray-500">No products yet. Add one to get started.</div>
+        </ng-template>
+      </div>
+
+      <div class="lg:col-span-1 bg-white rounded-3xl border border-gray-100 p-6 space-y-6 shadow-sm">
+        <div>
+          <h2 class="text-2xl font-bold text-primary mb-2">Product editor</h2>
+          <p class="text-sm text-gray-500">Create a product or update the selected item.</p>
+        </div>
+        <div class="text-xs text-gray-400" *ngIf="productForm.id">Selected product #{{ productForm.id }}</div>
+        <div class="space-y-4">
+          <input type="text" name="productName" [(ngModel)]="productForm.name" placeholder="Product name" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <input type="text" name="productIsbn" [(ngModel)]="productForm.isbn" placeholder="ISBN (optional)" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <input type="text" name="productDescription" [(ngModel)]="productForm.description" placeholder="Description" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center gap-3">
+              <label class="bg-primary text-white px-4 py-2 rounded-full font-semibold cursor-pointer hover:bg-opacity-90 transition">
+                Choose image
+                <input type="file" accept="image/*" (change)="onProductImageSelected($event)" class="hidden" />
+              </label>
+              <button type="button" (click)="clearProductImage()" class="bg-secondary/70 text-primary px-4 py-2 rounded-full font-semibold hover:bg-secondary transition" [disabled]="!productForm.imageUrl">
+                Remove image
+              </button>
+              <span class="text-xs text-gray-400" *ngIf="!productForm.imageUrl">No image selected</span>
+            </div>
+            <input type="text" name="productImageUrl" [(ngModel)]="productForm.imageUrl" placeholder="Or paste an image link" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input type="number" name="productPrice" [(ngModel)]="productForm.price" placeholder="Price" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+            <input type="number" name="productOriginalPrice" [(ngModel)]="productForm.originalPrice" placeholder="Original price" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+            <input type="number" name="productQuantity" [(ngModel)]="productForm.quantityAvailable" placeholder="Quantity" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="number" name="productDiscountPercent" [(ngModel)]="productForm.discountPercent" placeholder="Discount %" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+            <input type="datetime-local" name="productDiscountEndsAt" [(ngModel)]="productForm.discountEndsAt" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          </div>
+          <div class="relative">
+            <select name="productCategoryId" [(ngModel)]="productForm.categoryId" class="w-full appearance-none px-4 py-3 pr-10 rounded-2xl border border-gray-200 focus:border-primary outline-none bg-white shadow-sm">
+              <option [ngValue]="null">Select a category</option>
+              <option *ngFor="let category of categories" [ngValue]="category.id">{{ category.name }}</option>
+            </select>
+            <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">⌄</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-3">
+          <div class="flex items-center gap-4 border border-gray-100 rounded-2xl p-4" *ngIf="productForm.name || productForm.imagePreviewUrl || productForm.imageUrl">
+            <div class="w-16 h-16 rounded-2xl overflow-hidden bg-secondary/40 flex items-center justify-center text-xs text-gray-400">
+              <img *ngIf="productForm.imagePreviewUrl || productForm.imageUrl" [src]="productForm.imagePreviewUrl || productForm.imageUrl" alt="Product preview" class="w-full h-full object-cover" />
+              <span *ngIf="!productForm.imagePreviewUrl && !productForm.imageUrl">No image</span>
+            </div>
+            <div>
+              <div class="text-xs text-gray-400">Preview</div>
+              <div class="font-semibold text-primary">{{ productForm.name || 'New product' }}</div>
+              <div class="text-xs text-gray-500">{{ productForm.description || 'Add a short description' }}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 border border-gray-100 rounded-2xl p-4" *ngIf="getSelectedCategory() as selectedCategory">
+            <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold">#{{ selectedCategory.id }}</div>
+            <div>
+              <div class="text-xs text-gray-400">Selected category</div>
+              <div class="font-semibold text-primary">{{ selectedCategory.name }}</div>
+              <div class="text-xs text-gray-500">{{ selectedCategory.description || 'No description' }}</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button (click)="createProduct()" class="bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition" [disabled]="loading || !isProductFormValid">Add product</button>
+          <button (click)="updateProduct()" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition" [disabled]="loading || !productForm.id || !isProductFormValid">Save changes</button>
+          <button (click)="deleteProduct()" class="bg-secondary/70 text-primary px-6 py-2 rounded-full font-bold hover:bg-secondary transition" [disabled]="loading || !productForm.id">Remove</button>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="section-categories" class="grid grid-cols-1 lg:grid-cols-3 gap-8" *ngIf="isSection('categories')">
+      <div class="lg:col-span-2 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-xl font-bold text-primary">All categories</h3>
+            <p class="text-sm text-gray-500">Keep your catalog organized by topic.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input type="text" [(ngModel)]="categoryQuery" (ngModelChange)="resetCategoryPagination()" placeholder="Search categories" class="w-full md:w-64 px-4 py-2 rounded-full border border-gray-200 focus:border-primary outline-none text-sm" />
+            <button (click)="categoryForm.id = null; categoryForm.name = ''; categoryForm.description = ''" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-semibold hover:bg-primary hover:text-white transition">
+              New category
+            </button>
+          </div>
+        </div>
+        <div class="space-y-3" *ngIf="filteredCategories.length; else emptyCategories">
+          <div class="admin-row admin-row-header">
+            <div class="admin-row-main">
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Category</span>
+            </div>
+            <div class="admin-row-meta">
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Description</span>
+            </div>
+            <span class="text-xs text-gray-400 uppercase tracking-wide">Action</span>
+          </div>
+          <div *ngFor="let category of pagedCategories" class="admin-row">
+            <div class="admin-row-main">
+              <div class="admin-row-media">
+                <span>#{{ category.id }}</span>
+              </div>
+              <div>
+                <div class="font-bold text-primary">{{ category.name }}</div>
+                <div class="text-xs text-gray-500">{{ category.description || 'No description' }}</div>
+              </div>
+            </div>
+            <div class="admin-row-meta">
+              <span class="text-xs text-gray-400">Products: {{ getCategoryProductCount(category.id) }}</span>
+              <span class="text-xs text-gray-400">ID {{ category.id }}</span>
+            </div>
+            <button (click)="selectCategory(category)" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-xs hover:bg-primary hover:text-white transition">
+              Edit
+            </button>
+          </div>
+        </div>
+        <div class="admin-pagination" *ngIf="filteredCategories.length > categoryPageSize">
+          <button (click)="goToCategoryPage(categoryPage - 1)" [disabled]="categoryPage === 1" class="admin-page-btn">Prev</button>
+          <div class="admin-page-indicator">Page {{ categoryPage }} of {{ categoryTotalPages }}</div>
+          <button (click)="goToCategoryPage(categoryPage + 1)" [disabled]="categoryPage === categoryTotalPages" class="admin-page-btn">Next</button>
+        </div>
+        <ng-template #emptyCategories>
+          <div class="bg-secondary/20 rounded-2xl p-6 text-sm text-gray-500">No categories yet. Add one to organize products.</div>
+        </ng-template>
+      </div>
+
+      <div class="lg:col-span-1 bg-white rounded-3xl border border-gray-100 p-6 space-y-6 shadow-sm">
+        <div>
+          <h2 class="text-xl font-bold text-primary mb-2">Category editor</h2>
+          <p class="text-sm text-gray-500">Create a new category or update the selected one.</p>
+        </div>
+        <div class="text-xs text-gray-400" *ngIf="categoryForm.id">Selected category #{{ categoryForm.id }}</div>
+        <div class="space-y-4">
+          <input type="text" name="categoryName" [(ngModel)]="categoryForm.name" placeholder="Category name" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <input type="text" name="categoryDescription" [(ngModel)]="categoryForm.description" placeholder="Description" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button (click)="createCategory()" class="bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition" [disabled]="loading || !isCategoryFormValid">Add category</button>
+          <button (click)="updateCategory()" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition" [disabled]="loading || !categoryForm.id || !isCategoryFormValid">Save changes</button>
+          <button (click)="deleteCategory()" class="bg-secondary/70 text-primary px-6 py-2 rounded-full font-bold hover:bg-secondary transition" [disabled]="loading || !categoryForm.id">Remove</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-bundles" class="grid grid-cols-1 lg:grid-cols-3 gap-8" *ngIf="isSection('bundles')">
+      <div class="lg:col-span-2 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-xl font-bold text-primary">All bundles</h3>
+            <p class="text-sm text-gray-500">Review pricing and items before editing.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input type="text" [(ngModel)]="bundleQuery" (ngModelChange)="resetBundlePagination()" placeholder="Search bundles" class="w-full md:w-64 px-4 py-2 rounded-full border border-gray-200 focus:border-primary outline-none text-sm" />
+            <button (click)="bundleForm.id = null" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-semibold hover:bg-primary hover:text-white transition">
+              New bundle
+            </button>
+          </div>
+        </div>
+        <div class="space-y-3" *ngIf="filteredBundles.length; else emptyBundles">
+          <div class="admin-row admin-row-header">
+            <div class="admin-row-main">
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Bundle</span>
+            </div>
+            <div class="admin-row-meta">
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Status</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Price</span>
+            </div>
+            <span class="text-xs text-gray-400 uppercase tracking-wide">Action</span>
+          </div>
+          <div *ngFor="let bundle of pagedBundles" class="admin-row">
+            <div class="admin-row-main">
+              <div class="admin-row-media">
+                <img *ngIf="bundle.imageUrl" [src]="bundle.imageUrl" alt="Bundle image" />
+                <span *ngIf="!bundle.imageUrl">No image</span>
+              </div>
+              <div>
+                <div class="font-bold text-primary">{{ bundle.name }}</div>
+                <div class="text-xs text-gray-500">{{ bundle.items?.length || 0 }} items</div>
+              </div>
+            </div>
+            <div class="admin-row-meta">
+              <span class="text-xs px-3 py-1 rounded-full"
+                    [ngClass]="bundle.status === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'">
+                {{ bundle.status }}
+              </span>
+              <span class="text-sm font-semibold text-primary">{{ bundle.price }} TND</span>
+            </div>
+            <button (click)="selectBundle(bundle)" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-xs hover:bg-primary hover:text-white transition">
+              Edit
+            </button>
+          </div>
+        </div>
+        <div class="admin-pagination" *ngIf="filteredBundles.length > bundlePageSize">
+          <button (click)="goToBundlePage(bundlePage - 1)" [disabled]="bundlePage === 1" class="admin-page-btn">Prev</button>
+          <div class="admin-page-indicator">Page {{ bundlePage }} of {{ bundleTotalPages }}</div>
+          <button (click)="goToBundlePage(bundlePage + 1)" [disabled]="bundlePage === bundleTotalPages" class="admin-page-btn">Next</button>
+        </div>
+        <ng-template #emptyBundles>
+          <div class="bg-secondary/20 rounded-2xl p-6 text-sm text-gray-500">No bundles yet. Build your first bundle.</div>
+        </ng-template>
+      </div>
+
+      <div class="lg:col-span-1 bg-white rounded-3xl border border-gray-100 p-6 space-y-6 shadow-sm">
+        <div>
+          <h2 class="text-xl font-bold text-primary mb-2">Bundle editor</h2>
+          <p class="text-sm text-gray-500">Create a new bundle or update a selected one.</p>
+        </div>
+        <div class="text-xs text-gray-400" *ngIf="bundleForm.id">Selected bundle #{{ bundleForm.id }}</div>
+        <div class="flex flex-wrap gap-3">
+          <button routerLink="/shop/bundles" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition">
+            Open bundles page
+          </button>
+        </div>
+        <div class="space-y-4">
+          <input type="text" name="bundleName" [(ngModel)]="bundleForm.name" placeholder="Bundle name" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <input type="text" name="bundleDescription" [(ngModel)]="bundleForm.description" placeholder="Description" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center gap-3">
+              <label class="bg-primary text-white px-4 py-2 rounded-full font-semibold cursor-pointer hover:bg-opacity-90 transition">
+                Choose image
+                <input type="file" accept="image/*" (change)="onBundleImageSelected($event)" class="hidden" />
+              </label>
+              <button type="button" (click)="clearBundleImage()" class="bg-secondary/70 text-primary px-4 py-2 rounded-full font-semibold hover:bg-secondary transition" [disabled]="!bundleForm.imageUrl">
+                Remove image
+              </button>
+              <span class="text-xs text-gray-400" *ngIf="!bundleForm.imageUrl">No image selected</span>
+            </div>
+            <input type="text" name="bundleImageUrl" [(ngModel)]="bundleForm.imageUrl" placeholder="Or paste an image link" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <input type="number" name="bundlePrice" [(ngModel)]="bundleForm.price" placeholder="Price" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+            <select name="bundleStatus" [(ngModel)]="bundleForm.status" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none bg-white">
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="DRAFT">DRAFT</option>
+            </select>
+          </div>
+          <button (click)="openBundlePicker()" class="w-full bg-white border border-dashed border-primary/40 text-primary px-4 py-3 rounded-2xl font-semibold hover:bg-primary/5 transition">
+            Choose products for this bundle
+          </button>
+          <div class="space-y-3" *ngIf="bundleForm.selectedItems.length">
+            <div *ngFor="let item of bundleForm.selectedItems" class="flex items-center justify-between gap-4 border border-gray-100 rounded-2xl p-4">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl overflow-hidden bg-secondary/40 flex items-center justify-center text-xs text-gray-400">
+                  <img *ngIf="getBundleItemProduct(item.productId)?.imageUrl" [src]="getBundleItemProduct(item.productId)?.imageUrl" alt="Product image" class="w-full h-full object-cover" />
+                  <span *ngIf="!getBundleItemProduct(item.productId)?.imageUrl">No image</span>
+                </div>
+                <div>
+                  <div class="font-semibold text-primary">{{ getBundleItemProduct(item.productId)?.name || 'Product ' + item.productId }}</div>
+                  <div class="text-xs text-gray-400">ID {{ item.productId }}</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="number" min="1" [ngModel]="item.quantity" (ngModelChange)="updateBundleItemQuantity(item.productId, $event)" class="w-20 px-3 py-2 rounded-xl border border-gray-200 focus:border-primary outline-none" />
+                <button (click)="removeBundleItem(item.productId)" class="bg-rose-50 text-rose-600 px-3 py-2 rounded-xl font-semibold hover:bg-rose-100 transition">
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button (click)="createBundle()" class="bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition" [disabled]="loading || !isBundleFormValid">Add bundle</button>
+          <button (click)="updateBundle()" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition" [disabled]="loading || !bundleForm.id || !isBundleFormValid">Save changes</button>
+          <button (click)="deleteBundle()" class="bg-secondary/70 text-primary px-6 py-2 rounded-full font-bold hover:bg-secondary transition" [disabled]="loading || !bundleForm.id">Remove</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-coupons" class="grid grid-cols-1 lg:grid-cols-3 gap-8" *ngIf="isSection('coupons')">
+      <div class="lg:col-span-2 bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-xl font-bold text-primary">All coupons</h3>
+            <p class="text-sm text-gray-500">Track usage and status for each code.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input type="text" [(ngModel)]="couponQuery" (ngModelChange)="resetCouponPagination()" placeholder="Search coupons" class="w-full md:w-64 px-4 py-2 rounded-full border border-gray-200 focus:border-primary outline-none text-sm" />
+            <button (click)="couponForm.id = null" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-semibold hover:bg-primary hover:text-white transition">
+              New coupon
+            </button>
+          </div>
+        </div>
+        <div class="space-y-3" *ngIf="filteredCoupons.length; else emptyCoupons">
+          <div class="admin-row admin-row-header">
+            <div class="admin-row-main">
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Coupon</span>
+            </div>
+            <div class="admin-row-meta">
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Usage</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Status</span>
+            </div>
+            <span class="text-xs text-gray-400 uppercase tracking-wide">Action</span>
+          </div>
+          <div *ngFor="let coupon of pagedCoupons" class="admin-row">
+            <div class="admin-row-main">
+              <div class="admin-row-media">
+                <span>{{ coupon.code?.slice(0, 2) || 'CP' }}</span>
+              </div>
+              <div>
+                <div class="font-bold text-primary">{{ coupon.code }}</div>
+                <div class="text-xs text-gray-500">{{ coupon.type }} · {{ coupon.value }}</div>
+              </div>
+            </div>
+            <div class="admin-row-meta">
+              <span class="text-xs text-gray-400">Used {{ coupon.usedCount || 0 }} / {{ coupon.usageLimit || '∞' }}</span>
+              <span class="text-xs px-3 py-1 rounded-full" [ngClass]="coupon.active ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'">
+                {{ coupon.active ? 'ACTIVE' : 'INACTIVE' }}
+              </span>
+            </div>
+            <button (click)="selectCoupon(coupon)" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-xs hover:bg-primary hover:text-white transition">
+              Edit
+            </button>
+          </div>
+        </div>
+        <div class="admin-pagination" *ngIf="filteredCoupons.length > couponPageSize">
+          <button (click)="goToCouponPage(couponPage - 1)" [disabled]="couponPage === 1" class="admin-page-btn">Prev</button>
+          <div class="admin-page-indicator">Page {{ couponPage }} of {{ couponTotalPages }}</div>
+          <button (click)="goToCouponPage(couponPage + 1)" [disabled]="couponPage === couponTotalPages" class="admin-page-btn">Next</button>
+        </div>
+        <ng-template #emptyCoupons>
+          <div class="bg-secondary/20 rounded-2xl p-6 text-sm text-gray-500">No coupons yet. Create a promo code.</div>
+        </ng-template>
+      </div>
+
+      <div class="lg:col-span-1 bg-white rounded-3xl border border-gray-100 p-6 space-y-6 shadow-sm">
+        <div>
+          <h2 class="text-xl font-bold text-primary mb-2">Coupon editor</h2>
+          <p class="text-sm text-gray-500">Create a new coupon or update a selected one.</p>
+        </div>
+        <div class="text-xs text-gray-400" *ngIf="couponForm.id">Selected coupon #{{ couponForm.id }}</div>
+        <div class="space-y-4">
+          <input type="text" name="couponCode" [(ngModel)]="couponForm.code" placeholder="Code" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <input type="text" name="couponDescription" [(ngModel)]="couponForm.description" placeholder="Description" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <select name="couponType" [(ngModel)]="couponForm.type" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none bg-white">
+              <option value="PERCENT">PERCENT</option>
+              <option value="FIXED">FIXED</option>
+              <option value="FREE_SHIPPING">FREE_SHIPPING</option>
+            </select>
+            <input type="number" name="couponValue" [(ngModel)]="couponForm.value" placeholder="Value" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="number" name="couponMinTotal" [(ngModel)]="couponForm.minOrderTotal" placeholder="Min order total" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+            <input type="number" name="couponMaxDiscount" [(ngModel)]="couponForm.maxDiscount" placeholder="Max discount" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="number" name="couponUsageLimit" [(ngModel)]="couponForm.usageLimit" placeholder="Usage limit" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+            <label class="flex items-center gap-2 text-sm text-gray-600">
+              <input type="checkbox" [(ngModel)]="couponForm.active" />
+              Active
+            </label>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="datetime-local" name="couponStartsAt" [(ngModel)]="couponForm.startsAt" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+            <input type="datetime-local" name="couponEndsAt" [(ngModel)]="couponForm.endsAt" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <button (click)="createCoupon()" class="bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition" [disabled]="loading || !isCouponFormValid">Add coupon</button>
+          <button (click)="updateCoupon()" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition" [disabled]="loading || !couponForm.id || !isCouponFormValid">Save changes</button>
+          <button (click)="deleteCoupon()" class="bg-secondary/70 text-primary px-6 py-2 rounded-full font-bold hover:bg-secondary transition" [disabled]="loading || !couponForm.id">Remove</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="section-orders" class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-6" *ngIf="isSection('orders')">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-primary mb-2">Orders</h2>
+          <p class="text-sm text-gray-500">Create orders and adjust their status.</p>
+        </div>
+        <div class="text-xs text-gray-400" *ngIf="loading">Loading...</div>
+      </div>
+      <div class="order-filters">
+        <input type="text" [(ngModel)]="orderQuery" (ngModelChange)="resetOrderPagination()" placeholder="Search orders by status or total" class="w-full md:w-80 px-4 py-2 rounded-full border border-gray-200 focus:border-primary outline-none text-sm" />
+        <div class="order-date-filters">
+          <div class="order-date-field">
+            <span>From</span>
+            <input type="date" [(ngModel)]="orderDateFrom" (ngModelChange)="resetOrderPagination()" />
+          </div>
+          <div class="order-date-field">
+            <span>To</span>
+            <input type="date" [(ngModel)]="orderDateTo" (ngModelChange)="resetOrderPagination()" />
+          </div>
+        </div>
+      </div>
+
+      <div class="order-panels">
+        <div class="order-panel">
+          <div>
+            <div class="order-panel-title">Order list</div>
+            <div class="order-panel-subtitle">Select an order to enable updates and assignments.</div>
+          </div>
+          <div class="space-y-3" *ngIf="filteredOrders.length; else emptyOrders">
+            <div class="admin-row admin-row-header">
+              <div class="admin-row-main">
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Order summary</span>
+              </div>
+              <div class="admin-row-meta">
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Status</span>
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Delivery agent</span>
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Order time</span>
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Total</span>
+              </div>
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Actions</span>
+            </div>
+            <div *ngFor="let order of pagedOrders" class="admin-row" [class.admin-row-selected]="order.id === selectedOrderId">
+              <div class="admin-row-main">
+                <div>
+                  <div class="font-semibold text-primary">Order in progress</div>
+                  <div class="text-xs text-gray-500">{{ order.orderItems?.length || 0 }} items • {{ order.totalPrice }} TND</div>
+                  <div class="text-xs text-gray-400">Customer account on file</div>
+                </div>
+              </div>
+              <div class="admin-row-meta">
+                <span class="text-xs px-3 py-1 rounded-full"
+                      [ngClass]="order.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-700' : order.status === 'PENDING' ? 'bg-amber-100 text-amber-700' : order.status === 'CANCELLED' ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700'">
+                  {{ order.status }}
+                </span>
+                <span class="text-xs text-gray-400">{{ getCourierAssignmentLabel(order.id) }}</span>
+                <span class="text-xs text-gray-400">{{ order.createdAt ? (order.createdAt | date:'medium') : '—' }}</span>
+                <span class="text-sm font-semibold text-primary">{{ order.totalPrice }} TND</span>
+              </div>
+              <div class="admin-row-actions">
+                <button (click)="selectOrder(order)" class="bg-primary/10 text-primary px-4 py-2 rounded-full font-bold text-xs hover:bg-primary hover:text-white transition">
+                  Select order
+                </button>
+                <button (click)="toggleOrderItems(order.id)" class="bg-secondary/70 text-primary px-3 py-2 rounded-full font-bold text-xs hover:bg-secondary transition">
+                  {{ isOrderExpanded(order.id) ? 'Hide items' : 'View items' }}
+                </button>
+              </div>
+            </div>
+            <ng-container *ngFor="let order of pagedOrders">
+              <div class="border border-gray-100 rounded-2xl p-4 space-y-3" *ngIf="isOrderExpanded(order.id)">
+                <div class="text-xs text-gray-400">Items</div>
+                <div *ngFor="let item of order.orderItems" class="flex items-center justify-between text-xs text-gray-500">
+                  <div class="font-semibold text-primary">{{ item.productName || 'Product' }}</div>
+                  <div>Qty {{ item.quantity }}</div>
+                  <div>{{ item.price || 0 }} TND</div>
+                  <div>{{ item.subtotal || 0 }} TND</div>
+                </div>
+              </div>
+            </ng-container>
+          </div>
+          <div class="admin-pagination" *ngIf="filteredOrders.length > orderPageSize">
+            <button (click)="goToOrderPage(orderPage - 1)" [disabled]="orderPage === 1" class="admin-page-btn">Prev</button>
+            <div class="admin-page-indicator">Page {{ orderPage }} of {{ orderTotalPages }}</div>
+            <button (click)="goToOrderPage(orderPage + 1)" [disabled]="orderPage === orderTotalPages" class="admin-page-btn">Next</button>
+          </div>
+        </div>
+
+        <div class="order-panel">
+          <div>
+            <div class="order-panel-title">Create order</div>
+            <div class="order-panel-subtitle">Build a new order with selected products.</div>
+          </div>
+          <input type="number" name="orderCustomerId" [(ngModel)]="orderForm.customerId" placeholder="Customer account" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+          <button (click)="openOrderPicker()" class="w-full bg-white border border-dashed border-primary/40 text-primary px-4 py-3 rounded-2xl font-semibold hover:bg-primary/5 transition">
+            Choose products for this order
+          </button>
+          <div class="space-y-3" *ngIf="orderForm.selectedItems.length">
+            <div *ngFor="let item of orderForm.selectedItems" class="flex items-center justify-between gap-4 border border-gray-100 rounded-2xl p-4 bg-white">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl overflow-hidden bg-secondary/40 flex items-center justify-center text-xs text-gray-400">
+                  <img *ngIf="getOrderProduct(item.productId)?.imageUrl" [src]="getOrderProduct(item.productId)?.imageUrl" alt="Product image" class="w-full h-full object-cover" />
+                  <span *ngIf="!getOrderProduct(item.productId)?.imageUrl">No image</span>
+                </div>
+                <div>
+                  <div class="font-semibold text-primary">{{ getOrderProduct(item.productId)?.name || 'Product' }}</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="number" min="1" [ngModel]="item.quantity" (ngModelChange)="updateOrderItemQuantity(item.productId, $event)" class="w-20 px-3 py-2 rounded-xl border border-gray-200 focus:border-primary outline-none" />
+                <button (click)="removeOrderItem(item.productId)" class="bg-rose-50 text-rose-600 px-3 py-2 rounded-xl font-semibold hover:bg-rose-100 transition">
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+          <button (click)="createOrder()" class="bg-primary text-white px-6 py-2 rounded-full font-bold hover:bg-opacity-90 transition" [disabled]="loading || !isOrderFormValid">
+            Create order
+          </button>
+        </div>
+
+        <div class="order-panel">
+          <div>
+            <div class="order-panel-title">Update status</div>
+            <div class="order-panel-subtitle">Select an order first, then update status here.</div>
+          </div>
+          <div class="text-xs text-gray-500" *ngIf="selectedOrderSummary">
+            Selected order • {{ selectedOrderSummary.items }} items • {{ selectedOrderSummary.total }} TND • {{ selectedOrderSummary.status }}
+          </div>
+          <select name="orderStatus" [(ngModel)]="orderStatusForm.status" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none bg-white" [disabled]="!selectedOrderSummary">
+            <option value="PENDING">PENDING</option>
+            <option value="CONFIRMED">CONFIRMED</option>
+            <option value="SHIPPED">SHIPPED</option>
+            <option value="DELIVERED">DELIVERED</option>
+            <option value="CANCELLED">CANCELLED</option>
+          </select>
+          <div class="flex flex-wrap gap-3">
+            <button (click)="saveSelectedOrderStatus()" class="bg-primary text-white px-5 py-2 rounded-full font-bold hover:bg-opacity-90 transition" [disabled]="loading || !selectedOrderSummary">
+              Save status
+            </button>
+            <button (click)="cancelSelectedOrder()" class="bg-secondary/70 text-primary px-5 py-2 rounded-full font-bold hover:bg-secondary transition" [disabled]="loading || !selectedOrderSummary">
+              Cancel order
+            </button>
+          </div>
+        </div>
+
+        <div class="order-panel">
+          <div>
+            <div class="order-panel-title">Assign delivery agent</div>
+            <div class="order-panel-subtitle">Select an order, then choose a delivery agent.</div>
+          </div>
+          <div class="text-xs text-gray-500" *ngIf="selectedOrderSummary">
+            Selected order • {{ selectedOrderSummary.items }} items • {{ selectedOrderSummary.total }} TND • {{ selectedOrderSummary.status }}
+          </div>
+          <div class="text-xs text-gray-400" *ngIf="!selectedOrderSummary">Select an order from the list above.</div>
+          <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+            <input type="text" name="courierUsername" [(ngModel)]="courierUsername" placeholder="Search username" class="w-full px-4 py-3 rounded-2xl border border-gray-200 focus:border-primary outline-none" />
+            <button (click)="lookupCourier()" class="bg-primary/10 text-primary px-4 py-3 rounded-2xl font-semibold hover:bg-primary hover:text-white transition" [disabled]="courierLookupLoading">
+              {{ courierLookupLoading ? 'Searching...' : 'Find' }}
+            </button>
+          </div>
+          <div class="text-xs text-gray-400">Type the exact username and click Find to load it into the list.</div>
+          <div class="courier-dropdown" [class.open]="courierDropdownOpen">
+            <button type="button" class="courier-trigger" (click)="courierDropdownOpen = !courierDropdownOpen" [disabled]="!selectedOrderSummary">
+              <span>{{ selectedCourierLabel || 'Select a delivery agent' }}</span>
+              <span class="courier-caret">▾</span>
+            </button>
+            <div class="courier-menu" *ngIf="courierDropdownOpen">
+              <button type="button" class="courier-item" (click)="selectCourierCandidate(null)">
+                Select a delivery agent
+              </button>
+              <button type="button" class="courier-item" *ngFor="let profile of courierCandidates" (click)="selectCourierCandidate(profile)">
+                {{ getCourierDisplayName(profile) }}
+              </button>
+              <div class="courier-empty" *ngIf="!courierCandidates.length">No users loaded yet.</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button (click)="assignCourier()" class="bg-primary text-white px-5 py-2 rounded-full font-bold hover:bg-opacity-90 transition" [disabled]="loading || !selectedOrderSummary || !courierAssignmentForm.courierId">
+              Assign
+            </button>
+            <button (click)="unassignCourier()" class="bg-secondary/70 text-primary px-5 py-2 rounded-full font-bold hover:bg-secondary transition" [disabled]="loading || !selectedOrderSummary">
+              Unassign
+            </button>
+          </div>
+        </div>
+      </div>
+      <ng-template #emptyOrders>
+        <div class="bg-secondary/20 rounded-2xl p-6 text-sm text-gray-500">No orders yet. Create one to test the flow.</div>
+      </ng-template>
+    </section>
+
+    <section id="section-analytics" class="grid grid-cols-1 lg:grid-cols-3 gap-8" *ngIf="isSection('analytics')">
+      <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-5">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-bold text-primary">Search analytics</h2>
+              <p class="text-sm text-gray-500">Top searches and zero-result queries (last 30 days).</p>
+            </div>
+            <div class="text-xs text-gray-400" *ngIf="analyticsLoading">Loading...</div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-secondary/20 rounded-2xl p-4">
+              <div class="text-sm text-gray-500 mb-3">Top searches</div>
+              <div *ngIf="topSearches.length; else emptyTopSearches" class="space-y-2">
+                <div *ngFor="let item of topSearches" class="flex items-center justify-between text-sm">
+                  <span class="font-semibold text-primary">{{ item.keyword }}</span>
+                  <span class="text-gray-400">{{ item.count }}</span>
+                </div>
+                <div class="space-y-2 pt-2">
+                  <div *ngFor="let item of topSearches" class="h-2 rounded-full bg-white">
+                    <div class="h-2 rounded-full bg-primary" [style.width]="getBarWidth(item.count, getMaxSearchCount(topSearches))"></div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #emptyTopSearches>
+                <div class="text-sm text-gray-400">No search data yet.</div>
+              </ng-template>
+            </div>
+            <div class="bg-secondary/20 rounded-2xl p-4">
+              <div class="text-sm text-gray-500 mb-3">Zero-result searches</div>
+              <div *ngIf="zeroResultSearches.length; else emptyZeroSearches" class="space-y-2">
+                <div *ngFor="let item of zeroResultSearches" class="flex items-center justify-between text-sm">
+                  <span class="font-semibold text-primary">{{ item.keyword }}</span>
+                  <span class="text-gray-400">{{ item.count }}</span>
+                </div>
+                <div class="space-y-2 pt-2">
+                  <div *ngFor="let item of zeroResultSearches" class="h-2 rounded-full bg-white">
+                    <div class="h-2 rounded-full bg-amber-400" [style.width]="getBarWidth(item.count, getMaxSearchCount(zeroResultSearches))"></div>
+                  </div>
+                </div>
+              </div>
+              <ng-template #emptyZeroSearches>
+                <div class="text-sm text-gray-400">No zero-result queries.</div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-xl font-bold text-primary">Audit log</h2>
+              <p class="text-sm text-gray-500">Recent admin actions for traceability.</p>
+            </div>
+            <div class="text-xs text-gray-400" *ngIf="analyticsLoading">Loading...</div>
+          </div>
+          <input type="text" [(ngModel)]="auditQuery" (ngModelChange)="resetAuditPagination()" placeholder="Search audit logs" class="w-full px-4 py-2 rounded-full border border-gray-200 focus:border-primary outline-none text-sm" />
+          <div *ngIf="filteredAuditLogs.length; else emptyAuditLogs" class="space-y-3">
+            <div class="admin-row admin-row-header">
+              <div class="admin-row-main">
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Action</span>
+              </div>
+              <div class="admin-row-meta">
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Actor</span>
+                <span class="text-xs text-gray-400 uppercase tracking-wide">Time</span>
+              </div>
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Notes</span>
+            </div>
+            <div *ngFor="let log of pagedAuditLogs" class="admin-row">
+              <div class="admin-row-main">
+                <div>
+                  <div class="font-semibold text-primary">{{ log.action }}</div>
+                  <div class="text-xs text-gray-500">{{ log.entityType }} · {{ log.entityId || 'N/A' }}</div>
+                </div>
+              </div>
+              <div class="admin-row-meta">
+                <span class="text-xs text-gray-400">{{ log.actorId || 'Unknown' }}</span>
+                <span class="text-xs text-gray-400">{{ log.createdAt | date:'short' }}</span>
+              </div>
+              <span class="text-xs text-gray-500">{{ log.description || '-' }}</span>
+            </div>
+          </div>
+          <div class="admin-pagination" *ngIf="filteredAuditLogs.length > auditPageSize">
+            <button (click)="goToAuditPage(auditPage - 1)" [disabled]="auditPage === 1" class="admin-page-btn">Prev</button>
+            <div class="admin-page-indicator">Page {{ auditPage }} of {{ auditTotalPages }}</div>
+            <button (click)="goToAuditPage(auditPage + 1)" [disabled]="auditPage === auditTotalPages" class="admin-page-btn">Next</button>
+          </div>
+          <ng-template #emptyAuditLogs>
+            <div class="text-sm text-gray-400">No audit logs yet.</div>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="lg:col-span-1 space-y-6">
+        <div class="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm">
+          <h3 class="text-lg font-bold text-primary mb-3">Quick summary</h3>
+          <div class="space-y-3">
+            <div class="admin-status-pill">
+              <span class="text-xs text-gray-400">Top searches</span>
+              <span class="text-lg font-bold text-primary">{{ topSearches.length }}</span>
+            </div>
+            <div class="admin-status-pill">
+              <span class="text-xs text-gray-400">Zero-result queries</span>
+              <span class="text-lg font-bold text-primary">{{ zeroResultSearches.length }}</span>
+            </div>
+            <div class="admin-status-pill">
+              <span class="text-xs text-gray-400">Audit entries</span>
+              <span class="text-lg font-bold text-primary">{{ auditLogs.length }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isBundlePickerOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center px-4">
+  <div class="bg-white w-full max-w-4xl rounded-3xl shadow-xl p-6 space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-xs text-gray-400 uppercase tracking-wide">Bundle products</div>
+        <div class="text-2xl font-bold text-primary">Pick products</div>
+      </div>
+      <button (click)="closeBundlePicker()" class="bg-secondary/70 text-primary px-4 py-2 rounded-full font-bold hover:bg-secondary transition">
+        Close
+      </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-1">
+      <div *ngFor="let product of products" class="border border-gray-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl overflow-hidden bg-secondary/40 flex items-center justify-center text-xs text-gray-400">
+            <img *ngIf="product.imageUrl" [src]="product.imageUrl" alt="Product image" class="w-full h-full object-cover" />
+            <span *ngIf="!product.imageUrl">No image</span>
+          </div>
+          <div>
+            <div class="font-semibold text-primary">{{ product.name }}</div>
+            <div class="text-xs text-gray-400">{{ product.categoryName || 'Category ' + product.categoryId }}</div>
+            <div class="text-sm font-semibold text-primary">{{ product.price }} TND</div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button (click)="addBundleItem(product)" class="bg-primary text-white px-4 py-2 rounded-full font-semibold hover:bg-opacity-90 transition">
+            Add
+          </button>
+          <a [routerLink]="['/shop/product', product.id]" class="text-xs text-primary font-semibold underline text-center">
+            View details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="isOrderPickerOpen" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center px-4">
+  <div class="bg-white w-full max-w-4xl rounded-3xl shadow-xl p-6 space-y-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <div class="text-xs text-gray-400 uppercase tracking-wide">Order products</div>
+        <div class="text-2xl font-bold text-primary">Pick products</div>
+      </div>
+      <button (click)="closeOrderPicker()" class="bg-secondary/70 text-primary px-4 py-2 rounded-full font-bold hover:bg-secondary transition">
+        Close
+      </button>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-1">
+      <div *ngFor="let product of products" class="border border-gray-100 rounded-2xl p-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-2xl overflow-hidden bg-secondary/40 flex items-center justify-center text-xs text-gray-400">
+            <img *ngIf="product.imageUrl" [src]="product.imageUrl" alt="Product image" class="w-full h-full object-cover" />
+            <span *ngIf="!product.imageUrl">No image</span>
+          </div>
+          <div>
+            <div class="font-semibold text-primary">{{ product.name }}</div>
+            <div class="text-xs text-gray-400">{{ product.categoryName || 'Category ' + product.categoryId }}</div>
+            <div class="text-sm font-semibold text-primary">{{ product.price }} TND</div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button (click)="addOrderItem(product)" class="bg-primary text-white px-4 py-2 rounded-full font-semibold hover:bg-opacity-90 transition">
+            Add
+          </button>
+          <a [routerLink]="['/shop/product', product.id]" class="text-xs text-primary font-semibold underline text-center">
+            View details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

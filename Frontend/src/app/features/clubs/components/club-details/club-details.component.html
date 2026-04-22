@@ -1,0 +1,176 @@
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- HEADER -->
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-primary">
+        {{ club?.name || 'Club details' }}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- HEADER -->
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-bold text-primary">
+        {{ club?.name || 'Club details' }}
+      </h1>
+      <p class="text-gray-500" *ngIf="club?.meetingLocation || club?.meetingSchedule">
+        {{ club?.meetingLocation || 'Location not set' }} · {{ club?.meetingSchedule || 'Schedule not set' }}
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <button *ngIf="alreadyJoined" type="button" (click)="downloadMembershipCard(club)"
+        class="flex items-center space-x-2 text-white font-bold bg-indigo-600 px-6 py-2 rounded-xl hover:bg-indigo-700 shadow-sm transition">
+        <span>Ma Carte</span>
+        <span>💳</span>
+      </button>
+      <button type="button" (click)="goBack()"
+        class="px-5 py-2 rounded-xl border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
+        ← Back to clubs
+      </button>
+      <a *ngIf="club?.id && auth.isAdmin()" [routerLink]="['/clubs/edit', club.id]"
+        class="px-5 py-2 rounded-xl bg-primary text-white font-semibold hover:bg-primary/90 transition">
+        Edit club
+      </a>
+      <button *ngIf="club?.id && auth.isAdmin()" type="button" (click)="addActivity()"
+        class="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+        ➕ Add Activity
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading club -->
+  <div *ngIf="loading" class="text-gray-500">
+    Loading club details...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="errorMessage" class="mb-4 p-4 bg-red-100 text-red-600 rounded-lg">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Club Info Card -->
+  <div *ngIf="!loading && club" class="bg-white rounded-3xl p-6 border border-gray-100 space-y-6 mb-10">
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="space-y-2">
+        <div class="text-sm text-gray-500">Description</div>
+        <div class="text-gray-700">
+          {{ club.description || 'No description provided.' }}
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="text-sm text-gray-500">Max Members</div>
+        <div class="text-gray-700">
+          {{ club.maxMembers ?? 'Not set' }}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      <div class="space-y-2">
+        <div class="text-sm text-gray-500">Meeting Location</div>
+        <div class="text-gray-700">
+          {{ club.meetingLocation || 'Not set' }}
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="text-sm text-gray-500">Meeting Schedule</div>
+        <div class="text-gray-700">
+          {{ club.meetingSchedule || 'Not set' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITIES SECTION -->
+  <div *ngIf="!loading && club">
+
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-2xl font-bold text-primary">🎯 Activities</h2>
+      <span class="text-sm text-gray-400">{{ activities.length }} activity(ies)</span>
+    </div>
+
+    <!-- Loading activities -->
+    <div *ngIf="activitiesLoading" class="text-gray-500">
+      Loading activities...
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!activitiesLoading && activities.length === 0"
+      class="bg-gray-50 border border-dashed border-gray-200 rounded-2xl p-8 text-center text-gray-400">
+      No activities yet for this club.
+      <br>
+      <button *ngIf="auth.isAdmin()" type="button" (click)="addActivity()"
+        class="mt-4 inline-block px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+        ➕ Add first activity
+      </button>
+    </div>
+
+    <!-- Activity Cards -->
+    <div *ngIf="!activitiesLoading && activities.length > 0" class="space-y-4">
+      <div *ngFor="let activity of activities"
+        class="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+        <div class="space-y-1">
+          <h3 class="text-lg font-bold text-gray-800">{{ activity.title }}</h3>
+          <p class="text-gray-500 text-sm" *ngIf="activity.description">
+            {{ activity.description }}
+          </p>
+          <div class="flex flex-wrap gap-3 text-sm text-gray-400 mt-1">
+            <span>📅 {{ activity.activityDate }}</span>
+            <span>📍 {{ activity.location }}</span>
+          </div>
+        </div>
+
+        <div class="flex gap-2" *ngIf="auth.isAdmin()">
+          <a [routerLink]="['/clubs', club.id, 'activities', 'edit', activity.id]"
+            class="px-4 py-1.5 text-sm rounded-lg bg-yellow-100 text-yellow-700 font-semibold hover:bg-yellow-200 transition">
+            ✏️ Edit
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- HIDDEN CARD FOR PDF EXPORT -->
+  <div class="fixed top-0 left-[2000px] shadow-2xl bg-white w-[600px] h-[350px] overflow-hidden" style="z-index: -10;">
+    <div id="membershipCardCanvas" class="relative w-full h-full bg-gradient-to-br from-indigo-700 to-indigo-900 border-4 border-indigo-500/50 text-white rounded-2xl p-8 flex flex-col justify-between overflow-hidden">
+      <!-- Decors -->
+      <div class="absolute -top-10 -right-10 w-48 h-48 bg-white/10 rounded-full blur-xl"></div>
+      <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-lg"></div>
+      
+      <div class="flex justify-between items-start relative z-10 w-full">
+        <div>
+          <h2 class="text-3xl font-extrabold tracking-widest text-indigo-100">CARTE DE MEMBRE</h2>
+          <p class="text-white font-black text-2xl mt-2 drop-shadow-md uppercase" *ngIf="cardClub">{{ cardClub.name }}</p>
+        </div>
+        <div class="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center text-4xl shadow-inner border border-white/20">
+          🎓
+        </div>
+      </div>
+      
+      <div class="relative z-10 flex flex-col justify-end flex-grow">
+        <div class="flex items-center gap-6 mt-4">
+          <div class="w-24 h-24 rounded-2xl bg-white/20 border-2 border-indigo-300 overflow-hidden flex items-center justify-center shadow-2xl">
+             <!-- Picture Placeholder -->
+             <span class="text-5xl text-white/90 drop-shadow-md">👤</span>
+          </div>
+          <div>
+            <p class="text-xs text-indigo-200 uppercase tracking-widest font-bold mb-1 opacity-80">Titulaire (Membre Officiel)</p>
+            <h3 class="text-2xl font-black uppercase tracking-wider drop-shadow-sm">{{ auth.getEmail().split('@')[0] }}</h3>
+            <p class="text-sm font-semibold text-indigo-100 mt-1 opacity-90">{{ auth.getEmail() }}</p>
+          </div>
+        </div>
+        <div class="flex justify-between items-end text-sm font-medium mt-6 pt-4 border-t border-indigo-400/30">
+          <div class="flex flex-col"><span class="text-indigo-200 text-[11px] uppercase tracking-wider mb-1 font-bold">Lieu Principal</span><span class="text-gray-50">{{ cardClub?.meetingLocation || 'N/A' }}</span></div>
+          <div class="flex flex-col items-center"><span class="text-indigo-200 text-[11px] uppercase tracking-wider mb-1 font-bold">Admis en</span><span class="text-gray-50">{{ currentYear }}</span></div>
+          <div class="flex flex-col items-end"><span class="text-indigo-200 text-[11px] uppercase tracking-wider mb-1 font-bold">N° Carte</span><span class="text-gray-50 font-mono tracking-widest">#{{ cardClub?.id }}-{{ generatedCardId }}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

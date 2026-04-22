@@ -1,0 +1,50 @@
+<aside class="dashboard-sidebar">
+  <article class="card progress-card">
+    <h3>Course Progress</h3>
+    <div class="ring-wrap" aria-label="Course completion">
+      <svg viewBox="0 0 110 110" class="progress-ring" role="img">
+        <circle cx="55" cy="55" r="42" class="ring-bg"></circle>
+        <circle cx="55" cy="55" r="42" class="ring-value" [style.stroke-dashoffset]="ringOffset"></circle>
+      </svg>
+      <div class="ring-label">{{ completionPercent }}%</div>
+    </div>
+    <p>{{ completedLessons }} of {{ totalLessons }} lessons completed</p>
+    <button class="continue-btn" [routerLink]="['/courses', courseId]">Continue Learning</button>
+  </article>
+
+  <article class="card deadlines-card">
+    <h3>Upcoming Deadlines</h3>
+    <ul *ngIf="upcomingDeadlines.length > 0; else noDeadlines">
+      <li *ngFor="let item of upcomingDeadlines">
+        <div>
+          <strong>{{ item.title }}</strong>
+          <span>Due {{ item.dueDate }}</span>
+        </div>
+        <span class="priority" [attr.data-priority]="item.priority">{{ item.priority }}</span>
+      </li>
+    </ul>
+    <ng-template #noDeadlines>
+      <p class="empty-copy">No pending tasks. Great pace this week.</p>
+    </ng-template>
+    <a
+      class="exam-link"
+      [routerLink]="canOpenFinalExam ? finalExamRoute : ['/courses', courseId]"
+      [class.disabled]="!canOpenFinalExam"
+      [attr.aria-disabled]="!canOpenFinalExam"
+    >
+      {{ canOpenFinalExam ? 'Open final assessment' : 'Complete lessons to unlock final assessment' }}
+    </a>
+  </article>
+
+  <article class="card instructor-card">
+    <h3>Instructor</h3>
+    <div class="instructor-row">
+      <div class="avatar">{{ initialLetter }}</div>
+      <div>
+        <strong>{{ instructorName }}</strong>
+        <p>{{ instructorBio }}</p>
+      </div>
+    </div>
+    <a href="#" class="message-link" (click)="$event.preventDefault()">Send a message</a>
+  </article>
+</aside>

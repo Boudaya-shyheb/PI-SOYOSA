@@ -1,0 +1,16 @@
+{
+  "name": "ecommerce-insights-worker",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.9.0",
+    "node-cron": "^3.0.3"
+  }
+}

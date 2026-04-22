@@ -1,0 +1,109 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: englishway-api-gateway
+  cloud:
+    discovery:
+      enabled: true
+    gateway:
+      routes:
+        # Course Management Service Routes
+        - id: course-service
+          uri: lb://englishway-course-management
+          predicates:
+            - Path=/api/courses/**,/api/chapters/**,/api/lessons/**,/api/materials/**,/api/enrollments/**,/api/progress/**,/api/payments/**,/api/quizzes/**,/api/certificates/**
+
+        # User Service Routes
+        - id: user-service
+          uri: lb://userService
+          predicates:
+            - Path=/api/user/**,/api/auth/**
+
+        # Training Service Routes
+        - id: training-service
+          uri: lb://training-service
+          predicates:
+            - Path=/api/training/**
+
+        # Blog Service Routes
+        - id: blog-service
+          uri: lb://Blog
+          predicates:
+            - Path=/api/blogs/**,/api/blog/**
+
+        # Ecommerce Service Routes
+        - id: ecommerce-service
+          uri: lb://ecommerce-service
+          predicates:
+            - Path=/api/products/**,/api/orders/**,/api/cart/**,/api/reviews/**,/api/categories/**,/api/coupons/**,/api/bundles/**,/api/ecommerce/**
+
+        # Tracking Service Routes
+        - id: tracking-service
+          uri: lb://tracking-service
+          predicates:
+            - Path=/api/tracking/**,/ws/**
+
+        # Messaging Service Routes
+        - id: messaging-service
+          uri: lb://messageService
+          predicates:
+            - Path=/api/messages/**,/api/chat/**
+
+        # Game Service Routes
+        - id: game-service
+          uri: lb://gameService
+          predicates:
+            - Path=/api/games/**
+
+        # Events/Clubs Service Routes (Ahmed Micro)
+        - id: events-service
+          uri: lb://pi-events
+          predicates:
+            - Path=/api/events/**,/api/clubs/**,/api/statistics/**
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: 
+              - "http://localhost:4200"
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
+
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:true}
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+  # Actuator for health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG

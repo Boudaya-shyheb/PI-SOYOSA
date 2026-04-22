@@ -1,0 +1,38 @@
+<div class="max-w-2xl mx-auto p-8 bg-white rounded-3xl shadow-lg mt-10">
+  <div class="flex justify-center mb-6">
+    <div class="px-6 py-2 rounded-full bg-primary text-white font-bold whitespace-nowrap">
+      1. Apply
+    </div>
+  </div>
+  <h2 class="text-3xl font-bold text-primary mb-6 text-center">Tutor Interview Form</h2>
+
+  <form [formGroup]="interviewForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-1">Upload CV (PDF only)</label>
+      <input type="file" (change)="onFileChange($event)" accept="application/pdf"
+             class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
+      <div *ngIf="fileError" class="text-red-500 text-xs mt-1">
+        {{ fileError }}
+      </div>
+      <div *ngIf="selectedFile" class="text-green-600 text-xs mt-1">
+        Selected: {{ selectedFile.name }}
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 mb-1">Choose Interview Date</label>
+      <input type="date" formControlName="interviewDate"
+             class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition" [min]="minDate" ]>
+      <div *ngIf="interviewForm.get('interviewDate')?.invalid && interviewForm.get('interviewDate')?.touched" class="text-red-500 text-xs mt-1">
+        Please choose a valid interview date.
+      </div>
+    </div>
+
+    <div class="pt-4">
+      <button type="submit" [disabled]="interviewForm.invalid || !selectedFile"
+              class="w-full bg-primary text-white py-3 rounded-full font-bold text-lg hover:bg-primary/90 transition disabled:opacity-50">
+        Submit Application
+      </button>
+    </div>
+  </form>
+</div>

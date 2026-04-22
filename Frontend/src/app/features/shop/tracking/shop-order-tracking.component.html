@@ -1,0 +1,106 @@
+<div class="shop-theme py-10">
+  <div class="max-w-5xl mx-auto px-6 lg:px-10">
+    <div class="tracking-header">
+      <div>
+        <div class="tracking-pill">Live delivery</div>
+        <h1 class="tracking-title">Order tracking</h1>
+        <p class="tracking-subtitle" *ngIf="orderId">Order #{{ orderId }}</p>
+      </div>
+      <div class="tracking-status" [ngClass]="status">
+        <span class="status-dot"></span>
+        <span class="status-text">{{ status }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="errorMessage" class="tracking-error">
+      {{ errorMessage }}
+    </div>
+
+    <div class="tracking-map" #mapContainer></div>
+    <div class="traffic-legend" aria-label="Traffic legend">
+      <div class="traffic-legend-title">Traffic</div>
+      <div class="traffic-legend-items">
+        <span class="traffic-legend-item"><span class="traffic-dot traffic-low"></span>Low</span>
+        <span class="traffic-legend-item"><span class="traffic-dot traffic-moderate"></span>Moderate</span>
+        <span class="traffic-legend-item"><span class="traffic-dot traffic-heavy"></span>Heavy</span>
+        <span class="traffic-legend-item"><span class="traffic-dot traffic-severe"></span>Severe</span>
+      </div>
+    </div>
+    <div *ngIf="routeError" class="tracking-error">
+      {{ routeError }}
+    </div>
+
+    <div class="tracking-grid">
+      <div class="tracking-card">
+        <div>
+          <div class="tracking-label">Last update</div>
+          <div class="tracking-value" *ngIf="lastUpdate; else noUpdate">
+            {{ lastUpdate.timestamp || 'Just now' }}
+          </div>
+          <ng-template #noUpdate>
+            <div class="tracking-value">Waiting for delivery agent updates...</div>
+          </ng-template>
+        </div>
+        <div>
+          <div class="tracking-label">Coordinates</div>
+          <div class="tracking-value" *ngIf="lastUpdate">
+            {{ lastUpdate.lat | number: '1.5-5' }}, {{ lastUpdate.lng | number: '1.5-5' }}
+          </div>
+          <div class="tracking-value" *ngIf="!lastUpdate">-</div>
+        </div>
+        <div>
+          <div class="tracking-label">Delivery agent</div>
+          <div class="tracking-value">
+            {{ deliveryAgentLabel }}
+          </div>
+        </div>
+        <div>
+          <div class="tracking-label">ETA</div>
+          <div class="tracking-value">
+            {{ etaLabel }}
+          </div>
+        </div>
+      </div>
+
+      <div class="order-card">
+        <div class="order-card-header">
+          <div class="order-card-title">Order details</div>
+          <div class="order-card-subtitle" *ngIf="order">{{ order.status }}</div>
+        </div>
+
+        <div *ngIf="orderLoading" class="order-card-loading">Loading order details...</div>
+        <div *ngIf="orderError" class="order-card-error">{{ orderError }}</div>
+
+        <ng-container *ngIf="order">
+          <div class="order-summary">
+            <div>
+              <div class="order-summary-label">Total</div>
+              <div class="order-summary-value">{{ order.totalPrice }} TND</div>
+            </div>
+            <div>
+              <div class="order-summary-label">Items</div>
+              <div class="order-summary-value">{{ order.orderItems?.length || 0 }}</div>
+            </div>
+          </div>
+          <div class="order-summary" *ngIf="order.deliveryStreet || order.deliveryCity || order.deliveryCountry">
+            <div>
+              <div class="order-summary-label">Delivery address</div>
+              <div class="order-summary-value">
+                {{ order.deliveryStreet || '' }}
+                <span *ngIf="order.deliveryCity">, {{ order.deliveryCity }}</span>
+                <span *ngIf="order.deliveryPostalCode">, {{ order.deliveryPostalCode }}</span>
+                <span *ngIf="order.deliveryCountry">, {{ order.deliveryCountry }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="order-items" *ngIf="order.orderItems?.length">
+            <div *ngFor="let item of order.orderItems" class="order-item">
+              <div class="order-item-name">{{ item.productName || 'Product' }}</div>
+              <div class="order-item-qty">Qty {{ item.quantity }}</div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

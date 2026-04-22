@@ -1,0 +1,130 @@
+<div class="content-container">
+  <!-- Tab Navigation -->
+  <nav class="tab-navigation">
+    <button 
+      *ngFor="let tab of tabs"
+      (click)="setActiveTab(tab.id)"
+      class="tab-btn"
+      [class.active]="activeTab === tab.id"
+    >
+      {{ tab.label }}
+    </button>
+  </nav>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- About Tab -->
+    <div *ngIf="activeTab === 'about'" class="about-section">
+      <h1 class="chapter-title">{{ currentChapterTitle }}</h1>
+      
+      <div class="description-container">
+        <p class="description-text">
+          {{ expandedDescription ? courseDescription : truncatedDescription }}
+        </p>
+        
+        <button 
+          *ngIf="showReadMore"
+          (click)="toggleDescription()"
+          class="read-more-btn"
+        >
+          {{ expandedDescription ? 'Read Less' : 'Read More' }}
+          <svg 
+            class="read-more-icon" 
+            [class.rotated]="expandedDescription"
+            width="12" 
+            height="12" 
+            viewBox="0 0 12 12" 
+            fill="none"
+          >
+            <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content Tab -->
+    <div *ngIf="activeTab === 'content'" class="content-section">
+      <h2 class="section-title">Course Content</h2>
+      <div class="content-list">
+        <div *ngFor="let section of contentSections; let i = index" class="content-item">
+          <div class="content-number">{{ i + 1 }}</div>
+          <div class="content-info">
+            <h3 class="content-title">{{ section.title }}</h3>
+            <p class="content-desc">{{ section.description }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annexes Tab -->
+    <div *ngIf="activeTab === 'annexes'" class="annexes-section">
+      <h2 class="section-title">Annexes</h2>
+      <p class="empty-state">No annexes available for this course.</p>
+    </div>
+
+    <!-- Forum Tab -->
+    <div *ngIf="activeTab === 'forum'" class="forum-section">
+      <h2 class="section-title">Forum</h2>
+      <p class="empty-state">Forum discussions coming soon.</p>
+    </div>
+  </div>
+
+  <!-- Certificate Section -->
+  <div class="certificate-preview">
+    <div class="certificate-card">
+      <div class="certificate-image">
+        <!-- Certificate Preview SVG -->
+        <svg viewBox="0 0 400 280" class="certificate-svg">
+          <!-- Background -->
+          <rect width="400" height="280" fill="#fff"/>
+          
+          <!-- Top wave decoration -->
+          <path d="M0 0 L400 0 L400 60 Q350 80 300 60 Q250 40 200 60 Q150 80 100 60 Q50 40 0 60 Z" fill="#2D5757"/>
+          
+          <!-- Bottom wave decoration -->
+          <path d="M0 280 L0 220 Q50 200 100 220 Q150 240 200 220 Q250 200 300 220 Q350 240 400 220 L400 280 Z" fill="#2D5757"/>
+          
+          <!-- Gold accent lines -->
+          <line x1="40" y1="80" x2="360" y2="80" stroke="#C9A84C" stroke-width="1"/>
+          <line x1="40" y1="200" x2="360" y2="200" stroke="#C9A84C" stroke-width="1"/>
+          
+          <!-- Certificate text -->
+          <text x="200" y="110" text-anchor="middle" font-family="serif" font-size="28" fill="#2D5757" font-weight="bold">Certificate</text>
+          <text x="200" y="130" text-anchor="middle" font-family="sans-serif" font-size="8" fill="#666" letter-spacing="2">OF APPRECIATION</text>
+          
+          <!-- Recipient placeholder -->
+          <text x="200" y="160" text-anchor="middle" font-family="serif" font-size="16" fill="#333">Name Surname</text>
+          
+          <!-- Best Award badge -->
+          <circle cx="350" cy="40" r="25" fill="#C9A84C"/>
+          <text x="350" y="36" text-anchor="middle" font-family="sans-serif" font-size="6" fill="#fff" font-weight="bold">Best</text>
+          <text x="350" y="46" text-anchor="middle" font-family="sans-serif" font-size="6" fill="#fff">Award</text>
+          
+          <!-- Seal placeholder -->
+          <circle cx="50" cy="140" r="20" fill="#2D5757"/>
+          <text x="50" y="138" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#C9A84C">YOUR</text>
+          <text x="50" y="146" text-anchor="middle" font-family="sans-serif" font-size="5" fill="#C9A84C">SEAL</text>
+        </svg>
+      </div>
+      
+      <h2 class="course-title">{{ course?.title || 'Name of the course' }}</h2>
+      
+      <p class="course-description">
+        {{ truncatedDescription }}
+      </p>
+      
+      <button 
+        class="download-btn"
+        [disabled]="!allLessonsCompleted"
+        [class.enabled]="allLessonsCompleted"
+        (click)="onDownloadCertificate()"
+      >
+        Download Certificate
+      </button>
+      
+      <p *ngIf="!allLessonsCompleted" class="unlock-hint">
+        Complete all lessons to unlock the certificate
+      </p>
+    </div>
+  </div>
+</div>

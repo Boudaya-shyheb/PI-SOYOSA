@@ -1,0 +1,157 @@
+<div class="practice-page">
+  <!-- Header Bar -->
+  <div class="top-bar">
+    <a routerLink="/courses" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Courses
+    </a>
+    <div class="header-center">
+      <div class="ai-indicator" [class.thinking]="isThinking" [class.speaking]="isSpeaking">
+        <span class="ai-dot"></span>
+        <span class="ai-dot"></span>
+        <span class="ai-dot"></span>
+      </div>
+      <h1 class="page-title">Practice with <span class="brand"> Mistral AI</span></h1>
+      <p class="page-subtitle">Powered by Ollama · English Conversation Tutor</p>
+    </div>
+    <button class="clear-btn" (click)="clearChat()" title="Clear conversation">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="main-layout">
+
+    <!-- Left Panel: Avatar + Status -->
+    <div class="left-panel">
+      <div class="avatar-wrapper" [class.speaking]="isSpeaking" [class.thinking]="isThinking">
+        <img src="assets/Artificial intelligence robot teaching people.gif" alt="Mistral AI Tutor" class="avatar-img">
+        <div class="avatar-ring"></div>
+      </div>
+
+      <div class="status-card">
+        <div class="status-icon" [ngClass]="{
+          'status-listening': isListening,
+          'status-thinking': isThinking,
+          'status-speaking': isSpeaking
+        }">
+          <i class="fas" [ngClass]="{
+            'fa-microphone': isListening,
+            'fa-brain': isThinking && !isListening,
+            'fa-volume-up': isSpeaking,
+            'fa-robot': !isListening && !isThinking && !isSpeaking
+          }"></i>
+        </div>
+        <p class="status-text">{{ feedbackStatus }}</p>
+      </div>
+
+      <div class="model-badge">
+        <span class="badge-dot"></span>
+        <span>Mistral 7B via Ollama</span>
+      </div>
+
+      <div class="tips-card" *ngIf="!isThinking && !isListening && !isSpeaking">
+        <h4>💡 Tips</h4>
+        <ul>
+          <li>Speak naturally in English</li>
+          <li>Ask for grammar corrections</li>
+          <li>Try: "Correct this: I go yesterday"</li>
+          <li>Practice vocabulary or conversation</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+
+      <!-- Messages -->
+      <div class="chat-messages" #chatContainer>
+        <div *ngFor="let msg of displayMessages"
+             class="message-row"
+             [class.user-row]="msg.role === 'user'"
+             [class.ai-row]="msg.role === 'assistant'">
+
+          <div class="message-avatar-small" *ngIf="msg.role === 'assistant'">
+            <i class="fas fa-robot"></i>
+          </div>
+
+          <div class="message-bubble" [class.user-bubble]="msg.role === 'user'" [class.ai-bubble]="msg.role === 'assistant'">
+            <p class="bubble-text">{{ msg.content }}</p>
+            <span class="bubble-time">{{ msg.timestamp | date:'HH:mm' }}</span>
+          </div>
+
+          <div class="message-avatar-small user-avatar" *ngIf="msg.role === 'user'">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div class="message-row ai-row" *ngIf="isThinking">
+          <div class="message-avatar-small">
+            <i class="fas fa-robot"></i>
+          </div>
+          <div class="message-bubble ai-bubble typing-bubble">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="input-area">
+        <!-- Text input row -->
+        <div class="text-input-row">
+          <input
+            id="ai-text-input"
+            class="text-input"
+            [(ngModel)]="textInput"
+            (keyup.enter)="sendTextMessage()"
+            placeholder="Type a message in English and press Enter..."
+            [disabled]="isThinking"
+            autocomplete="off"
+          />
+          <button
+            id="ai-send-btn"
+            class="send-btn"
+            (click)="sendTextMessage()"
+            [disabled]="!textInput.trim() || isThinking"
+            title="Send message"
+          >
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+
+        <!-- Voice + Stop controls -->
+        <div class="voice-controls">
+          <button
+            id="ai-mic-btn"
+            class="mic-btn"
+            [class.listening]="isListening"
+            [disabled]="!isSupported || isThinking"
+            (click)="toggleListen()"
+            [title]="isListening ? 'Stop listening' : 'Click to speak'"
+          >
+            <i class="fas" [ngClass]="isListening ? 'fa-stop-circle' : 'fa-microphone'"></i>
+            <span>{{ isListening ? 'Listening...' : 'Speak Now' }}</span>
+          </button>
+
+          <button
+            class="stop-speak-btn"
+            *ngIf="isSpeaking"
+            (click)="stopSpeaking()"
+            title="Stop AI speech"
+          >
+            <i class="fas fa-stop"></i>
+            <span>Stop Speaking</span>
+          </button>
+        </div>
+
+        <p class="input-hint" *ngIf="!isSupported">
+          ⚠️ Voice recognition requires Chrome or Edge browser.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

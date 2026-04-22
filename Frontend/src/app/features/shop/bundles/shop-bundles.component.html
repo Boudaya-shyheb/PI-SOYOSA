@@ -1,0 +1,57 @@
+<div class="bg-white py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
+      <div>
+        <div class="inline-flex items-center space-x-2 bg-primary/10 text-primary text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider mb-4">
+          <span>Bundles</span>
+          <span>🎁</span>
+        </div>
+        <h1 class="text-4xl font-extrabold text-primary mb-3">Curated learning packs</h1>
+        <p class="text-gray-500 max-w-xl">
+          Each bundle includes handpicked products to support a specific learning goal.
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <button routerLink="/shop/catalog" class="bg-secondary/70 text-primary px-6 py-2 rounded-full font-bold hover:bg-secondary transition">
+          Browse products
+        </button>
+        <button routerLink="/shop/cart" class="bg-primary/10 text-primary px-6 py-2 rounded-full font-bold hover:bg-primary hover:text-white transition">
+          View cart
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" *ngIf="bundles.length; else emptyBundles">
+      <div *ngFor="let bundle of bundles" class="bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-lg transition">
+        <div class="aspect-[4/3] overflow-hidden">
+          <img [src]="bundle.image" [alt]="bundle.title" class="w-full h-full object-cover" />
+        </div>
+        <div class="p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-primary bg-primary/10 px-3 py-1 rounded-full font-bold uppercase">{{ bundle.status || 'Bundle' }}</span>
+            <span class="text-xs text-gray-400">{{ bundle.items }} items</span>
+          </div>
+          <h3 class="text-xl font-bold text-primary leading-tight">{{ bundle.title }}</h3>
+          <p class="text-gray-500 text-sm">{{ bundle.description }}</p>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-50">
+            <div>
+              <div class="flex items-baseline space-x-2">
+                <span class="text-2xl font-black text-primary">{{ bundle.price }} <small class="text-xs">TND</small></span>
+                <span *ngIf="bundle.oldPrice" class="text-sm text-gray-400 line-through font-medium">{{ bundle.oldPrice }} TND</span>
+              </div>
+              <div *ngIf="bundle.savings" class="text-xs text-emerald-600 font-semibold">Save {{ bundle.savings }} TND</div>
+            </div>
+            <button [routerLink]="['/shop/bundles', bundle.id]" class="bg-primary text-white px-4 py-2 rounded-xl font-bold hover:bg-opacity-90 transition text-sm">
+              View bundle
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ng-template #emptyBundles>
+      <div class="bg-secondary/20 rounded-2xl p-8 text-center text-gray-500">
+        No bundles yet. Check back soon or browse products.
+      </div>
+    </ng-template>
+  </div>
+</div>

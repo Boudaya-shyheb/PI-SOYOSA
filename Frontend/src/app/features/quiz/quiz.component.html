@@ -1,0 +1,178 @@
+<div class="quiz-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-screen">
+    <div class="loading-content">
+      <div class="loading-spinner">
+        <svg class="spinner-svg" viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+        </svg>
+      </div>
+      <p class="loading-text">Preparing your quiz...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !loading && !quiz" class="error-screen">
+    <div class="error-icon">📝</div>
+    <h2>Quiz Not Available</h2>
+    <p>{{ errorMessage }}</p>
+    <button class="back-btn" (click)="goBack()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to Course
+    </button>
+  </div>
+
+  <!-- Quiz Content -->
+  <div *ngIf="quiz && !loading" class="quiz-content">
+    <!-- Header -->
+    <header class="quiz-header">
+      <button class="back-btn-small" (click)="goBack()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      
+      <div class="header-info">
+        <h1 class="quiz-title">{{ quiz.title }}</h1>
+        <div class="quiz-meta">
+          <span class="meta-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Passing: {{ quiz.passingScore }}%
+          </span>
+          <span class="meta-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M8.228 9C8.77 7.83 9.862 7 11.5 7C13.657 7 15 8.343 15 10C15 11.435 14.029 12.385 12.717 12.757C12.262 12.883 12 13.262 12 13.667V14M12 17H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            {{ quiz.questions.length }} Questions
+          </span>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div *ngIf="!submitted" class="timer-container" [class.warning]="timeLeftSec <= 60" [class.critical]="timeLeftSec <= 30">
+        <div class="timer-ring">
+          <svg viewBox="0 0 36 36">
+            <path class="timer-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path class="timer-progress" [attr.stroke-dasharray]="getTimerProgress() + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+          </svg>
+          <div class="timer-value">{{ formatTime(timeLeftSec) }}</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Score Result Card -->
+    <div *ngIf="submitted && scorePercent !== null" class="result-card" [class.passed]="passed" [class.failed]="!passed">
+      <div class="result-decoration">
+        <div class="result-confetti" *ngIf="passed">
+          <span *ngFor="let i of [1,2,3,4,5,6,7,8]" class="confetti-piece"></span>
+        </div>
+      </div>
+      
+      <div class="result-badge">
+        <div class="result-icon">{{ passed ? '🏆' : '📚' }}</div>
+      </div>
+      
+      <div class="result-score">
+        <div class="score-circle">
+          <svg viewBox="0 0 36 36" class="score-ring">
+            <path class="score-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path class="score-progress" [attr.stroke-dasharray]="scorePercent + ', 100'" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+          </svg>
+          <div class="score-value">{{ scorePercent }}%</div>
+        </div>
+      </div>
+      
+      <h2 class="result-title">{{ passed ? 'Congratulations!' : 'Keep Learning!' }}</h2>
+      <p class="result-message">
+        {{ passed ? 'You\'ve successfully passed the quiz!' : 'You didn\'t reach the passing score this time.' }}
+      </p>
+      
+      <div class="result-stats">
+        <div class="stat">
+          <span class="stat-label">Your Score</span>
+          <span class="stat-value">{{ scorePercent }}%</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-label">Required</span>
+          <span class="stat-value">{{ passingScore }}%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div *ngIf="!submitted" class="progress-section">
+      <div class="progress-info">
+        <span>Progress</span>
+        <span>{{ getAnsweredCount() }}/{{ quiz.questions.length }} answered</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="getProgress()"></div>
+      </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="questions-container">
+      <div *ngFor="let question of quiz.questions; let i = index" class="question-card" [class.answered]="answers[i] >= 0" [class.correct]="submitted && isCorrect(question, answers[i], i)" [class.incorrect]="submitted && isIncorrect(question, answers[i], i)">
+        <div class="question-header">
+          <span class="question-number">Question {{ i + 1 }}</span>
+          <span *ngIf="answers[i] >= 0 && !submitted" class="answered-badge">✓ Answered</span>
+          <span *ngIf="submitted && isCorrect(question, answers[i], i)" class="correct-badge">✓ Correct</span>
+          <span *ngIf="submitted && isIncorrect(question, answers[i], i)" class="incorrect-badge">✕ Incorrect</span>
+        </div>
+        
+        <p class="question-text">{{ question.text }}</p>
+        
+        <div class="options-grid">
+          <button
+            *ngFor="let option of question.options; let oi = index"
+            class="option-btn"
+            [class.selected]="answers[i] === oi && !submitted"
+            [class.correct]="isCorrect(question, oi, i)"
+            [class.incorrect]="isIncorrect(question, oi, i)"
+            [class.correct-answer]="submitted && isCorrectAnswer(question, oi) && answers[i] !== oi"
+            [disabled]="submitted || submitting"
+            (click)="selectAnswer(i, oi)">
+            <span class="option-letter">{{ ['A', 'B', 'C', 'D', 'E', 'F'][oi] }}</span>
+            <span class="option-text">{{ option }}</span>
+            <span *ngIf="isCorrect(question, oi, i)" class="option-icon correct-icon">✓</span>
+            <span *ngIf="isIncorrect(question, oi, i)" class="option-icon incorrect-icon">✕</span>
+            <span *ngIf="submitted && isCorrectAnswer(question, oi) && answers[i] !== oi" class="option-icon hint-icon">← Correct</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submit Section -->
+    <div class="submit-section" [class.submitted]="submitted">
+      <div class="submit-info">
+        <p *ngIf="!submitted && !submitting">
+          <span *ngIf="getAnsweredCount() < quiz.questions.length">Answer all questions to submit</span>
+          <span *ngIf="getAnsweredCount() === quiz.questions.length">✓ All questions answered - Ready to submit!</span>
+        </p>
+        <p *ngIf="submitting" class="submitting-text">
+          <span class="submit-spinner"></span>
+          Calculating your score...
+        </p>
+        <p *ngIf="submitted">Quiz completed! Review your answers above.</p>
+      </div>
+      
+      <div class="submit-actions">
+        <button *ngIf="submitted" class="action-btn secondary" (click)="goBack()">
+          Back to Course
+        </button>
+        <button *ngIf="!submitted" class="action-btn primary" [disabled]="submitting || getAnsweredCount() < quiz.questions.length" (click)="submitQuiz()">
+          <span *ngIf="!submitting">Submit Quiz</span>
+          <span *ngIf="submitting" class="btn-loading">
+            <span class="btn-spinner"></span>
+            Submitting...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

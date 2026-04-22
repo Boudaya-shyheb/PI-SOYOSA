@@ -1,0 +1,42 @@
+<h2>Clubs List</h2>
+
+<button *ngIf="auth.isAdmin()" (click)="createClub()">Create Club</button>
+
+<br><br>
+
+<div *ngIf="loading">
+  Loading clubs...
+</div>
+
+<div *ngIf="errorMessage">
+  {{ errorMessage }}
+</div>
+
+<table border="1" *ngIf="!loading && clubs.length > 0">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Location</th>
+      <th>Schedule</th>
+      <th>Max Members</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let club of clubs">
+      <td>{{ club.name }}</td>
+      <td>{{ club.meetingLocation }}</td>
+      <td>{{ club.meetingSchedule }}</td>
+      <td>{{ club.maxMembers }}</td>
+      <td>
+        <button *ngIf="auth.isAdmin()" (click)="editClub(club.id!)">Edit</button>
+        <button *ngIf="auth.isAdmin()" (click)="deleteClub(club.id!)">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div *ngIf="!loading && clubs.length === 0">
+  No clubs found.
+</div>

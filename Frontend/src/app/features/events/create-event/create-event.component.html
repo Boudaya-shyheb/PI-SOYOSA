@@ -1,0 +1,99 @@
+<div class="max-w-3xl mx-auto px-4 py-12">
+
+  <h2 class="text-3xl font-bold text-primary mb-8">
+    {{ isEditMode ? 'Edit Event' : 'Create New Event' }}
+  </h2>
+
+  <div *ngIf="errorMessage"
+       class="mb-4 p-4 bg-red-100 text-red-600 rounded-lg">
+    {{ errorMessage }}
+  </div>
+
+  <form (ngSubmit)="submit()" class="space-y-6">
+
+    <input type="text"
+           [(ngModel)]="event.title"
+           name="title"
+           required
+           placeholder="Event Title"
+           class="w-full border p-4 rounded-xl">
+
+    <textarea [(ngModel)]="event.description"
+              name="description"
+              required
+              rows="4"
+              placeholder="Event Description"
+              class="w-full border p-4 rounded-xl"></textarea>
+
+    <input type="date"
+           [(ngModel)]="event.date"
+           name="date"
+           required
+           class="w-full border p-4 rounded-xl">
+
+    <div class="grid grid-cols-2 gap-4">
+      <input type="time"
+             [(ngModel)]="event.startTime"
+             name="startTime"
+             required
+             class="border p-4 rounded-xl">
+
+      <input type="time"
+             [(ngModel)]="event.endTime"
+             name="endTime"
+             required
+             class="border p-4 rounded-xl">
+    </div>
+
+    <input type="text"
+           [(ngModel)]="event.location"
+           name="location"
+           required
+           placeholder="Location"
+           class="w-full border p-4 rounded-xl">
+
+    <input type="number"
+           [(ngModel)]="event.maxParticipants"
+           name="maxParticipants"
+           min="1"
+           required
+           placeholder="Max Participants"
+           class="w-full border p-4 rounded-xl">
+
+    <select [(ngModel)]="event.categoryId"
+            name="categoryId"
+            required
+            class="w-full border p-4 rounded-xl">
+
+      <option [ngValue]="null">Select Category</option>
+
+      <option *ngFor="let c of categories"
+              [ngValue]="c.id">
+        {{ c.name }}
+      </option>
+
+    </select>
+
+    <button type="submit"
+            [disabled]="loading"
+            class="w-full bg-primary text-white py-4 rounded-xl font-semibold">
+
+      {{ loading
+          ? (isEditMode ? 'Updating...' : 'Creating...')
+          : (isEditMode ? 'Update Event' : 'Create Event 🚀') }}
+
+    </button>
+
+    <!-- DELETE BUTTON -->
+    <button *ngIf="isEditMode"
+            type="button"
+            (click)="deleteEvent()"
+            class="w-full bg-red-500 text-white py-4 rounded-xl font-semibold mt-4">
+
+      Delete Event
+
+    </button>
+
+  </form>
+
+</div>

@@ -1,0 +1,100 @@
+<div class="mt-12">
+  <h3 class="text-2xl font-bold mb-6">Event Feedback ⭐</h3>
+
+  <div *ngIf="errorMessage" class="bg-red-100 text-red-600 p-3 mb-4 rounded">
+    {{ errorMessage }}
+  </div>
+
+  <div class="bg-white p-6 rounded-xl shadow mb-8 space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="text-lg font-semibold text-yellow-500">
+        ⭐ {{ averageRating | number:'1.1-1' }} / 5 ({{ totalReviews }} reviews)
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-gray-500">Sort by</span>
+        <select [(ngModel)]="sortOption"
+                name="sortOption"
+                class="border rounded-lg px-3 py-2 text-sm">
+          <option value="latest">Latest</option>
+          <option value="highest">Highest rating</option>
+          <option value="lowest">Lowest rating</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div *ngIf="auth.isAuthenticated()">
+        <label class="block mb-2 font-medium">Rating</label>
+        <div class="flex items-center gap-2" (mouseleave)="setHover(null)">
+          <button *ngFor="let star of starValues"
+                  type="button"
+                  (mouseenter)="setHover(star)"
+                  (click)="setRating(star)"
+                  class="star-button"
+                  [class.star-active]="isStarActive(star)"
+                  aria-label="Set rating">
+            ★
+          </button>
+          <span class="text-sm text-gray-500 ml-2">{{ form.rating }}/5</span>
+        </div>
+        <input type="number"
+               [(ngModel)]="form.rating"
+               name="rating"
+               min="1"
+               max="5"
+               hidden>
+      </div>
+
+      <div class="space-y-2">
+        <div *ngFor="let rating of distributionRatings" class="flex items-center gap-3 text-sm">
+          <span class="w-10 text-gray-600">{{ rating }} ⭐</span>
+          <div class="flex-1 h-2 bg-gray-100 rounded">
+            <div class="h-2 bg-yellow-400 rounded" [style.width]="ratingWidth(rating)"></div>
+          </div>
+          <span class="w-6 text-right text-gray-600">{{ ratingCount(rating) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="auth.isAuthenticated()">
+      <label class="block mb-2 font-medium">Comment</label>
+      <textarea [(ngModel)]="form.comment"
+                name="comment"
+                rows="3"
+                class="w-full border p-2 rounded mb-4">
+      </textarea>
+
+      <button (click)="submit()"
+              [disabled]="loading"
+              class="bg-primary text-white px-6 py-2 rounded-lg">
+        {{ loading ? 'Sending...' : 'Submit Feedback' }}
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="sortedFeedbacks.length === 0" class="text-gray-400">
+    No feedback yet.
+  </div>
+
+  <div *ngFor="let f of sortedFeedbacks; let i = index"
+       class="border p-4 rounded-lg mb-4 feedback-card"
+       [style.animationDelay]="(i * 40) + 'ms'">
+    <div class="flex items-center gap-1 text-yellow-500 mb-2">
+      <span *ngFor="let star of starValues"
+            class="star-display"
+            [class.star-active]="star <= (f.rating || 0)">
+        ★
+      </span>
+      <span class="text-sm text-gray-500 ml-2">{{ f.rating }}/5</span>
+    </div>
+
+    <p class="text-gray-700">{{ f.comment }}</p>
+
+    <button *ngIf="auth.isAdmin()" type="button"
+            (click)="f.id && deleteFeedback(f.id)"
+            [disabled]="!f.id"
+            class="text-red-500 text-sm mt-2 disabled:opacity-40">
+      Delete
+    </button>
+  </div>
+</div>

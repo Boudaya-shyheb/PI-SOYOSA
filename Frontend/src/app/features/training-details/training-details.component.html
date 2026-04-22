@@ -1,0 +1,440 @@
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <h1 class="text-3xl font-black text-primary">{{ courseTitle }}</h1>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <button
+          *ngIf="isStudent() && !canAccessContent()"
+          class="bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-opacity-90 transition disabled:opacity-60"
+          [disabled]="enrolling || !courseHasContent"
+          (click)="requestEnrollment()">
+          {{ enrolling ? 'Enrolling...' : 'Enroll Now' }}
+        </button>
+        <div *ngIf="isStudent() && !courseHasContent" class="text-xs text-amber-700 bg-amber-50 px-3 py-2 rounded-full">
+          Content is coming soon. Teachers need to add materials before enrollment opens.
+        </div>
+        <button
+          class="bg-primary text-white px-6 py-3 rounded-full font-bold hover:bg-opacity-90 transition disabled:opacity-60"
+          [disabled]="!certificateAvailable"
+          (click)="downloadCertificate()">
+          Download Certificate
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="text-sm text-gray-500 mb-6">Loading course details...</div>
+    <div *ngIf="errorMessage" class="text-sm text-red-600 mb-6">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="text-sm text-emerald-600 mb-6">{{ successMessage }}</div>
+
+    <div *ngIf="courseImageUrl" class="relative aspect-video rounded-[32px] overflow-hidden shadow-2xl bg-black">
+      <img [src]="courseImageUrl" alt="Course thumbnail" class="w-full h-full object-cover opacity-60" (error)="onCourseImageError()" />
+      <button class="absolute inset-0 flex items-center justify-center text-white text-xl font-bold" (click)="playCourse()">▶️ Play</button>
+    </div>
+  </div>
+
+  <div class="flex space-x-3 mb-10 overflow-x-auto pb-4">
+    <button class="px-6 py-2 rounded-full text-sm font-medium transition" [ngClass]="activeTab === 'About' ? 'bg-primary text-white' : 'bg-white text-gray-600 border border-gray-100'" (click)="setTab('About')">About</button>
+    <button class="px-6 py-2 rounded-full text-sm font-medium transition" [ngClass]="activeTab === 'Content' ? 'bg-primary text-white' : 'bg-white text-gray-600 border border-gray-100'" (click)="setTab('Content')">Content</button>
+    <button class="px-6 py-2 rounded-full text-sm font-medium transition" [ngClass]="activeTab === 'Annexes' ? 'bg-primary text-white' : 'bg-white text-gray-600 border border-gray-100'" (click)="setTab('Annexes')">Annexes</button>
+    <button class="px-6 py-2 rounded-full text-sm font-medium transition" [ngClass]="activeTab === 'Forum' ? 'bg-primary text-white' : 'bg-white text-gray-600 border border-gray-100'" (click)="setTab('Forum')">Forum</button>
+  </div>
+
+  <div *ngIf="activeTab === 'Content'" class="space-y-4">
+    <div *ngIf="!loading && chapters.length === 0" class="text-sm text-gray-500">
+      No content available yet.
+    </div>
+    
+    <!-- Improved Chapter/Lesson Layout -->
+    <div *ngFor="let chapter of chapters; let i = index" class="bg-white rounded-2xl shadow-sm border-2 border-gray-50 overflow-hidden transition-all hover:shadow-md">
+      <!-- Chapter Header -->
+      <button 
+        class="w-full px-6 py-5 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-blue-50 hover:from-indigo-100 hover:to-blue-100 transition-all"
+        (click)="toggleChapter(chapter.id)">
+        <div class="flex items-center gap-4">
+          <div class="flex-shrink-0 w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-lg">
+            {{ i + 1 }}
+          </div>
+          <div class="text-left">
+            <h3 class="text-lg font-bold text-gray-800">{{ chapter.title }}</h3>
+            <p class="text-xs text-gray-500 mt-1">{{ chapter.sections?.length || 0 }} lessons</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-gray-500">{{ getSectionProgress(chapter) }}</span>
+          <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm">
+            <span class="text-indigo-600 text-sm font-bold">
+              {{ isExpanded(chapter.id) ? '▲' : '▼' }}
+            </span>
+          </div>
+        </div>
+      </button>
+      
+      <!-- Lessons List -->
+      <div *ngIf="isExpanded(chapter.id)" class="divide-y divide-gray-100">
+        <div *ngFor="let s of chapter.sections; let j = index" 
+             class="px-6 py-4 hover:bg-gray-50 transition-colors">
+          <div class="flex items-center justify-between">
+            <!-- Lesson Info -->
+            <div class="flex items-center gap-4 flex-1">
+              <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center font-semibold text-sm">
+                {{ i + 1 }}.{{ j + 1 }}
+              </div>
+              <div class="flex items-center gap-3 flex-1">
+                <span class="text-2xl">
+                  {{ s.type === 'LESSON' ? '📚' : s.type === 'QUIZ' ? '📝' : '🎬' }}
+                </span>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-800">{{ s.title }}</p>
+                  <div class="flex items-center gap-3 mt-1">
+                    <span class="text-xs text-gray-500">⏱️ {{ s.duration }}</span>
+                    <span *ngIf="s.type === 'LESSON'" class="text-xs text-amber-600 font-semibold">⭐ +{{ s.xpReward || 0 }} XP</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Actions & Status -->
+            <div class="flex items-center gap-3">
+              <span 
+                class="px-3 py-1 rounded-full text-xs font-semibold"
+                [ngClass]="s.completed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'">
+                {{ s.completed ? '✓ Completed' : '○ Not Started' }}
+              </span>
+              <button
+                *ngIf="s.type === 'LESSON'"
+                (click)="startLesson(s.lessonId || '')"
+                class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition">
+                Start Lesson
+              </button>
+              <button
+                *ngIf="s.type === 'LESSON' && !s.completed"
+                (click)="completeLesson(s.lessonId || '')"
+                class="px-3 py-1 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition">
+                Mark Completed
+              </button>
+              <a 
+                *ngIf="s.quizLessonId" 
+                [routerLink]="isQuizCompleted(s.quizLessonId) ? null : ['/courses', courseId, 'lessons', s.quizLessonId, 'quiz']" 
+                [class.opacity-60]="isQuizCompleted(s.quizLessonId)"
+                [class.pointer-events-none]="isQuizCompleted(s.quizLessonId)"
+                [attr.aria-disabled]="isQuizCompleted(s.quizLessonId)"
+                class="px-3 py-1 bg-purple-600 text-white rounded-lg text-xs font-semibold hover:bg-purple-700 transition">
+                Take Quiz
+              </a>
+              <span *ngIf="isQuizCompleted(s.quizLessonId)" class="text-xs text-emerald-600 font-semibold">Quiz already completed</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Empty State -->
+        <div *ngIf="!chapter.sections || chapter.sections.length === 0" class="px-6 py-8 text-center text-gray-400">
+          <p class="text-sm">No lessons in this chapter yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="isManager()" class="bg-white rounded-3xl p-6 border border-gray-100">
+      <div class="flex items-center justify-between mb-4">
+        <div class="text-lg font-bold text-primary">Manage Content</div>
+        <button *ngIf="!creatingChapter" class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold" (click)="startCreateChapter()">
+          New Chapter
+        </button>
+      </div>
+
+      <div *ngIf="creatingChapter" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+          <label class="text-xs text-gray-600 font-bold mb-1 block">Chapter Title *</label>
+          <input [(ngModel)]="newChapter.title" type="text" placeholder="e.g., Introduction"
+                 class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-600 font-bold mb-1 block">Order Index</label>
+          <input [(ngModel)]="newChapter.orderIndex" type="number" min="1" placeholder="1"
+                 class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+        </div>
+        <div class="flex items-center space-x-3">
+          <button class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold" (click)="submitCreateChapter()">Save</button>
+          <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold" (click)="cancelCreateChapter()">Cancel</button>
+        </div>
+      </div>
+
+      <div *ngFor="let chapter of chaptersData" class="border border-gray-100 rounded-2xl p-4 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="font-bold text-primary">{{ chapter.title }}</div>
+          <div class="flex items-center space-x-2">
+            <button class="bg-primary/10 text-primary px-3 py-1 rounded-xl text-xs font-bold" (click)="startEditChapter(chapter)">Edit</button>
+            <button class="bg-red-50 text-red-600 px-3 py-1 rounded-xl text-xs font-bold" (click)="deleteChapter(chapter.id)">Delete</button>
+          </div>
+        </div>
+
+        <div *ngIf="editingChapterId === chapter.id" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <label class="text-xs text-gray-600 font-bold mb-1 block">Chapter Title *</label>
+            <input [(ngModel)]="editChapter.title" type="text" placeholder="Chapter title"
+                   class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+          </div>
+          <div>
+            <label class="text-xs text-gray-600 font-bold mb-1 block">Order Index</label>
+            <input [(ngModel)]="editChapter.orderIndex" type="number" min="1" placeholder="Order index"
+                   class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+          </div>
+          <div class="flex items-center space-x-3">
+            <button class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold" (click)="submitEditChapter(chapter.id)">Save</button>
+            <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold" (click)="cancelEditChapter()">Cancel</button>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-sm font-bold text-gray-600">Lessons</div>
+            <button class="bg-primary/10 text-primary px-3 py-1 rounded-xl text-xs font-bold" (click)="initLessonForm(chapter.id)">
+              Add Lesson
+            </button>
+          </div>
+
+          <div *ngIf="newLessons[chapter.id]" class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+               <div>
+            <label class="text-xs text-gray-600 font-bold mb-1 block">Lesson Title *</label>
+            <input [(ngModel)]="newLessons[chapter.id].title" type="text" placeholder="e.g., Past Tense Practice"
+              class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+               </div>
+               <div>
+            <label class="text-xs text-gray-600 font-bold mb-1 block">Order Index</label>
+            <input [(ngModel)]="newLessons[chapter.id].orderIndex" type="number" min="1" placeholder="1"
+              class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+               </div>
+               <div>
+            <label class="text-xs text-gray-600 font-bold mb-1 block">XP Reward</label>
+            <input [(ngModel)]="newLessons[chapter.id].xpReward" type="number" min="1" placeholder="10"
+              class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+               </div>
+            <button class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold" (click)="submitCreateLesson(chapter.id)">Save Lesson</button>
+          </div>
+
+          <div *ngFor="let lesson of lessonsData" class="border border-gray-100 rounded-2xl p-3 mb-3" [hidden]="lesson.chapterId !== chapter.id">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div class="text-sm font-bold text-primary">{{ lesson.title }}</div>
+              <div class="flex items-center space-x-2">
+                <button class="bg-primary/10 text-primary px-3 py-1 rounded-xl text-xs font-bold" (click)="startEditLesson(lesson)">Edit</button>
+                <button class="bg-red-50 text-red-600 px-3 py-1 rounded-xl text-xs font-bold" (click)="deleteLesson(lesson.id)">Delete</button>
+              </div>
+            </div>
+
+            <div *ngIf="editingLessonId === lesson.id" class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+              <div>
+                <label class="text-xs text-gray-600 font-bold mb-1 block">Lesson Title *</label>
+                <input [(ngModel)]="editLesson.title" type="text" placeholder="Lesson title"
+                  class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+              </div>
+              <div>
+                <label class="text-xs text-gray-600 font-bold mb-1 block">Order Index</label>
+                <input [(ngModel)]="editLesson.orderIndex" type="number" min="1" placeholder="Order index"
+                  class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+              </div>
+              <div>
+                <label class="text-xs text-gray-600 font-bold mb-1 block">XP Reward</label>
+                <input [(ngModel)]="editLesson.xpReward" type="number" min="1" placeholder="XP reward"
+                  class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+              </div>
+              <div class="flex items-center space-x-3">
+                <button class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold" (click)="submitEditLesson(lesson.id)">Save</button>
+                <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold" (click)="cancelEditLesson()">Cancel</button>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-xs font-bold text-gray-500">Materials</div>
+                <button class="bg-primary/10 text-primary px-3 py-1 rounded-xl text-xs font-bold" (click)="initMaterialForm(lesson.id)">
+                  Add Material
+                </button>
+              </div>
+
+              <div *ngIf="newMaterials[lesson.id]" class="border border-gray-100 rounded-2xl p-3 mb-3 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Content Type *</label>
+                    <select [(ngModel)]="newMaterials[lesson.id].type" class="w-full px-4 py-2 rounded-xl border border-gray-200">
+                      <option *ngFor="let type of materialTypes" [value]="type">{{ type }}</option>
+                    </select>
+                    <div class="text-xs text-gray-500 mt-1">Select VIDEO, PDF, SLIDES, LINK, or TEXT.</div>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Title *</label>
+                    <input [(ngModel)]="newMaterials[lesson.id].title" type="text" placeholder="e.g., Lesson intro video"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">URL</label>
+                    <input [(ngModel)]="newMaterials[lesson.id].url" type="text" placeholder="Paste a video/link URL or leave empty"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                    <div class="text-xs text-gray-500 mt-1">Use this for YouTube/Vimeo/Drive links.</div>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Description</label>
+                    <textarea [(ngModel)]="newMaterials[lesson.id].content" placeholder="Short description or notes" rows="2"
+                             class="w-full px-4 py-2 rounded-xl border border-gray-200"></textarea>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Upload File</label>
+                    <input type="file" (change)="onFileSelected($event, 'create', lesson.id)"
+                           accept="video/*,audio/*,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm" />
+                    <div class="text-xs text-gray-500 mt-1">Upload video, PDF, slides, or audio files.</div>
+                  </div>
+                  <div class="text-xs text-gray-500" *ngIf="uploadStatus['create-' + lesson.id]">
+                    {{ uploadStatus['create-' + lesson.id] }}
+                  </div>
+                </div>
+                <div *ngIf="uploading['create-' + lesson.id]" class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-2 bg-primary rounded-full" [style.width.%]="uploadProgress['create-' + lesson.id]"></div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <button class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold" (click)="submitCreateMaterial(lesson.id)">Save Material</button>
+                  <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold" (click)="cancelCreateMaterial(lesson.id)">Cancel</button>
+                </div>
+              </div>
+
+              <div *ngFor="let material of materialsByLesson[lesson.id]" class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs text-gray-600 border border-gray-100 rounded-xl p-2 mb-2">
+                <div>{{ material.type }} · {{ material.title }}</div>
+                <div class="flex items-center space-x-2">
+                  <a *ngIf="material.hasFile" [href]="materialFileUrl(material.id)" target="_blank"
+                     class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-xl text-xs font-bold">
+                    Open File
+                  </a>
+                  <a *ngIf="!material.hasFile && material.url" [href]="material.url" target="_blank"
+                     class="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-xl text-xs font-bold">
+                    Open Link
+                  </a>
+                  <button class="bg-primary/10 text-primary px-3 py-1 rounded-xl text-xs font-bold" (click)="startEditMaterial(material)">Edit</button>
+                  <button class="bg-red-50 text-red-600 px-3 py-1 rounded-xl text-xs font-bold" (click)="deleteMaterial(material.id)">Delete</button>
+                </div>
+              </div>
+
+              <div *ngIf="isEditingMaterialForLesson(lesson.id)" class="border border-gray-100 rounded-2xl p-3 mt-3 space-y-3">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Content Type *</label>
+                    <select [(ngModel)]="editMaterial.type" class="w-full px-4 py-2 rounded-xl border border-gray-200">
+                      <option *ngFor="let type of materialTypes" [value]="type">{{ type }}</option>
+                    </select>
+                    <div class="text-xs text-gray-500 mt-1">Select VIDEO, PDF, SLIDES, LINK, or TEXT.</div>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Title *</label>
+                    <input [(ngModel)]="editMaterial.title" type="text" placeholder="Material title"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                  </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">URL</label>
+                    <input [(ngModel)]="editMaterial.url" type="text" placeholder="Paste a video/link URL or leave empty"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                    <div class="text-xs text-gray-500 mt-1">Use this for YouTube/Vimeo/Drive links.</div>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Description</label>
+                    <textarea [(ngModel)]="editMaterial.content" placeholder="Short description or notes" rows="2"
+                             class="w-full px-4 py-2 rounded-xl border border-gray-200"></textarea>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Upload File</label>
+                    <input type="file" (change)="onFileSelected($event, 'edit', lesson.id)"
+                           accept="video/*,audio/*,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200 text-sm" />
+                    <div class="text-xs text-gray-500 mt-1">Upload video, PDF, slides, or audio files.</div>
+                  </div>
+                  <div class="text-xs text-gray-500" *ngIf="uploadStatus['edit-' + lesson.id]">
+                    {{ uploadStatus['edit-' + lesson.id] }}
+                  </div>
+                </div>
+                <div *ngIf="uploading['edit-' + lesson.id]" class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div class="h-2 bg-primary rounded-full" [style.width.%]="uploadProgress['edit-' + lesson.id]"></div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                  <button class="bg-primary text-white px-4 py-2 rounded-xl text-sm font-bold" (click)="submitEditMaterial(editingMaterialId)">Save</button>
+                  <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-sm font-bold" (click)="cancelEditMaterial()">Cancel</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="text-xs font-bold text-gray-500">Quiz</div>
+                <div class="flex items-center space-x-2">
+                  <button class="bg-primary/10 text-primary px-3 py-1 rounded-xl text-xs font-bold" (click)="initQuizForm(lesson.id)">
+                    {{ quizByLesson[lesson.id] ? 'Edit Quiz' : 'Create Quiz' }}
+                  </button>
+                  <button *ngIf="quizByLesson[lesson.id]" class="bg-red-50 text-red-600 px-3 py-1 rounded-xl text-xs font-bold" (click)="deleteQuiz(lesson.id)">
+                    Delete Quiz
+                  </button>
+                </div>
+              </div>
+
+              <div *ngIf="newQuiz[lesson.id]" class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                <div>
+                  <label class="text-xs text-gray-600 font-bold mb-1 block">Quiz Title *</label>
+                  <input [(ngModel)]="newQuiz[lesson.id].title" type="text" placeholder="Quiz title"
+                    class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                </div>
+                <div>
+                  <label class="text-xs text-gray-600 font-bold mb-1 block">Time Limit (minutes) *</label>
+                  <input [(ngModel)]="newQuiz[lesson.id].timeLimitMin" type="number" min="1" placeholder="Time limit (min)"
+                    class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                </div>
+                <div>
+                  <label class="text-xs text-gray-600 font-bold mb-1 block">Passing Score (%) *</label>
+                  <input [(ngModel)]="newQuiz[lesson.id].passingScore" type="number" min="0" max="100" placeholder="Passing score (%)"
+                    class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                </div>
+              </div>
+
+              <div *ngIf="newQuiz[lesson.id]" class="space-y-3">
+                <div *ngFor="let q of newQuiz[lesson.id].questions; let qi = index" class="border border-gray-100 rounded-2xl p-3">
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="text-xs font-bold text-gray-500">Question {{ qi + 1 }}</div>
+                    <button class="bg-gray-100 text-gray-600 px-3 py-1 rounded-xl text-xs font-bold" (click)="removeQuizQuestion(lesson.id, qi)">Remove</button>
+                  </div>
+                      <label class="text-xs text-gray-600 font-bold mb-1 block">Question Text *</label>
+                      <input [(ngModel)]="q.text" type="text" placeholder="Question text"
+                        class="w-full px-4 py-2 rounded-xl border border-gray-200 mb-2" />
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div *ngFor="let option of q.options; let oi = index">
+                     <label class="text-xs text-gray-600 font-bold mb-1 block">Option {{ oi + 1 }} *</label>
+                     <input [(ngModel)]="q.options[oi]" type="text" placeholder="Option {{ oi + 1 }}"
+                       class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                        </div>
+                  </div>
+                  <div class="mt-2">
+                        <label class="text-xs text-gray-600 font-bold mb-1 block">Correct Option Index (0-3) *</label>
+                    <input [(ngModel)]="q.correctIndex" type="number" min="0" max="3"
+                           class="w-full px-4 py-2 rounded-xl border border-gray-200" />
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  <button class="bg-primary/10 text-primary px-3 py-2 rounded-xl text-xs font-bold" (click)="addQuizQuestion(lesson.id)">Add Question</button>
+                  <button class="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold" (click)="saveQuiz(lesson.id)">Save Quiz</button>
+                  <button class="bg-gray-100 text-gray-600 px-4 py-2 rounded-xl text-xs font-bold" (click)="cancelQuizEdit()">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,93 @@
+npx : [1m[33m
+At line:1 char:1
++ npx ng build 
+--no-progress 2>&1 | 
+Out-File -FilePath 
+final_build_erro ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: ([1m[33m:Str   
+ ing) [], RemoteExc    
+eption
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+Warning: C:\Users\LENOV
+O\Desktop\New folder (4
+)\Frontend\src\app\serv
+ices\chat.service.ts 
+depends on 
+'@stomp/stompjs'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\LENOV
+O\Desktop\New folder (4
+)\Frontend\src\app\serv
+ices\chat.service.ts 
+depends on 
+'sockjs-client'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+Warning: C:\Users\LENOV
+O\Desktop\New folder (4
+)\Frontend\src\app\user
+\reset-password\reset-p
+assword.component.ts 
+depends on 
+'sweetalert2'. 
+CommonJS or AMD 
+dependencies can cause 
+optimization bailouts.
+For more info see: http
+s://angular.dev/tools/c
+li/build#configuring-co
+mmonjs-dependencies
+
+[39m[22m
+[1m[31m
+./src/app/app-routing.m
+odule.ts:5:0-61 - 
+Error: Module not 
+found: Error: Can't 
+resolve './services/aut
+h/guard/auth.guard' in 
+'C:\Users\LENOVO\Deskto
+p\New folder 
+(4)\Frontend\src\app'
+
+Error: [96msrc/app/app
+-routing.module.ts[0m:
+[93m6[0m:[93m27[0m 
+- [91merror[0m[90m 
+TS2307: [0mCannot 
+find module './services
+/auth/guard/auth.guard'
+ or its corresponding 
+type declarations.
+
+[7m6[0m import { 
+authGuard } from "./ser
+vices/auth/guard/auth.g
+uard";
+[7m [0m [91m        
+                  ~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~[0m
+
+
+[39m[22m

@@ -1,0 +1,453 @@
+<div class="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-gradient-to-br from-blue-50 to-indigo-100 overflow-y-auto z-50">
+  <div class="max-w-6xl mx-auto px-6 py-12">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+      <button (click)="goBack()" class="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-semibold">
+        <span>←</span> Back to Course
+      </button>
+      <div class="text-center">
+        <h1 class="text-4xl font-bold text-gray-800">{{ lesson?.title || 'Lesson' }}</h1>
+        <span *ngIf="lessonCompleted && isStudent" class="inline-block mt-2 px-3 py-1 text-sm font-semibold text-green-700 bg-green-100 rounded-full">
+          ✓ Completed
+        </span>
+      </div>
+      <button 
+        *ngIf="!lessonCompleted && isStudent" 
+        (click)="markLessonComplete()"
+        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition"
+      >
+        Mark Complete
+      </button>
+      <div *ngIf="!isStudent || lessonCompleted" class="w-24"></div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex justify-center py-16">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
+        <p class="mt-4 text-gray-600">Loading lesson content...</p>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="errorMessage && !loading" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Teacher Content Management Panel -->
+    <div *ngIf="(isTeacher || isAdmin) && !loading" class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-2xl font-bold text-gray-800">Manage Lesson Content</h2>
+        <button 
+          (click)="toggleContentEditor()"
+          class="px-4 py-2 rounded-lg font-semibold transition"
+          [class.bg-indigo-600]="!showContentEditor"
+          [class.text-white]="!showContentEditor"
+          [class.hover:bg-indigo-700]="!showContentEditor"
+          [class.bg-gray-200]="showContentEditor"
+          [class.text-gray-700]="showContentEditor">
+          {{ showContentEditor ? 'Hide Editor' : '+ Add Content' }}
+        </button>
+      </div>
+
+      <!-- Add/Edit Material Form -->
+      <div *ngIf="showContentEditor" class="border-t pt-4">
+        <form (ngSubmit)="saveMaterial()" class="space-y-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Content Type</label>
+            <select 
+              [(ngModel)]="editingMaterial.type" 
+              name="type"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+              <option value="TEXT">Text Content</option>
+              <option value="VIDEO">Video</option>
+              <option value="AUDIO">Audio</option>
+              <option value="PDF">PDF Document</option>
+              <option value="SLIDES">Presentation/Slides</option>
+              <option value="LINK">External Link</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+            <input 
+              [(ngModel)]="editingMaterial.title"
+              name="title"
+              type="text"
+              required
+              placeholder="Enter content title..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          </div>
+
+          <div *ngIf="editingMaterial.type === 'TEXT' || editingMaterial.type === 'LINK'">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              {{ editingMaterial.type === 'TEXT' ? 'Content' : 'Description' }}
+            </label>
+            <textarea 
+              [(ngModel)]="editingMaterial.content"
+              name="content"
+              rows="6"
+              placeholder="Enter content here..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"></textarea>
+          </div>
+
+          <div *ngIf="editingMaterial.type === 'LINK' || editingMaterial.type === 'VIDEO'">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">URL</label>
+            <input 
+              [(ngModel)]="editingMaterial.url"
+              name="url"
+              type="url"
+              placeholder="https://..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+          </div>
+
+          <div *ngIf="editingMaterial.type === 'VIDEO' || editingMaterial.type === 'AUDIO' || editingMaterial.type === 'PDF' || editingMaterial.type === 'SLIDES'">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Upload File</label>
+            <input 
+              type="file"
+              (change)="onFileSelected($event)"
+              [accept]="getAcceptedFileTypes(editingMaterial.type)"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+            <p class="text-xs text-gray-500 mt-1">
+              {{ getFileTypeHint(editingMaterial.type) }}
+            </p>
+            
+            <!-- File Upload Progress -->
+            <div *ngIf="uploadProgress > 0 && uploadProgress < 100" class="mt-2">
+              <div class="bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div 
+                  class="bg-indigo-600 h-full transition-all duration-300"
+                  [style.width.%]="uploadProgress">
+                </div>
+              </div>
+              <p class="text-xs text-gray-600 mt-1">Uploading: {{ uploadProgress }}%</p>
+            </div>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button 
+              type="submit"
+              [disabled]="savingMaterial"
+              class="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+              {{ savingMaterial ? 'Saving...' : (editingMaterialId ? 'Update Content' : 'Add Content') }}
+            </button>
+            <button 
+              type="button"
+              (click)="cancelEdit()"
+              class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Materials List -->
+      <div class="mt-6">
+        <h3 class="text-lg font-semibold text-gray-700 mb-3">Current Materials ({{ materials.length }})</h3>
+        <div class="space-y-2">
+          <div *ngFor="let material of materials; let i = index" 
+               class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+            <div class="flex items-center gap-4">
+              <span class="text-sm font-semibold text-gray-500">#{{ i + 1 }}</span>
+              <div>
+                <div class="font-semibold text-gray-800">{{ material.title }}</div>
+                <div class="text-sm text-gray-600">
+                  <span class="inline-block px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-semibold mr-2">
+                    {{ material.type }}
+                  </span>
+                  <span *ngIf="material.hasFile" class="text-xs text-green-600">✓ File uploaded</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button 
+                (click)="editMaterial(material)"
+                class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition">
+                Edit
+              </button>
+              <button 
+                (click)="deleteMaterialConfirm(material.id)"
+                class="px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200 transition">
+                Delete
+              </button>
+            </div>
+          </div>
+          <div *ngIf="materials.length === 0" class="text-center py-8 text-gray-500">
+            No materials added yet. Click "Add Content" to get started.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Display -->
+    <div *ngIf="!loading && currentPage" class="space-y-6">
+      <!-- Big Content Card for Material -->
+      <div *ngIf="currentPage.type === 'material'" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-gradient-to-r from-indigo-600 to-blue-600 px-8 py-6">
+          <h2 class="text-3xl font-bold text-white">{{ currentPage.material?.title }}</h2>
+          <p class="text-indigo-100 text-base mt-2">
+            Page {{ currentPageIndex + 1 }} of {{ totalPages }}
+          </p>
+        </div>
+
+        <div class="px-10 py-12">
+          <!-- Material Type Display -->
+          <div class="mb-8">
+            <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-sm font-semibold">
+              {{ currentPage.material?.type }}
+            </span>
+          </div>
+
+          <!-- Content based on type -->
+          <div class="prose prose-xl max-w-none">
+            <!-- Text Content -->
+            <div *ngIf="currentPage.material?.type === 'TEXT'" class="text-gray-700 leading-relaxed text-lg">
+              {{ currentPage.material?.content }}
+            </div>
+
+            <!-- Video Content -->
+            <div *ngIf="currentPage.material?.type === 'VIDEO'" class="bg-gray-900 rounded-lg overflow-hidden aspect-video">
+              <div *ngIf="currentPage.material?.hasFile; else videoUrlOrPlaceholder" class="w-full h-full">
+                <video controls class="w-full h-full" (error)="onVideoError()">
+                  <source [src]="materialFileUrl(currentPage.material.id)" [type]="currentPage.material.fileType || 'video/mp4'">
+                  <p>Your browser does not support HTML5 video.</p>
+                </video>
+              </div>
+              <ng-template #videoUrlOrPlaceholder>
+                <iframe *ngIf="currentPage.material?.url"
+                        [src]="safeResourceUrl(currentPage.material.url)"
+                        class="w-full h-full"
+                        allowfullscreen
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                </iframe>
+                <div *ngIf="!currentPage.material?.url" class="w-full h-full flex flex-col items-center justify-center text-gray-400 gap-3">
+                  <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                  <p class="text-lg">Video not available</p>
+                  <p class="text-sm">Please upload a video file or provide a URL</p>
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Audio Content -->
+            <div *ngIf="currentPage.material?.type === 'AUDIO'" class="bg-gray-100 p-6 rounded-lg">
+              <audio *ngIf="currentPage.material?.hasFile" controls class="w-full">
+                <source [src]="materialFileUrl(currentPage.material.id)" [type]="currentPage.material.fileType || 'audio/mpeg'">
+                Your browser does not support the audio element.
+              </audio>
+              <audio *ngIf="!currentPage.material?.hasFile && currentPage.material?.url" controls class="w-full">
+                <source [src]="currentPage.material.url" type="audio/mpeg">
+                Your browser does not support the audio element.
+              </audio>
+              <p *ngIf="!currentPage.material?.hasFile && !currentPage.material?.url" class="text-gray-500">Audio not available</p>
+            </div>
+
+            <!-- Link/Reference -->
+            <div *ngIf="currentPage.material?.type === 'LINK'" class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded">
+              <p class="text-gray-700 mb-4">{{ currentPage.material?.content }}</p>
+              <a 
+                *ngIf="currentPage.material?.url"
+                [href]="currentPage.material.url" 
+                target="_blank" 
+                class="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                Open Link →
+              </a>
+            </div>
+
+            <!-- Slides -->
+            <div *ngIf="currentPage.material?.type === 'SLIDES'" class="bg-gray-100 p-6 rounded-lg">
+              <p class="text-gray-700 text-lg">{{ currentPage.material?.title }}</p>
+              <p *ngIf="currentPage.material?.content" class="text-gray-600 mt-4 text-lg">{{ currentPage.material.content }}</p>
+              <iframe *ngIf="currentPage.material?.hasFile" [src]="safeResourceUrl(materialFileUrl(currentPage.material.id))" class="w-full h-[32rem] mt-4"></iframe>
+            </div>
+
+            <!-- PDF Content -->
+            <div *ngIf="isPdfMaterial(currentPage.material)" class="bg-gray-100 rounded-lg overflow-hidden">
+              <iframe [src]="safeResourceUrl(materialFileUrl(currentPage.material?.id || ''))" class="w-full h-[32rem]"></iframe>
+            </div>
+
+            <!-- Image Content -->
+            <div *ngIf="isImageMaterial(currentPage.material)" class="bg-gray-100 rounded-lg p-4">
+              <img [src]="materialFileUrl(currentPage.material?.id || '')" alt="Material image" class="w-full h-auto rounded-lg" />
+            </div>
+
+            <!-- Other File Content -->
+            <div *ngIf="isOtherFileMaterial(currentPage.material)" class="bg-gray-100 rounded-lg p-6">
+              <p class="text-gray-700">This file can be opened in a new tab.</p>
+              <a [href]="materialFileUrl(currentPage.material?.id || '')" target="_blank"
+                 class="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold mt-3">
+                Open File
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Card -->
+      <div *ngIf="currentPage.type === 'quiz' && currentPage.quiz" class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-6">
+          <h2 class="text-2xl font-bold text-white">{{ currentPage.quiz.title }}</h2>
+          <p class="text-purple-100 text-sm mt-2">Passing Score: {{ currentPage.quiz.passingScore }}%</p>
+        </div>
+
+        <div class="px-8 py-10">
+          <!-- Quiz Results Display -->
+          <div *ngIf="showQuizResults && quizScore !== null" class="mb-8 text-center">
+            <div class="text-6xl font-bold mb-2" [class]="quizScore >= (currentPage.quiz?.passingScore || 70) ? 'text-green-600' : 'text-red-600'">
+              {{ quizScore }}%
+            </div>
+            <p class="text-lg font-semibold text-gray-700">
+              {{ quizScore >= (currentPage.quiz?.passingScore || 70) ? '✓ You Passed!' : '✗ You Need to Improve' }}
+            </p>
+          </div>
+
+          <!-- Previous Attempts Stats -->
+          <div *ngIf="isStudent && getAttemptStats() as stats" class="grid grid-cols-4 gap-4 mb-8">
+            <div class="bg-blue-50 p-4 rounded-lg text-center">
+              <div class="text-2xl font-bold text-blue-600">{{ stats.attempts }}</div>
+              <p class="text-gray-600 text-sm">Attempts</p>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg text-center">
+              <div class="text-2xl font-bold text-green-600">{{ stats.bestScore }}%</div>
+              <p class="text-gray-600 text-sm">Best Score</p>
+            </div>
+            <div class="bg-yellow-50 p-4 rounded-lg text-center">
+              <div class="text-2xl font-bold text-yellow-600">{{ stats.lastScore }}%</div>
+              <p class="text-gray-600 text-sm">Last Score</p>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg text-center">
+              <div class="text-2xl font-bold text-purple-600">{{ stats.averageScore }}%</div>
+              <p class="text-gray-600 text-sm">Average</p>
+            </div>
+          </div>
+
+          <!-- Quiz Taking Interface -->
+          <div *ngIf="takingQuiz && !showQuizResults" class="space-y-8">
+            <div *ngFor="let question of currentPage.quiz.questions; let i = index" class="bg-gray-50 p-6 rounded-lg">
+              <p class="font-semibold text-gray-800 mb-4">{{ i + 1 }}. {{ question.text }}</p>
+              <div class="space-y-3">
+                <label *ngFor="let option of question.options; let j = index" class="flex items-center p-3 border-2 border-gray-200 rounded-lg hover:border-indigo-400 hover:bg-indigo-50 cursor-pointer transition" [class.border-indigo-600]="quizAnswers[i] === j" [class.bg-indigo-100]="quizAnswers[i] === j">
+                  <input 
+                    type="radio" 
+                    [name]="'question-' + i"
+                    [value]="j"
+                    (click)="selectAnswer(i, j)"
+                    class="w-4 h-4" />
+                  <span class="ml-3 text-gray-700">{{ option }}</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex gap-4 justify-end">
+              <button 
+                (click)="retakeQuiz()"
+                class="px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition">
+                Cancel
+              </button>
+              <button 
+                (click)="submitQuiz()"
+                class="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold hover:shadow-lg transition">
+                Submit Answers
+              </button>
+            </div>
+          </div>
+
+          <!-- Quiz Start Button -->
+          <div *ngIf="!takingQuiz" class="text-center">
+            <button 
+              (click)="startQuiz()"
+              [disabled]="quizAttempts.length > 0"
+              class="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-semibold text-lg hover:shadow-xl transition">
+              Start Quiz
+            </button>
+          </div>
+
+          <!-- Retake Button After Results -->
+          <div *ngIf="showQuizResults" class="text-center">
+            <button 
+              (click)="retakeQuiz()"
+              class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg font-semibold text-lg hover:shadow-xl transition">
+              Retake Quiz
+            </button>
+          </div>
+
+          <!-- Teacher/Admin Submissions -->
+          <div *ngIf="(isTeacher || isAdmin) && submissions.length" class="mt-10 border-t border-gray-100 pt-6">
+            <div class="text-lg font-bold text-gray-800 mb-4">Student Submissions</div>
+            <div class="space-y-4">
+              <div *ngFor="let submission of submissions" class="border border-gray-100 rounded-xl p-4">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                  <div>
+                    <div class="text-sm font-semibold text-gray-700">Student</div>
+                    <div class="text-sm text-gray-600">{{ submission.studentId }}</div>
+                    <div class="text-xs text-gray-500 mt-1">Submitted: {{ submission.attemptedAt | date:'medium' }}</div>
+                  </div>
+                  <div class="min-w-[180px]">
+                    <label class="text-xs text-gray-600 font-bold mb-1 block">Score</label>
+                    <input [(ngModel)]="gradingScores[submission.id]" type="number" min="0" max="100"
+                           class="w-full px-3 py-2 rounded-lg border border-gray-200" />
+                    <button class="mt-2 w-full px-3 py-2 bg-primary text-white rounded-lg text-xs font-bold"
+                            (click)="saveGrade(submission)">Save Score</button>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="text-xs font-bold text-gray-600 mb-1">Selected Answers</div>
+                  <div class="text-sm text-gray-700">
+                    {{ (submission.answers || []).join(', ') || 'No answers' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Controls -->
+      <div class="flex items-center justify-between py-6">
+        <button 
+          (click)="previousPage()"
+          [disabled]="isFirstPage"
+          class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+          ← Previous Page
+        </button>
+
+        <!-- Page Indicators -->
+        <div class="flex gap-2">
+          <button 
+            *ngFor="let page of contentPages; let i = index"
+            (click)="goToPage(i)"
+            [class.bg-indigo-600]="i === currentPageIndex"
+            [class.text-white]="i === currentPageIndex"
+            [class.bg-gray-200]="i !== currentPageIndex"
+            [class.text-gray-700]="i !== currentPageIndex"
+            class="w-10 h-10 rounded-lg font-semibold flex items-center justify-center transition hover:shadow-md">
+            {{ i + 1 }}
+          </button>
+        </div>
+
+        <button 
+          (click)="nextPage()"
+          [disabled]="isLastPage"
+          class="px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+          Next Page →
+        </button>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="bg-gray-100 rounded-full h-2 overflow-hidden">
+        <div 
+          class="bg-gradient-to-r from-indigo-600 to-blue-600 h-full transition-all duration-300"
+          [style.width.%]="((currentPageIndex + 1) / totalPages) * 100">
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && totalPages === 0" class="text-center py-12">
+      <p class="text-gray-600 text-lg">No content available for this lesson yet.</p>
+    </div>
+  </div>
+</div>

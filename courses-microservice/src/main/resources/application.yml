@@ -1,0 +1,86 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: englishway-course-management
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/englishway_courses}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:04102001}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    admin:
+      auto-create: false
+      fail-fast: false
+      enabled: false
+    listener:
+      auto-startup: false
+      missing-topics-fatal: false
+    consumer:
+      group-id: englishway-course
+      auto-offset-reset: earliest
+    producer:
+      properties:
+        spring.json.add.type.headers: true
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+app:
+  upload:
+    dir: ${UPLOAD_DIR:uploads}
+  cloudinary:
+    enabled: ${CLOUDINARY_ENABLED:true}
+    cloud-name: do05gm3vt
+    upload-preset: ${CLOUDINARY_UPLOAD_PRESET:}
+    api-key: 486412816571189
+    api-secret: cIB8qEa_9dciZvlgIHUN-Hebx0g
+  local-assistant:
+    enabled: true
+    launch-local-server: true
+    base-url: http://127.0.0.1:8001
+    python-executable: ..\\.venv\\Scripts\\python.exe
+    local-model-script: ..\\my_model\\api_server.py
+    model: english-tutor-local
+    temperature: 0.4
+    max-tokens: 350
+  payment:
+    provider-url: ${PAYMENT_PROVIDER_URL:https://dummyjson.com/carts/add}
+  kafka:
+    enabled: ${KAFKA_ENABLED:false}
+    topics:
+      course-created: englishway.course.created
+      course-updated: englishway.course.updated
+      student-enrolled: englishway.student.enrolled
+      lesson-completed: englishway.lesson.completed
+      course-progress-updated: englishway.course.progress.updated
+      course-completed: englishway.course.completed
+      payment-confirmed: englishway.payment.confirmed
+  stripe:
+    api:
+      public-key: ${STRIPE_PUBLIC_KEY:pk_test_51TIH2gABqzbLUQeawKUXIIMNa13La1jT9DqYERUz3a6sfHQZVj0in9WF2bbcQSop1VE8YTdzRLPANdMe3HQmEeiG00qgE4o2JN}
+      private-key: ${STRIPE_PRIVATE_KEY:sk_test_51TIH2gABqzbLUQeaIbUxZBloBx1Y1jWxLjEGHFRlVfR52HdIeHJduDprtnwRMS9FAHnvMpaS2vbPMyoMFMi6mNIi00P5TXENJn}
+    webhook:
+      secret: ${STRIPE_WEBHOOK_SECRET:whsec_placeholder}
+
+user-service:
+  url: ${USER_SERVICE_URL:http://localhost:8070}
+
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:true}
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true

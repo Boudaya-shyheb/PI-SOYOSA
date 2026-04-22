@@ -1,0 +1,58 @@
+<div class="test-container bg-white rounded-3xl shadow-2xl p-8 max-w-2xl mx-auto border border-gray-100 mt-10">
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    <p class="mt-4 text-gray-500 font-medium">Analyzing your skills...</p>
+  </div>
+
+  <div *ngIf="!loading && !isFinished">
+    <div class="header mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <span class="text-xs font-bold tracking-widest text-primary uppercase bg-primary/10 px-3 py-1 rounded-full">Assessment</span>
+        <span class="text-sm font-semibold text-gray-400">Question {{ currentIndex + 1 }} of {{ questions.length }}</span>
+      </div>
+      <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+        <div class="bg-primary h-full transition-all duration-500 ease-out" 
+             [style.width.%]="((currentIndex + 1) / questions.length) * 100"></div>
+      </div>
+    </div>
+
+    <div class="question-section mb-10 transition-all duration-300">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 leading-relaxed">
+        {{ questions[currentIndex]?.questionText }}
+      </h2>
+
+      <div class="options-grid grid gap-3">
+        <button 
+          *ngFor="let option of questions[currentIndex]?.options; let i = index"
+          (click)="selectOption(i)"
+          class="option-btn group flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-primary hover:bg-primary/5 transition-all text-left"
+        >
+          <span class="text-gray-700 font-medium group-hover:text-primary">{{ option }}</span>
+          <div class="w-5 h-5 rounded-full border-2 border-gray-200 group-hover:border-primary flex items-center justify-center transition-colors">
+            <div class="w-2 h-2 rounded-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isFinished" class="result-section text-center py-10 animate-fade-in">
+    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+      <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+    <h2 class="text-3xl font-bold text-gray-900 mb-2">Test Complete!</h2>
+    <p class="text-gray-500 mb-8">We've determined your current English level.</p>
+    
+    <div class="level-card inline-block p-8 rounded-3xl bg-gradient-to-br from-primary to-primary/80 text-white shadow-xl mb-10">
+      <span class="text-sm font-medium opacity-80 block mb-1">Your Level</span>
+      <span class="text-5xl font-black">{{ result?.determinedLevel }}</span>
+      <div class="mt-4 text-sm font-medium pt-4 border-t border-white/20">
+        Score: {{ result?.score }}/{{ questions.length }}
+      </div>
+    </div>
+
+    <p class="text-gray-600 mb-6 italic">Matching trainings have been unlocked for you.</p>
+  </div>
+</div>

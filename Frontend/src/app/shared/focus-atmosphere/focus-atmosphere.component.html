@@ -1,0 +1,38 @@
+<ng-container *ngIf="isVisible">
+  <button class="focus-fab" type="button" (click)="togglePanel()" [attr.aria-expanded]="panelOpen" aria-label="Toggle Focus and Atmosphere Mode">
+    <span class="focus-fab-icon">🎧</span>
+    <span class="focus-fab-label">Focus</span>
+  </button>
+
+  <section class="focus-panel" [class.open]="panelOpen" [attr.aria-hidden]="!panelOpen">
+    <header class="focus-header">
+      <h3>Focus + Atmosphere</h3>
+      <span class="status-pill" [class.playing]="isPlaying">{{ isPlaying ? 'Playing' : 'Paused' }}</span>
+    </header>
+
+    <div class="track-list">
+      <article class="track-item" *ngFor="let track of tracks" [class.active]="track.id === activeTrackId">
+        <div class="track-meta">
+          <span class="track-icon">{{ track.icon }}</span>
+          <span class="track-name">{{ track.name }}</span>
+        </div>
+        <button class="track-action" type="button" (click)="playOrPause(track.id)">
+          {{ isTrackPlaying(track.id) ? 'Pause' : 'Play' }}
+        </button>
+      </article>
+    </div>
+
+    <div class="volume-block">
+      <label for="focus-volume">Volume {{ volumePercent }}%</label>
+      <input
+        id="focus-volume"
+        type="range"
+        min="0"
+        max="100"
+        [value]="volumePercent"
+        (input)="updateVolume($event)" />
+    </div>
+
+    <p *ngIf="errorMessage" class="error-text">{{ errorMessage }}</p>
+  </section>
+</ng-container>

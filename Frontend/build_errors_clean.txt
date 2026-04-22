@@ -1,0 +1,128 @@
+npx : [1m[33m
+At line:1 char:1
++ npx ng build 
+--no-progress 2>&1 | 
+Out-File -FilePath 
+build_errors_cle ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~
+    + CategoryInfo         
+     : NotSpecifi    ed: 
+([1m[33m:Str    ing) [], 
+RemoteExc    eption
+    + FullyQualifiedEr    
+rorId : NativeComm    
+andError
+ 
+Warning: C:\Users\LENOVO\De
+sktop\New folder (4)\Fronte
+nd\src\app\services\chat.se
+rvice.ts depends on 
+'@stomp/stompjs'. CommonJS 
+or AMD dependencies can 
+cause optimization 
+bailouts.
+For more info see: https://
+angular.dev/tools/cli/build
+#configuring-commonjs-depen
+dencies
+
+Warning: C:\Users\LENOVO\De
+sktop\New folder (4)\Fronte
+nd\src\app\services\chat.se
+rvice.ts depends on 
+'sockjs-client'. CommonJS 
+or AMD dependencies can 
+cause optimization 
+bailouts.
+For more info see: https://
+angular.dev/tools/cli/build
+#configuring-commonjs-depen
+dencies
+
+Warning: C:\Users\LENOVO\De
+sktop\New folder (4)\Fronte
+nd\src\app\user\reset-passw
+ord\reset-password.componen
+t.ts depends on 
+'sweetalert2'. CommonJS or 
+AMD dependencies can cause 
+optimization bailouts.
+For more info see: https://
+angular.dev/tools/cli/build
+#configuring-commonjs-depen
+dencies
+
+[39m[22m
+[1m[31m
+Error: [96msrc/app/feature
+s/training/details/training
+-details.component.ts[0m:
+[93m79[0m:[93m53[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'getUserDisplayName' does 
+not exist on type 
+'AuthService'.
+
+[7m79[0m             
+this.userDisplayName = this
+.authService.getUserDisplay
+Name();
+[7m  [0m [91m           
+                           
+              
+~~~~~~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/feature
+s/training/student/student-
+certificates/student-certif
+icates.component.ts[0m:[9
+3m28[0m:[93m45[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'getUserDisplayName' does 
+not exist on type 
+'AuthService'.
+
+[7m28[0m     
+this.userDisplayName = this
+.authService.getUserDisplay
+Name();
+[7m  [0m [91m           
+                           
+      
+~~~~~~~~~~~~~~~~~~[0m
+
+
+Error: [96msrc/app/feature
+s/training/training-list.co
+mponent.html[0m:[93m9[0m
+:[93m24[0m - 
+[91merror[0m[90m 
+TS2339: [0mProperty 
+'isTutor' does not exist 
+on type 'AuthService'.
+
+[7m9[0m         <a 
+*ngIf="auth.isTutor()"
+[7m [0m [91m            
+           ~~~~~~~[0m
+
+  [96msrc/app/features/tra
+ining/training-list.compone
+nt.ts[0m:[93m8[0m:[93m1
+8[0m
+    [7m8[0m     
+templateUrl: './training-li
+st.component.html',
+    [7m [0m [96m        
+         ~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~[0m
+    Error occurs in the 
+template of component 
+TrainingListComponent.
+
+
+[39m[22m

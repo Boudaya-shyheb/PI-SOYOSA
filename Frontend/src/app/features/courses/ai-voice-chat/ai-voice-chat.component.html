@@ -1,0 +1,11 @@
+<div class="ai-voice-chat-wrapper">
+  <div class="gif-container">
+    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWQ2Z3p6bXk3Y25zZHR3eGkyMmx1b3J2eXhtZ3g2b3RneW5zZmI2eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPnZk1i1p3p4tBC/giphy.gif" alt="AI Assistant">
+  </div>
+  <h2>Practice your pronunciation</h2>
+  <p>Click the button and speak into your microphone.</p>
+  <button class="mic-button" (click)="toggleListen()" [class.listening]="isListening">
+    <i class="fas fa-microphone"></i>
+  </button>
+  <p class="feedback">{{ feedback }}</p>
+</div>

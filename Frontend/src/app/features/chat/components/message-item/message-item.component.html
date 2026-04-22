@@ -1,0 +1,33 @@
+<div class="message-item" [class.own-message]="isOwnMessage" (mouseenter)="toggleActions()"
+    (mouseleave)="showActions = false">
+    <div class="message-bubble">
+        <div class="message-header">
+            <span class="sender-name">{{ message.senderUsername }}</span>
+            <span class="message-time">{{ formatTime(message.dateSent) }}</span>
+            <span *ngIf="isMessageEdited()" class="edited-indicator">(edited)</span>
+<!--            <span *ngIf="isOwnMessage && message.seen" class="seen-indicator">✓✓</span>-->
+        </div>
+
+        <div *ngIf="!isEditing" class="message-content">
+            {{ message.content }}
+        </div>
+
+        <div *ngIf="isEditing" class="message-edit">
+            <textarea [(ngModel)]="editingContent" (ngModelChange)="onContentChange($event)"
+                class="edit-input"></textarea>
+            <div class="edit-actions">
+                <button (click)="onSaveEditClick()" class="btn-save">Save</button>
+                <button (click)="onCancelEditClick()" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+
+        <div *ngIf="showActions && canManageMessage && !isEditing" class="message-actions">
+            <button (click)="onEditClick()" class="btn-action btn-edit" title="Edit message">
+                ✎
+            </button>
+            <button (click)="onDeleteClick()" class="btn-action btn-delete" title="Delete message">
+                ✕
+            </button>
+        </div>
+    </div>
+</div>

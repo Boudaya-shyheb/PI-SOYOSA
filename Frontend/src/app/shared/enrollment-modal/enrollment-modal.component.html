@@ -1,0 +1,160 @@
+<div *ngIf="isOpen" class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-container" [class.success-mode]="currentStep === 'success'">
+    <!-- Close Button -->
+    <button class="close-btn" (click)="onClose()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <!-- Preview Step -->
+    <div *ngIf="currentStep === 'preview'" class="modal-content">
+      <!-- Course Image -->
+      <div class="course-image-wrapper">
+        <img *ngIf="course?.image" [src]="course.image" [alt]="course?.title" class="course-image">
+        <div *ngIf="!course?.image" class="course-image-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <path d="M4 16L8.586 11.414C9.367 10.633 10.633 10.633 11.414 11.414L16 16M14 14L15.586 12.414C16.367 11.633 17.633 11.633 18.414 12.414L20 14M14 8H14.01M6 20H18C19.1046 20 20 19.1046 20 18V6C20 4.89543 19.1046 4 18 4H6C4.89543 4 4 4.89543 4 6V18C4 19.1046 4.89543 20 6 20Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="course-badge" [class.paid]="course?.isPaid">
+          {{ course?.isPaid ? 'Premium' : 'Free' }}
+        </div>
+      </div>
+
+      <!-- Course Info -->
+      <div class="course-info">
+        <div class="level-badge">{{ levelLabel }}</div>
+        <h2 class="course-title">{{ course?.title }}</h2>
+        <p class="course-description">{{ course?.description }}</p>
+
+        <!-- Stats -->
+        <div class="course-stats">
+          <div class="stat">
+            <div class="stat-icon">📚</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ course?.totalChapters || 0 }}</div>
+              <div class="stat-label">Chapters</div>
+            </div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon">📝</div>
+            <div class="stat-content">
+              <div class="stat-value">{{ course?.totalLessons || 0 }}</div>
+              <div class="stat-label">Lessons</div>
+            </div>
+          </div>
+          <div class="stat">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-content">
+              <div class="stat-value">Certificate</div>
+              <div class="stat-label">On Completion</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- What You'll Learn -->
+        <div class="learn-section">
+          <h3>What you'll learn</h3>
+          <ul class="learn-list">
+            <li><span class="check">✓</span> Master key concepts and fundamentals</li>
+            <li><span class="check">✓</span> Practical exercises and quizzes</li>
+            <li><span class="check">✓</span> Track your progress</li>
+            <li><span class="check">✓</span> Earn a certificate of completion</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Price & Enroll Button -->
+      <div class="enroll-section">
+        <div *ngIf="course?.isPaid" class="price-tag">
+          <span class="price-amount">{{ course?.price }} TND</span>
+        </div>
+        <button class="enroll-btn primary" (click)="onProceed()">
+          <span>Start Enrollment</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Confirm Step -->
+    <div *ngIf="currentStep === 'confirm'" class="modal-content confirm-step">
+      <div class="confirm-icon">
+        <div class="confirm-icon-inner">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <h2 class="confirm-title">Confirm Enrollment</h2>
+      <p class="confirm-subtitle">You're about to enroll in:</p>
+      
+      <div class="confirm-course-card">
+        <img *ngIf="course?.image" [src]="course.image" class="confirm-course-image">
+        <div class="confirm-course-info">
+          <div class="confirm-course-title">{{ course?.title }}</div>
+          <div class="confirm-course-level">Level: {{ levelLabel }}</div>
+        </div>
+      </div>
+
+      <div class="confirm-benefits">
+        <div class="benefit"><span>✓</span> Immediate access to all content</div>
+        <div class="benefit"><span>✓</span> Track your progress</div>
+        <div class="benefit"><span>✓</span> Certificate upon completion</div>
+      </div>
+
+      <div class="confirm-actions">
+        <button class="enroll-btn secondary" (click)="goBack()" [disabled]="enrolling">
+          Back
+        </button>
+        <button class="enroll-btn primary" (click)="onConfirmEnroll()" [disabled]="enrolling">
+          <span *ngIf="!enrolling">Confirm & Enroll</span>
+          <span *ngIf="enrolling" class="loading-spinner">
+            <svg class="spinner-icon" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round"/>
+            </svg>
+            Enrolling...
+          </span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Success Step -->
+    <div *ngIf="currentStep === 'success'" class="modal-content success-step">
+      <div class="success-animation">
+        <div class="success-circle">
+          <svg class="checkmark" viewBox="0 0 52 52">
+            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+          </svg>
+        </div>
+        <div class="confetti">
+          <div *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12]" class="confetti-piece" [style.--delay]="i * 0.1 + 's'"></div>
+        </div>
+      </div>
+
+      <h2 class="success-title">🎉 Welcome Aboard!</h2>
+      <p class="success-message">
+        You've successfully enrolled in <strong>{{ course?.title }}</strong>
+      </p>
+
+      <div class="success-info">
+        <div class="success-tip">
+          <span class="tip-icon">💡</span>
+          <span>Start with the first lesson to begin your learning journey</span>
+        </div>
+      </div>
+
+      <button class="enroll-btn primary large" (click)="onStartLearning()">
+        <span>Start Learning Now</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

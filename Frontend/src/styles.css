@@ -1,0 +1,63 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "leaflet/dist/leaflet.css";
+@import "~leaflet/dist/leaflet.css";
+
+/* Global styles and custom scrollbar (ported from React index.html inline styles) */
+body.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+body.custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+body.custom-scrollbar::-webkit-scrollbar-thumb { background: #2D5757; border-radius: 10px; }
+
+/* Utility to ensure min-height layout similar to React */
+.min-h-screen { min-height: 100vh; }
+
+:root {
+	--shop-ink: #0f172a;
+	--shop-mint: #0f766e;
+	--shop-cream: #fff5e6;
+	--shop-sand: #f1e7d6;
+	--shop-sun: #f4b350;
+}
+
+body {
+	font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+	color: var(--shop-ink);
+}
+
+.shop-theme {
+	position: relative;
+	background: radial-gradient(1200px 600px at 15% -10%, rgba(244, 179, 80, 0.25), transparent 60%),
+		radial-gradient(900px 600px at 90% 0%, rgba(15, 118, 110, 0.2), transparent 55%),
+		linear-gradient(180deg, #fff7ed 0%, #fffdf8 45%, #ffffff 100%);
+}
+
+.shop-theme h1,
+.shop-theme h2,
+.shop-theme h3 {
+	font-family: 'Fraunces', 'Georgia', serif;
+	letter-spacing: -0.02em;
+}
+
+.shop-hero {
+	background: linear-gradient(135deg, rgba(255, 247, 237, 0.95), rgba(255, 255, 255, 0.6));
+}
+
+.shop-card {
+	box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+	border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.shop-sidebar {
+	position: sticky;
+	top: 6rem;
+}
+
+.shop-image-frame {
+	background: linear-gradient(140deg, rgba(15, 118, 110, 0.18), rgba(244, 179, 80, 0.18));
+	padding: 10px;
+	border-radius: 28px;
+}
+
+.shop-summary {
+	position: sticky;
+	top: 6rem;
+}

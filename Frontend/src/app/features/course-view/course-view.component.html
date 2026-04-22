@@ -1,0 +1,146 @@
+<div class="course-view-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading course...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !loading" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading && course" class="lms-page">
+    <header class="lms-header">
+      <div class="header-inner">
+        <div class="header-code">Section {{ sectionCode }}</div>
+        <h1 class="header-title">{{ course.title }}</h1>
+        <p class="header-meta">Structured student workspace with lessons, quizzes, and guided milestones.</p>
+        <div class="header-progress">
+          <div class="progress-topline">
+            <span>Progress</span>
+            <span>{{ completionPercent }}%</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <span class="progress-fill" [style.width.%]="completionPercent"></span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="course-layout">
+      <main class="main-content">
+        <section class="adaptive-panel">
+          <div class="adaptive-header">
+            <span class="adaptive-badge">Adaptive Path</span>
+            <h2>{{ adaptiveRecommendation.title }}</h2>
+            <p>{{ adaptiveRecommendation.reason }}</p>
+          </div>
+          <a class="adaptive-cta" [routerLink]="adaptiveRecommendation.route">{{ adaptiveRecommendation.cta }}</a>
+        </section>
+
+        <section class="mastery-map" *ngIf="masterySkills.length > 0">
+          <div class="mastery-head">
+            <h3>Mastery Map</h3>
+            <span class="mastery-sub">Personal tutor style skill radar</span>
+          </div>
+
+          <div class="mastery-grid">
+            <article *ngFor="let skill of masterySkills" class="mastery-card" [class.weak]="skill.level === 'weak'" [class.growing]="skill.level === 'growing'" [class.strong]="skill.level === 'strong'">
+              <div class="skill-topline">
+                <h4>{{ skill.label }}</h4>
+                <span>{{ skill.score }}%</span>
+              </div>
+              <div class="skill-track" aria-hidden="true">
+                <span class="skill-fill" [style.width.%]="skill.score"></span>
+              </div>
+              <p>{{ skill.tip }}</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="review-panel">
+          <div class="review-head">
+            <h3>Student Feedback</h3>
+            <span class="review-summary">
+              {{ asStars(reviewSummary.averageRating) }}
+              <strong>{{ reviewSummary.averageRating | number:'1.1-1' }}</strong>
+              <small>({{ reviewSummary.totalReviews }} reviews)</small>
+            </span>
+          </div>
+
+          <div class="review-form" *ngIf="auth.isStudent()">
+            <p class="review-form-title">Rate this course</p>
+            <div class="rating-select" [class.disabled]="!canSubmitReview">
+              <button
+                type="button"
+                *ngFor="let star of [1,2,3,4,5]"
+                [class.active]="star <= reviewRating"
+                (click)="setRating(star)"
+                [disabled]="!canSubmitReview"
+                aria-label="Set rating">
+                ★
+              </button>
+            </div>
+            <textarea
+              [(ngModel)]="reviewComment"
+              [disabled]="!canSubmitReview"
+              placeholder="Write your comment..."
+              rows="3"
+              maxlength="2000"></textarea>
+            <button type="button" class="submit-review-btn" (click)="submitReview()" [disabled]="reviewSubmitting || !canSubmitReview">
+              {{ reviewSubmitting ? 'Submitting...' : 'Submit Review' }}
+            </button>
+            <p *ngIf="reviewMessage" class="review-message">{{ reviewMessage }}</p>
+            <p *ngIf="!canSubmitReview" class="review-note">You can review after enrollment is active.</p>
+          </div>
+
+          <div class="review-list" *ngIf="reviews.length > 0; else noReviews">
+            <article class="review-item" *ngFor="let item of reviews">
+              <div class="review-item-top">
+                <strong>{{ shortUser(item.userId) }}</strong>
+                <span class="review-stars">{{ asStars(item.rating) }}</span>
+              </div>
+              <p>{{ item.comment }}</p>
+              <small>{{ item.updatedAt | date:'medium' }}</small>
+            </article>
+          </div>
+
+          <ng-template #noReviews>
+            <p class="review-empty">No feedback yet. Be the first student to review this course.</p>
+          </ng-template>
+        </section>
+
+        <app-course-content
+          [course]="course"
+          [courseId]="courseId"
+          [chapters]="chapters"
+          [allLessonsCompleted]="allLessonsCompleted"
+          [certificateEligible]="certificateEligible"
+          [finalQuizPassed]="finalQuizPassed"
+          (downloadCertificate)="openCertificate()"
+          (lessonToggled)="onLessonToggle($event.lessonId, $event.completed)"
+        ></app-course-content>
+      </main>
+
+      <aside class="sidebar-content">
+        <app-course-sidebar
+          [course]="course"
+          [courseId]="courseId"
+          [chapters]="chapters"
+          [allCompleted]="allLessonsCompleted"
+          [completionPercent]="completionPercent"
+        ></app-course-sidebar>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Certificate Modal -->
+  <app-certificate
+    *ngIf="showCertificate"
+    [userName]="userName"
+    [courseName]="course?.title || 'Course'"
+    (close)="closeCertificate()"
+  ></app-certificate>
+</div>

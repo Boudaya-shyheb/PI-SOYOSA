@@ -1,0 +1,165 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <!-- 🔥 HEADER -->
+  <div class="mb-12">
+    <h1 class="text-3xl font-bold text-primary mb-4">
+      Our Events
+    </h1>
+
+    <p class="text-gray-500 max-w-2xl">
+      Stay connected and inspired with our latest gatherings, workshops,
+      and networking opportunities. Explore upcoming events and be part
+      of a thriving community! 🚀
+    </p>
+  </div>
+
+  <!-- 🔥 SEARCH -->
+  <div class="mb-6">
+    <input type="text"
+           [(ngModel)]="searchTerm"
+           (ngModelChange)="applyFilters()"
+           placeholder="Search by title, location, or category..."
+           class="w-full md:w-1/2 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary">
+  </div>
+
+  <!-- 🔥 FILTER TABS -->
+  <div class="flex space-x-3 mb-10 overflow-x-auto pb-4">
+    <button *ngFor="let tab of tabs"
+            (click)="setFilter(tab)"
+            class="px-6 py-2 rounded-full text-sm font-medium transition whitespace-nowrap"
+            [ngClass]="filter === tab
+              ? 'bg-primary text-white shadow-lg shadow-primary/20'
+              : 'bg-white text-gray-600 border border-gray-100 hover:border-primary'">
+
+      {{ tab === 'All' ? '✓ All' : tab }}
+
+    </button>
+  </div>
+
+  <!-- 🔥 CREATE EVENT BUTTON -->
+  <div class="mb-10 text-right" *ngIf="auth.isAdmin()">
+    <a routerLink="/events/create"
+       class="bg-primary text-white px-6 py-3 rounded-xl shadow hover:shadow-lg transition">
+      + Create Event
+    </a>
+  </div>
+
+  <!-- 🔥 EVENTS GRID -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    <ng-container *ngIf="filteredEvents.length > 0; else emptyState">
+
+      <div *ngFor="let event of paginatedEvents"
+           class="bg-white rounded-3xl shadow hover:shadow-xl transition p-6 border border-gray-100">
+
+        <!-- Title -->
+        <h3 class="text-xl font-bold text-primary mb-2">
+          {{ event.title }}
+        </h3>
+
+        <!-- Description -->
+        <p class="text-gray-500 text-sm mb-4 line-clamp-3">
+          {{ event.description }}
+        </p>
+
+        <!-- Info -->
+        <div class="space-y-2 text-sm text-gray-600">
+
+          <div>
+            📅 {{ event.date }}
+          </div>
+
+          <div>
+            ⏰ {{ event.startTime }} - {{ event.endTime }}
+          </div>
+
+          <div>
+            📍 {{ event.location }}
+          </div>
+
+          <div>
+            👥 Max: {{ event.maxParticipants }}
+          </div>
+
+          <div *ngIf="event.category?.name"
+               class="inline-block mt-2 px-3 py-1 text-xs rounded-full bg-primary/10 text-primary">
+            {{ event.category.name }}
+          </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex justify-between items-center">
+
+          <a [routerLink]="['/events', event.id]"
+             class="text-primary font-medium hover:underline">
+            View Details →
+          </a>
+
+          <div class="flex items-center gap-4" *ngIf="auth.isAdmin()">
+            <a [routerLink]="['/events', event.id, 'edit']"
+               class="text-gray-600 hover:text-primary transition text-sm">
+              Edit
+            </a>
+
+            <button (click)="deleteEvent(event.id!)"
+                    class="text-red-500 hover:text-red-700 transition text-sm">
+              Delete
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </ng-container>
+
+  </div>
+
+  <!-- 🔥 EMPTY STATE -->
+  <ng-template #emptyState>
+    <div class="text-center py-20 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200">
+      <div class="text-gray-400 text-lg">
+        No events found.
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- 🔥 PAGINATION (Design Only) -->
+  <div *ngIf="filteredEvents.length > 0" class="mt-16 flex justify-between items-center">
+    <div class="flex space-x-2">
+
+      <button
+        (click)="goToPreviousPage()"
+        [disabled]="currentPage === 1"
+        [ngClass]="currentPage === 1 ? 'cursor-not-allowed opacity-50' : ''"
+        class="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:border-primary hover:text-primary transition">
+        &lt;
+      </button>
+
+      <button
+        *ngFor="let page of pageNumbers"
+        (click)="goToPage(page)"
+        [ngClass]="page === currentPage
+          ? 'bg-primary text-white border-primary font-bold'
+          : 'border border-gray-200 text-gray-600 hover:border-primary transition'"
+        class="w-10 h-10 flex items-center justify-center rounded-lg">
+        {{ page }}
+      </button>
+
+      <button
+        (click)="goToNextPage()"
+        [disabled]="currentPage === totalPages"
+        [ngClass]="currentPage === totalPages ? 'cursor-not-allowed opacity-50' : ''"
+        class="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-lg text-gray-400 hover:border-primary hover:text-primary transition">
+        &gt;
+      </button>
+
+    </div>
+
+    <div class="text-gray-400 text-sm">
+      Page {{ currentPage }} of {{ totalPages }}
+    </div>
+  </div>
+
+</div>

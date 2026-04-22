@@ -1,0 +1,117 @@
+<div class="min-h-screen bg-gray-50 py-12 px-4 font-sans">
+
+    <div class="max-w-6xl mx-auto">
+
+        <!-- HEADER -->
+        <div class="text-center mb-8">
+            <h2 class="text-4xl font-extrabold text-green-600 mb-4">
+                Interactive Crossword
+            </h2>
+
+            <div class="inline-block bg-green-100 text-green-800 text-sm font-bold px-3 py-1 rounded-full uppercase">
+                Level: {{ selectedLevel }}
+            </div>
+
+            <p class="text-xl text-gray-500 mt-2">
+                Fill in the grid based on the clues below.
+            </p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-10">
+
+            <!-- 🟩 GRID -->
+            <div class="bg-white p-8 rounded-3xl shadow-xl border-t-8 border-green-500">
+
+                <div class="grid mx-auto"
+                     [style.grid-template-columns]="'repeat(' + gridCols + ', 50px)'"
+                     [style.grid-template-rows]="'repeat(' + gridRows + ', 50px)'"
+                     style="gap:4px; width:max-content;">
+
+                    <ng-container *ngFor="let cell of cells">
+
+                        <div [style.grid-row]="cell.r"
+                             [style.grid-column]="cell.c"
+                             class="relative flex items-center justify-center border rounded-md bg-white border-gray-400">
+
+                            <!-- numéro -->
+                            <span *ngIf="cell.num"
+                                  class="absolute top-0 left-1 text-[10px] font-bold text-gray-500">
+                {{ cell.num }}
+              </span>
+
+                            <!-- input -->
+                            <input type="text"
+                                   maxlength="1"
+                                   [(ngModel)]="cell.val"
+                                   [disabled]="gameFinished"
+                                   (input)="cell.val = (cell.val || '').toUpperCase()"
+                                   class="w-full h-full text-center text-lg font-extrabold uppercase outline-none bg-transparent"
+
+                                   [class.text-green-600]="gameFinished && cell.val === cell.ans"
+                                   [class.text-red-500]="gameFinished && cell.val && cell.val !== cell.ans">
+                        </div>
+
+                    </ng-container>
+
+                </div>
+
+                <!-- 🔘 BUTTON -->
+                <div class="text-center mb-4 text-lg font-semibold">
+                    Attempts left:
+                    <span class="text-red-500">{{ attemptsLeft }}</span>
+                </div>
+                <div class="mt-6 flex justify-center gap-4">
+
+                    <!-- CHECK -->
+                    <button *ngIf="!gameFinished"
+                            (click)="checkAnswers()"
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-xl">
+                        Check Answers
+                    </button>
+
+
+                    <!-- RESULT -->
+                    <div *ngIf="gameFinished" class="text-center">
+
+                        <h3 *ngIf="!gameOver" class="text-2xl font-bold text-green-600">
+                            🎉 Perfect Score!
+                        </h3>
+
+                        <h3 *ngIf="gameOver" class="text-2xl font-bold text-red-600">
+                            💥 Game Over
+                        </h3>
+
+                        <p class="text-xl mt-2">
+                            Score: {{ score }} / {{ totalCells }}
+                        </p>
+
+                    </div>
+
+                </div>
+                <div class="text-center mb-4 text-xl font-bold">
+                    ⏱️ Time Left:
+                    <span [class.text-red-500]="timeLeft <= 10">
+    {{ timeLeft }}s
+  </span>
+                </div>
+            </div>
+
+            <!-- 🟨 CLUES -->
+            <div class="flex flex-col gap-6 w-full">
+
+                <div class="bg-white rounded-xl shadow p-6">
+                    <h3 class="text-xl font-bold mb-4">Across</h3>
+
+                    <ul class="space-y-2">
+                        <li *ngFor="let content of game?.contents; let i = index">
+                            <b>{{ i + 1 }}.</b> {{ content.clue }}
+                        </li>
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

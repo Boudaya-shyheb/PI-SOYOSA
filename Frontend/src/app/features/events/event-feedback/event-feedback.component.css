@@ -1,0 +1,39 @@
+.star-button,
+.star-display {
+  font-size: 22px;
+  line-height: 1;
+  color: #e5e7eb;
+}
+
+.star-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, color 0.15s ease;
+  padding: 0;
+}
+
+.star-button:hover {
+  transform: translateY(-1px);
+}
+
+.star-active {
+  color: #f59e0b;
+}
+
+.feedback-card {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: feedbackIn 0.35s ease forwards;
+}
+
+@keyframes feedbackIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

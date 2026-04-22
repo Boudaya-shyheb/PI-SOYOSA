@@ -1,0 +1,88 @@
+<div class="w-full bg-white rounded-lg shadow-sm p-6">
+  <!-- Header -->
+  <h3 class="text-lg font-bold text-primary mb-4">✨ Recommended For You</h3>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-8">
+    <p class="text-gray-500">⏳ Loading recommendations...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="text-center py-8">
+    <p class="text-red-500">❌ {{ error }}</p>
+  </div>
+
+  <!-- Tabs -->
+  <div *ngIf="!isLoading && !error" class="mb-6">
+    <div class="flex gap-4 border-b border-gray-200">
+      <button
+        (click)="setActiveTab('related')"
+        [class.active]="activeTab === 'related'"
+        [class.border-b-2]="activeTab === 'related'"
+        [class.border-primary]="activeTab === 'related'"
+        [class.text-primary]="activeTab === 'related'"
+        [class.text-gray-500]="activeTab !== 'related'"
+        class="pb-3 font-semibold transition text-sm md:text-base"
+      >
+        🔗 Related ({{ relatedProducts.length }})
+      </button>
+      <button
+        (click)="setActiveTab('bestsellers')"
+        [class.active]="activeTab === 'bestsellers'"
+        [class.border-b-2]="activeTab === 'bestsellers'"
+        [class.border-primary]="activeTab === 'bestsellers'"
+        [class.text-primary]="activeTab === 'bestsellers'"
+        [class.text-gray-500]="activeTab !== 'bestsellers'"
+        class="pb-3 font-semibold transition text-sm md:text-base"
+      >
+        🏆 Bestsellers ({{ bestSellers.length }})
+      </button>
+      <button
+        (click)="setActiveTab('trending')"
+        [class.active]="activeTab === 'trending'"
+        [class.border-b-2]="activeTab === 'trending'"
+        [class.border-primary]="activeTab === 'trending'"
+        [class.text-primary]="activeTab === 'trending'"
+        [class.text-gray-500]="activeTab !== 'trending'"
+        class="pb-3 font-semibold transition text-sm md:text-base"
+      >
+        🔥 Trending ({{ trending.length }})
+      </button>
+    </div>
+
+    <!-- Products Carousel -->
+    <div class="mt-6">
+      <div
+        *ngIf="getActiveProducts().length > 0"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+      >
+        <div
+          *ngFor="let product of getActiveProducts()"
+          class="bg-gray-50 rounded-lg p-4 hover:shadow-md transition border border-gray-200"
+        >
+          <img
+            [src]="product.imageUrl || 'https://picsum.photos/seed/product/200/200'"
+            alt="{{ product.name }}"
+            class="w-full h-40 object-cover rounded-lg mb-3"
+          />
+          <h4 class="font-semibold text-sm text-primary mb-2 line-clamp-2">{{ product.name }}</h4>
+          <p class="text-xs text-gray-600 mb-3 line-clamp-2">{{ product.description }}</p>
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-primary">{{ product.price }} TND</span>
+            <span *ngIf="product.averageRating" class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+              ⭐ {{ product.averageRating | number: '1.1-1' }}
+            </span>
+          </div>
+          <button class="w-full mt-3 bg-primary text-white py-2 rounded-lg font-semibold hover:bg-opacity-90 transition text-xs">
+            👁️ View Details
+          </button>
+        </div>
+      </div>
+
+      <!-- No Products in Tab -->
+      <div *ngIf="getActiveProducts().length === 0" class="text-center py-8">
+        <p class="text-gray-500">No {{ activeTab }} products available</p>
+      </div>
+    </div>
+  </div>
+</div>
