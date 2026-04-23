@@ -2,6 +2,7 @@ package soyosa.blog.Controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import soyosa.blog.Domain.Comment;
 import soyosa.blog.Service.CommentService;
@@ -37,6 +38,7 @@ public class CommentController {
         return commentService.getAllByBlog(blogId);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PostMapping
     public ResponseEntity<?> createComment(@RequestBody Comment comment) {
         try {
@@ -49,6 +51,7 @@ public class CommentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateComment(@PathVariable Long id, @RequestBody Comment commentDetails) {
         try {
@@ -61,6 +64,7 @@ public class CommentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PutMapping("/{id}/like")
     public ResponseEntity<Comment> likeComment(
             @PathVariable Long id,
@@ -75,6 +79,7 @@ public class CommentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PutMapping("/{id}/dislike")
     public ResponseEntity<Comment> dislikeComment(
             @PathVariable Long id,
@@ -89,6 +94,7 @@ public class CommentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PutMapping("/{id}/report")
     public ResponseEntity<Comment> reportComment(@PathVariable Long id, @RequestParam String reason) {
         try {
@@ -98,6 +104,7 @@ public class CommentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
         try {
@@ -108,6 +115,7 @@ public class CommentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @GetMapping("/check_like/{id}/{userId}")
     public ResponseEntity<Boolean> checkLike(@PathVariable Long id, @PathVariable String userId) {
         return ResponseEntity.ok(commentService.checkLike(id, userId));

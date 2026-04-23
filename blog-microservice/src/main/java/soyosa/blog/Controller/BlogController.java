@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import soyosa.blog.Cloudinary.CloudinaryService;
@@ -43,6 +44,7 @@ public class BlogController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createBlog(@RequestParam String title, @RequestParam String content, @RequestParam String userId, @RequestParam("images") List<MultipartFile> images) {
 
@@ -63,6 +65,7 @@ public class BlogController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBlog(@PathVariable Long id, @RequestBody Blog blogDetails) {
         try {
@@ -75,22 +78,25 @@ public class BlogController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PutMapping("/{id}/like")
     public ResponseEntity<Blog> likeBlog(@PathVariable Long id, @RequestParam String userId) {
         return ResponseEntity.ok(blogService.likeBlog(id, userId));
     }
 
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @PutMapping("/{id}/dislike")
     public ResponseEntity<Blog> unlikeBlog(@PathVariable Long id, @RequestParam String userId) {
         return ResponseEntity.ok(blogService.dislikeBlog(id, userId));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @GetMapping("/check_like/{id}/{userId}")
     public ResponseEntity<Boolean> checkLike(@PathVariable Long id, @PathVariable String userId) {
         return ResponseEntity.ok(blogService.checkLike(id, userId));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER', 'TUTOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBlog(@PathVariable Long id) {
         try {
