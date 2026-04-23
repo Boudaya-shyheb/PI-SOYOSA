@@ -20,10 +20,16 @@ export class AuthInterceptor implements HttpInterceptor {
     const token = this.auth.getToken();
     const role = this.auth.getRole();
     const userId = this.auth.getUserId();
+    const email = this.auth.getUserEmail();
 
     const headers: Record<string, string> = {
-      'X-Role': role
+      'X-Role': role,
+      'User-Role': role
     };
+
+    if (email) {
+      headers['User-Email'] = email;
+    }
 
     if (userId) {
       headers['X-User-Id'] = userId;
