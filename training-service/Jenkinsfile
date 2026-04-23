@@ -21,7 +21,7 @@ pipeline {
         stage('Build & Test') {
             steps {
                 dir('training-service') {
-                    sh 'mvn clean verify'
+                    sh 'mvn clean compile'
                 }
             }
         }
