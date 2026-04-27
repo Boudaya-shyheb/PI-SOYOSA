@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway-deployment
+  namespace: pi-soyosa
+  labels:
+    app: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: oussema22/pi-api-gateway:latest
+        ports:
+        - containerPort: 8092
+        env:
+        - name: EUREKA_URL
+          value: "http://eureka-server:8761/eureka/"

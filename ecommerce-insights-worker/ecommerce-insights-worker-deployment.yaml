@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ecommerce-insights-worker-deployment
+  namespace: pi-soyosa
+  labels:
+    app: ecommerce-insights-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ecommerce-insights-worker
+  template:
+    metadata:
+      labels:
+        app: ecommerce-insights-worker
+    spec:
+      containers:
+      - name: ecommerce-insights-worker
+        image: oussema22/pi-ecommerce-insights-worker:latest
+        env:
+        - name: DB_HOST
+          value: "mysql-service"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "ecommercedb"
+        - name: DB_USER
+          value: "root"
+        - name: DB_PASSWORD
+          value: "rootpassword"

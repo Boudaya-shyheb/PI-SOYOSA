@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: interview-microservice-deployment
+  namespace: pi-soyosa
+  labels:
+    app: interview-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: interview-microservice
+  template:
+    metadata:
+      labels:
+        app: interview-microservice
+    spec:
+      containers:
+      - name: interview-microservice
+        image: oussema22/pi-interview-microservice:latest
+        ports:
+        - containerPort: 8071
+        env:
+        - name: EUREKA_URL
+          value: "http://eureka-server:8761/eureka/"
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:mysql://mysql-service:3306/entretien_db?createDatabaseIfNotExist=true"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "rootpassword"

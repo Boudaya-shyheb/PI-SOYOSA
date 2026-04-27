@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-microservice
+  namespace: pi-soyosa
+spec:
+  selector:
+    app: user-microservice
+  ports:
+    - protocol: TCP
+      port: 8070
+      targetPort: 8070
+  type: ClusterIP

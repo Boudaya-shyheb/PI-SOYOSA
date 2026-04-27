@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: courses-microservice-deployment
+  namespace: pi-soyosa
+  labels:
+    app: courses-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: courses-microservice
+  template:
+    metadata:
+      labels:
+        app: courses-microservice
+    spec:
+      containers:
+      - name: courses-microservice
+        image: oussema22/pi-courses-microservice:latest
+        ports:
+        - containerPort: 8081
+        env:
+        - name: EUREKA_URL
+          value: "http://eureka-server:8761/eureka/"
+        - name: DB_URL
+          value: "jdbc:postgresql://postgres-service:5432/englishway_courses"
+        - name: DB_USER
+          value: "postgres"
+        - name: DB_PASSWORD
+          value: "postgrespassword"
