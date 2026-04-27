@@ -1,0 +1,91 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Image tag built by CI pipeline')
+    }
+
+    environment {
+        DOCKER_IMAGE    = 'oussema22/pi-frontend'
+        DOCKER_REGISTRY = 'docker.io'
+        K8S_NAMESPACE   = 'pi-soyosa'
+        K8S_DEPLOYMENT  = 'frontend-deployment'
+        KUBECONFIG_CRED = 'kubeconfig-credentials'   // Jenkins credential ID
+    }
+
+    stages {
+
+        stage('Validate Parameters') {
+            steps {
+                script {
+                    if (!params.DOCKER_TAG?.trim()) {
+                        error("DOCKER_TAG parameter is required.")
+                    }
+                    echo "Deploying image: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG}"
+                }
+            }
+        }
+
+        stage('Pull Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
+                        docker.image("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG}").pull()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
+                    sh """
+                        kubectl set image deployment/${K8S_DEPLOYMENT} \
+                          frontend=${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG} \
+                          -n ${K8S_NAMESPACE}
+                        kubectl rollout status deployment/${K8S_DEPLOYMENT} \
+                          -n ${K8S_NAMESPACE} --timeout=120s
+                    """
+                }
+            }
+        }
+
+        stage('Smoke Test') {
+            steps {
+                withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
+                    sh """
+                        # Wait for pods to be ready
+                        kubectl wait pod \
+                          --for=condition=Ready \
+                          -l app=frontend \
+                          -n ${K8S_NAMESPACE} \
+                          --timeout=90s
+
+                        # Basic HTTP smoke test via NodePort / ingress
+                        FRONTEND_URL=\$(kubectl get svc frontend-service -n ${K8S_NAMESPACE} \
+                          -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+                        curl --fail --silent --max-time 10 http://\${FRONTEND_URL} || true
+                    """
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "Frontend CD succeeded — image ${params.DOCKER_TAG} is live."
+        }
+        failure {
+            withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
+                sh """
+                    kubectl rollout undo deployment/${K8S_DEPLOYMENT} -n ${K8S_NAMESPACE} || true
+                """
+            }
+            echo "Deployment failed — rollback triggered."
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

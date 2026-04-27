@@ -1,0 +1,87 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Image tag produced by CI pipeline')
+    }
+
+    environment {
+        SERVICE_DIR     = 'eureka-server'
+        DOCKER_IMAGE    = 'oussema22/pi-eureka-server'
+        DOCKER_REGISTRY = 'docker.io'
+        K8S_NAMESPACE   = 'pi-soyosa'
+        K8S_DEPLOYMENT  = 'eureka-server-deployment'
+        KUBECONFIG_CRED = 'kubeconfig-credentials'
+    }
+
+    stages {
+
+        stage('Validate Parameters') {
+            steps {
+                script {
+                    if (!params.DOCKER_TAG?.trim()) {
+                        error("DOCKER_TAG parameter is required.")
+                    }
+                    echo "Deploying: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG}"
+                }
+            }
+        }
+
+        stage('Pull Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
+                        docker.image("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG}").pull()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
+                    sh """
+                        kubectl set image deployment/${K8S_DEPLOYMENT} \\
+                          ${SERVICE_DIR}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG} \\
+                          -n ${K8S_NAMESPACE}
+
+                        kubectl rollout status deployment/${K8S_DEPLOYMENT} \\
+                          -n ${K8S_NAMESPACE} --timeout=120s
+                    """
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
+                    sh """
+                        kubectl wait pod \\
+                          --for=condition=Ready \\
+                          -l app=${K8S_DEPLOYMENT} \\
+                          -n ${K8S_NAMESPACE} \\
+                          --timeout=90s
+
+                        echo "Pod(s) healthy — deployment complete."
+                    """
+                }
+            }
+        }
+
+    }
+
+    post {
+        success {
+            echo "${SERVICE_DIR} CD succeeded — ${params.DOCKER_TAG} is live."
+        }
+        failure {
+            withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
+                sh "kubectl rollout undo deployment/${K8S_DEPLOYMENT} -n ${K8S_NAMESPACE} || true"
+            }
+            echo "${SERVICE_DIR} deployment failed — rollback triggered."
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
