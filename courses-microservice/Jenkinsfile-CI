@@ -8,8 +8,8 @@ pipeline {
 
     environment {
         APP_NAME = "course-management"
-        DOCKER_IMAGE = "your-dockerhub-username/course-management:latest"
-        CD_JOB = "courses-cd"   // 👈 Jenkins CD job name
+        DOCKER_IMAGE = "oussema22/pi:latest"
+        CD_JOB = "Jenkinsfile-CD"   // 👈 Jenkins CD job name
     }
 
     stages {
