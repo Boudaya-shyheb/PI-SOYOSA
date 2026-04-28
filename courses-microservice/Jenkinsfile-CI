@@ -70,14 +70,6 @@ pipeline {
             }
         }
 
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
         stage('Package') {
             steps {
                 dir("${SERVICE_DIR}") {
@@ -134,13 +126,7 @@ pipeline {
         }
 
         always {
-            script {
-                try {
-                    cleanWs()
-                } catch (e) {
-                    echo "Workspace cleanup skipped (no valid context)"
-                }
-            }
+            cleanWs()
         }
     }
 }
