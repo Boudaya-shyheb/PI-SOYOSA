@@ -9,6 +9,7 @@ pipeline {
     environment {
         APP_NAME = "course-management"
         DOCKER_IMAGE = "your-dockerhub-username/course-management:latest"
+        CD_JOB = "courses-cd"   // 👈 Jenkins CD job name
     }
 
     stages {
@@ -16,14 +17,22 @@ pipeline {
         stage('Checkout') {
             steps {
                 cleanWs()
-                checkout scm
+                retry(3) {
+                    checkout scm
+                }
             }
         }
 
-        stage('Build & Unit Tests') {
+        stage('Build & Test') {
             steps {
                 dir('courses-microservice') {
                     sh "mvn clean verify -Dmaven.test.failure.ignore=false"
+                }
+            }
+
+            post {
+                always {
+                    junit 'courses-microservice/target/surefire-reports/*.xml'
                 }
             }
         }
@@ -35,7 +44,8 @@ pipeline {
                         sh """
                             mvn sonar:sonar \
                             -Dsonar.projectKey=PI-SOYOSA-courses \
-                            -Dsonar.projectName=PI-SOYOSA-courses-microservice
+                            -Dsonar.projectName=PI-SOYOSA-courses-microservice \
+                            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }
                 }
@@ -62,7 +72,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh """
-                        echo "$PASS" | docker login -u "$USER" --password-stdin
+                        echo $PASS | docker login -u $USER --password-stdin
                         docker push ${DOCKER_IMAGE}
                     """
                 }
@@ -71,22 +81,23 @@ pipeline {
 
         stage('Trigger CD Pipeline') {
             steps {
-                build job: 'courses-cd', wait: false
+                echo "🚀 Triggering CD pipeline..."
+                build job: "${CD_JOB}", wait: false
             }
         }
     }
 
     post {
-        always {
-            cleanWs()
-        }
-
         success {
             echo "✅ CI finished successfully!"
         }
 
         failure {
             echo "❌ CI failed!"
+        }
+
+        always {
+            cleanWs()
         }
     }
 }
