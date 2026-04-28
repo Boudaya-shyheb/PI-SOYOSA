@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "course-management"
         DOCKER_IMAGE = "oussema22/pi:latest"
-        CD_JOB = "jenkinsfile-CD"   // 👈 Jenkins CD job name
+        CD_JOB = "courses-CD"   // 👈 Jenkins CD job name
     }
 
     stages {
