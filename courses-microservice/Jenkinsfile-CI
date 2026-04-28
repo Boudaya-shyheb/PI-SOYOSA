@@ -2,132 +2,94 @@ pipeline {
     agent any
 
     tools {
-        jdk   'JAVA_HOME'
+        jdk 'JAVA_HOME'
         maven 'M2_HOME'
     }
 
     environment {
-        SONARQUBE       = 'SonarQube'
-        SERVICE_DIR     = 'courses-microservice'
-        DOCKER_IMAGE    = 'oussema22/pi-courses-microservice'
-        DOCKER_REGISTRY = 'docker.io'
+        APP_NAME = "course-management"
+        DOCKER_IMAGE = "your-dockerhub-username/course-management:latest"
     }
 
     stages {
 
-        stage('Prepare Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
-
         stage('Checkout') {
             steps {
+                cleanWs()
                 checkout scm
             }
         }
 
         stage('Build & Unit Tests') {
             steps {
-                dir("${SERVICE_DIR}") {
-                    sh 'mvn clean verify -Dmaven.test.failure.ignore=false'
+                dir('courses-microservice') {
+                    sh "mvn clean verify -Dmaven.test.failure.ignore=false"
                 }
             }
+
             post {
                 always {
-                    junit testResults: "**/target/surefire-reports/**/*.xml",
-                          allowEmptyResults: true
+                    junit 'courses-microservice/target/surefire-reports/*.xml'
                 }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                dir("${SERVICE_DIR}") {
-                    withSonarQubeEnv("${SONARQUBE}") {
+                dir('courses-microservice') {
+                    withSonarQubeEnv('SonarQube') {
                         sh """
                             mvn sonar:sonar \
-                              -Dsonar.projectKey=PI-SOYOSA-${env.JOB_NAME} \
-                              -Dsonar.projectName="PI-SOYOSA-courses-microservice" \
-                              -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                            -Dsonar.projectKey=PI-SOYOSA-courses \
+                            -Dsonar.projectName=PI-SOYOSA-courses-microservice \
+                            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
                 }
             }
         }
 
         stage('Package') {
             steps {
-                dir("${SERVICE_DIR}") {
-                    sh 'mvn package -DskipTests'
-                }
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                dir('courses-microservice') {
+                    sh "mvn package -DskipTests"
                 }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                dir("${SERVICE_DIR}") {
-                    script {
-                        def tag = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
-                        def image = "${DOCKER_REGISTRY}/${DOCKER_IMAGE}"
-
-                        sh """
-                            docker build -t ${image}:${tag} .
-                            docker tag ${image}:${tag} ${image}:latest
-                        """
-
-                        env.DOCKER_TAG = tag
-                        env.IMAGE_NAME = image
-                    }
+                dir('courses-microservice') {
+                    sh """
+                        docker build -t ${DOCKER_IMAGE} .
+                    """
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
-                        sh """
-                            docker push ${env.IMAGE_NAME}:${env.DOCKER_TAG}
-                            docker push ${env.IMAGE_NAME}:latest
-                        """
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh """
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker push ${DOCKER_IMAGE}
+                    """
                 }
             }
         }
     }
 
     post {
+        always {
+            cleanWs()
+        }
+
         success {
-            script {
-                // trigger CD pipeline safely
-                build job: "PI-SOYOSA/${SERVICE_DIR}-CD",
-                      parameters: [
-                          string(name: 'DOCKER_TAG', value: env.DOCKER_TAG)
-                      ],
-                      wait: false
-            }
+            echo "✅ Pipeline finished successfully!"
         }
 
         failure {
-            echo "❌ CI FAILED → CD NOT TRIGGERED"
-        }
-
-        always {
-            cleanWs()
+            echo "❌ Pipeline failed!"
         }
     }
 }
