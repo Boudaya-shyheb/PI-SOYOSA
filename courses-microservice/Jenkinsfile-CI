@@ -26,12 +26,6 @@ pipeline {
                     sh "mvn clean verify -Dmaven.test.failure.ignore=false"
                 }
             }
-
-            post {
-                always {
-                    junit 'courses-microservice/target/surefire-reports/*.xml'
-                }
-            }
         }
 
         stage('SonarQube Analysis') {
@@ -41,8 +35,7 @@ pipeline {
                         sh """
                             mvn sonar:sonar \
                             -Dsonar.projectKey=PI-SOYOSA-courses \
-                            -Dsonar.projectName=PI-SOYOSA-courses-microservice \
-                            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                            -Dsonar.projectName=PI-SOYOSA-courses-microservice
                         """
                     }
                 }
@@ -60,9 +53,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('courses-microservice') {
-                    sh """
-                        docker build -t ${DOCKER_IMAGE} .
-                    """
+                    sh "docker build -t ${DOCKER_IMAGE} ."
                 }
             }
         }
@@ -71,10 +62,16 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh """
-                        echo $PASS | docker login -u $USER --password-stdin
+                        echo "$PASS" | docker login -u "$USER" --password-stdin
                         docker push ${DOCKER_IMAGE}
                     """
                 }
+            }
+        }
+
+        stage('Trigger CD Pipeline') {
+            steps {
+                build job: 'courses-cd', wait: false
             }
         }
     }
@@ -85,11 +82,11 @@ pipeline {
         }
 
         success {
-            echo "✅ Pipeline finished successfully!"
+            echo "✅ CI finished successfully!"
         }
 
         failure {
-            echo "❌ Pipeline failed!"
+            echo "❌ CI failed!"
         }
     }
 }
