@@ -10,6 +10,7 @@ pipeline {
         DOCKER_IMAGE   = 'oussema22/pi'
         NAMESPACE      = 'pi-soyosa'
         DEPLOYMENT     = 'courses-microservice-deployment'
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
