@@ -11,7 +11,6 @@ pipeline {
         SERVICE_DIR     = 'courses-microservice'
         DOCKER_IMAGE    = 'oussema22/pi-courses-microservice'
         DOCKER_REGISTRY = 'docker.io'
-        PROJECT_KEY     = 'PI-SOYOSA-courses-microservice'
     }
 
     triggers {
@@ -20,24 +19,28 @@ pipeline {
 
     stages {
 
-        /* =========================
-           1. Checkout (FIXED)
-        ========================== */
-        stage('Checkout') {
+        stage('Prepare Workspace') {
             steps {
-                checkout([$class: 'GitSCM',
-                    branches: [[name: '*/main']],
-                    userRemoteConfigs: [[url: 'https://github.com/Boudaya-shyheb/PI-SOYOSA']],
-                    extensions: [
-                        [$class: 'CloneOption', shallow: true, depth: 1]
-                    ]
-                ])
+                cleanWs()
             }
         }
 
-        /* =========================
-           2. Build + Tests
-        ========================== */
+        stage('Checkout (Stable Git)') {
+            steps {
+                script {
+                    retry(3) {
+                        checkout([$class: 'GitSCM',
+                            branches: scm.branches,
+                            userRemoteConfigs: scm.userRemoteConfigs,
+                            extensions: [
+                                [$class: 'CloneOption', shallow: true, depth: 1, noTags: false, timeout: 20]
+                            ]
+                        ])
+                    }
+                }
+            }
+        }
+
         stage('Build & Unit Tests') {
             steps {
                 dir("${SERVICE_DIR}") {
@@ -46,22 +49,19 @@ pipeline {
             }
             post {
                 always {
-                    junit allowEmptyResults: true,
-                          testResults: "**/target/surefire-reports/**/*.xml"
+                    junit testResults: "**/target/surefire-reports/**/*.xml",
+                          allowEmptyResults: true
                 }
             }
         }
 
-        /* =========================
-           3. SonarQube Analysis
-        ========================== */
         stage('SonarQube Analysis') {
             steps {
                 dir("${SERVICE_DIR}") {
                     withSonarQubeEnv("${SONARQUBE}") {
                         sh """
                             mvn sonar:sonar \
-                              -Dsonar.projectKey=${PROJECT_KEY} \
+                              -Dsonar.projectKey=PI-SOYOSA-${env.JOB_NAME} \
                               -Dsonar.projectName="PI-SOYOSA ${SERVICE_DIR}" \
                               -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
@@ -70,9 +70,6 @@ pipeline {
             }
         }
 
-        /* =========================
-           4. Quality Gate
-        ========================== */
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -81,9 +78,6 @@ pipeline {
             }
         }
 
-        /* =========================
-           5. Package
-        ========================== */
         stage('Package') {
             steps {
                 dir("${SERVICE_DIR}") {
@@ -97,53 +91,42 @@ pipeline {
             }
         }
 
-        /* =========================
-           6. Docker Build
-        ========================== */
         stage('Build Docker Image') {
             steps {
                 dir("${SERVICE_DIR}") {
                     script {
                         def tag = "${env.BUILD_NUMBER}-${env.GIT_COMMIT.take(7)}"
+                        def image = "${DOCKER_REGISTRY}/${DOCKER_IMAGE}"
 
-                        docker.build("${DOCKER_IMAGE}:${tag}")
-                        docker.build("${DOCKER_IMAGE}:latest")
+                        docker.build("${image}:${tag}")
+                        docker.build("${image}:latest")
 
                         env.DOCKER_TAG = tag
+                        env.IMAGE_NAME = image
                     }
                 }
             }
         }
 
-        /* =========================
-           7. Push Docker Image
-        ========================== */
         stage('Push Docker Image') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
-                        docker.image("${DOCKER_IMAGE}:${env.DOCKER_TAG}").push()
-                        docker.image("${DOCKER_IMAGE}:latest").push()
+                        docker.image("${env.IMAGE_NAME}:${env.DOCKER_TAG}").push()
+                        docker.image("${env.IMAGE_NAME}:latest").push()
                     }
                 }
             }
         }
     }
 
-    /* =========================
-       POST ACTIONS (FIXED SAFE)
-    ========================== */
     post {
-
         success {
-            echo "CI SUCCESS → Triggering CD"
-
-            build job: "PI-SOYOSA/courses-microservice-CD",
+            build job: "PI-SOYOSA/${SERVICE_DIR}-CD",
                   parameters: [
                       string(name: 'DOCKER_TAG', value: env.DOCKER_TAG)
                   ],
-                  wait: false,
-                  propagate: false
+                  wait: false
         }
 
         failure {
@@ -151,7 +134,13 @@ pipeline {
         }
 
         always {
-            cleanWs(deleteDirs: true, notFailBuild: true)
+            script {
+                try {
+                    cleanWs()
+                } catch (e) {
+                    echo "Workspace cleanup skipped (no valid context)"
+                }
+            }
         }
     }
 }
