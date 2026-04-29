@@ -29,12 +29,6 @@ pipeline {
                     sh "mvn clean verify -DskipTests -Dmaven.test.failure.ignore=false"
                 }
             }
-
-            post {
-                always {
-                    junit 'gameService/target/surefire-reports/*.xml'
-                }
-            }
         }
 
         stage('SonarQube Analysis') {
