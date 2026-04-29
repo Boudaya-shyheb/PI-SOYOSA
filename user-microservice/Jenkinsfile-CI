@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "user-microservice"
         DOCKER_IMAGE = "oussema22/pi-user-microservice"
-        CD_JOB = "user-microservice-CD"
+        CD_JOB = "user-cd"
     }
 
     stages {
