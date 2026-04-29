@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "Blog"
         DOCKER_IMAGE = "oussema22/pi-blog-microservice"
-        CD_JOB = "blog-microservice-CD"
+        CD_JOB = "blog-cd"
     }
 
     stages {

@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "training-service"
         DOCKER_IMAGE = "oussema22/pi-training-service"
-        CD_JOB = "training-service-CD"
+        CD_JOB = "training-cd"
     }
 
     stages {

@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "gameService"
         DOCKER_IMAGE = "oussema22/pi-gameservice"
-        CD_JOB = "gameService-CD"
+        CD_JOB = "game-cd"
     }
 
     stages {

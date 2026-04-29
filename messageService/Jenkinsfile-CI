@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "messageService"
         DOCKER_IMAGE = "oussema22/pi-messageservice"
-        CD_JOB = "messageService-CD"
+        CD_JOB = "message-cd"
     }
 
     stages {

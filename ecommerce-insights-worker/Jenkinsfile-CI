@@ -4,7 +4,7 @@ pipeline {
     environment {
         APP_NAME = "ecommerce-insights-worker"
         DOCKER_IMAGE = "oussema22/pi-ecommerce-insights-worker"
-        CD_JOB = "ecommerce-insights-worker-CD"
+        CD_JOB = "e-commerce-insights-worker-cd"
     }
 
     stages {

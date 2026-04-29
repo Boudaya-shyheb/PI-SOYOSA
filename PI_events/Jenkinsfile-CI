@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "pi-events"
         DOCKER_IMAGE = "oussema22/pi-events"
-        CD_JOB = "PI_events-CD"
+        CD_JOB = "events-cd"
     }
 
     stages {

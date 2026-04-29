@@ -9,7 +9,7 @@ pipeline {
     environment {
         APP_NAME = "api-gateway"
         DOCKER_IMAGE = "oussema22/pi-api-gateway"
-        CD_JOB = "api-gateway-CD"
+        CD_JOB = "api-gateway-cd"
     }
 
     stages {
