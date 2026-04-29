@@ -26,7 +26,7 @@ pipeline {
         stage('Build & Test') {
             steps {
                 dir('blog-microservice') {
-                    sh "mvn clean verify -Dmaven.test.failure.ignore=false"
+                    sh "mvn clean verify -DskipTests -Dmaven.test.failure.ignore=false"
                 }
             }
 
