@@ -12,8 +12,6 @@ pipeline {
         DEPLOYMENT     = 'user-microservice-deployment'
         KUBECONFIG     = "/var/lib/jenkins/.kube/config"
         TAG            = "${params.DOCKER_TAG ?: 'latest'}"
-        DOCKER_IMAGE = "oussema22/pi-user-microservice"
-        TAG = "${params.DOCKER_TAG ?: 'latest'}"
     }
 
     stages {
