@@ -8,8 +8,8 @@ pipeline {
 
     environment {
         APP_NAME = "pi-events"
-        DOCKER_IMAGE = "oussema22/pi-events:latest"
-        CD_JOB = "events-CD"   // 👈 Jenkins CD job name
+        DOCKER_IMAGE = "oussema22/pi-events"
+        CD_JOB = "PI_events-CD"
     }
 
     stages {
@@ -76,7 +76,7 @@ pipeline {
         stage('Trigger CD Pipeline') {
             steps {
                 echo "🚀 Triggering CD pipeline..."
-                build job: "${CD_JOB}", wait: false
+                build job: "${CD_JOB}", parameters: [string(name: 'DOCKER_TAG', value: 'latest')], wait: false
             }
         }
     }

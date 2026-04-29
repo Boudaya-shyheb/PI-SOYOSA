@@ -8,8 +8,8 @@ pipeline {
 
     environment {
         APP_NAME = "ecommerce-service"
-        DOCKER_IMAGE = "oussema22/pi-ecommerce-microservice:latest"
-        CD_JOB = "ecommerce-CD"   // 👈 Jenkins CD job name
+        DOCKER_IMAGE = "oussema22/pi-ecommerce-microservice"
+        CD_JOB = "ecommerce-microservice-CD"
     }
 
     stages {
@@ -76,7 +76,7 @@ pipeline {
         stage('Trigger CD Pipeline') {
             steps {
                 echo "🚀 Triggering CD pipeline..."
-                build job: "${CD_JOB}", wait: false
+                build job: "${CD_JOB}", parameters: [string(name: 'DOCKER_TAG', value: 'latest')], wait: false
             }
         }
     }

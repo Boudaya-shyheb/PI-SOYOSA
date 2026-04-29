@@ -10,7 +10,8 @@ pipeline {
         DOCKER_IMAGE   = 'oussema22/pi-events'
         NAMESPACE      = 'pi-soyosa'
         DEPLOYMENT     = 'pi-events-deployment'
-        KUBECONFIG = "/var/lib/jenkins/.kube/config"
+        KUBECONFIG     = "/var/lib/jenkins/.kube/config"
+        TAG            = "${params.DOCKER_TAG ?: 'latest'}"
     }
 
     stages {
@@ -26,9 +27,7 @@ pipeline {
 
         stage('Pull Docker Image') {
             steps {
-                sh '''
-                    docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
-                '''
+                sh "docker pull ${DOCKER_IMAGE}:${TAG}"
             }
         }
 
@@ -41,11 +40,11 @@ pipeline {
                         kubectl apply -f pi-events-service.yaml
                     '''
 
-                    sh '''
+                    sh """
                         kubectl set image deployment/${DEPLOYMENT} \
-                        pi-events=${DOCKER_IMAGE}:${DOCKER_TAG} \
+                        pi-events=${DOCKER_IMAGE}:${TAG} \
                         -n ${NAMESPACE}
-                    '''
+                    """
 
                     sh '''
                         kubectl rollout status deployment/${DEPLOYMENT} \
