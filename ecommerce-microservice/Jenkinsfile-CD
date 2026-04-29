@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Docker image tag')
+    }
+
     environment {
         SERVICE_NAME   = 'ecommerce-microservice'
         DOCKER_IMAGE   = 'oussema22/pi-ecommerce-microservice'
@@ -23,7 +27,7 @@ pipeline {
         stage('Pull Docker Image') {
             steps {
                 sh '''
-                    docker pull ${DOCKER_IMAGE}:latest
+                    docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
                 '''
             }
         }
@@ -39,7 +43,7 @@ pipeline {
 
                     sh '''
                         kubectl set image deployment/${DEPLOYMENT} \
-                        ecommerce-microservice=${DOCKER_IMAGE}:latest \
+                        ecommerce-microservice=${DOCKER_IMAGE}:${DOCKER_TAG} \
                         -n ${NAMESPACE}
                     '''
 

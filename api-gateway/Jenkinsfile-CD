@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Docker image tag')
+    }
+
     environment {
         SERVICE_NAME   = 'api-gateway'
         DOCKER_IMAGE   = 'oussema22/pi-api-gateway'
@@ -23,7 +27,7 @@ pipeline {
         stage('Pull Docker Image') {
             steps {
                 sh '''
-                    docker pull ${DOCKER_IMAGE}:latest
+                    docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}
                 '''
             }
         }
@@ -39,7 +43,7 @@ pipeline {
 
                     sh '''
                         kubectl set image deployment/${DEPLOYMENT} \
-                        api-gateway=${DOCKER_IMAGE}:latest \
+                        api-gateway=${DOCKER_IMAGE}:${DOCKER_TAG} \
                         -n ${NAMESPACE}
                     '''
 

@@ -85,20 +85,17 @@ pipeline {
                 build job: "${CD_JOB}", wait: false
             }
         }
-            }
-        }
-
     }
 
     post {
         success {
-            build job: "PI-SOYOSA/${SERVICE_DIR}-CD",
-                  parameters: [string(name: 'DOCKER_TAG', value: env.DOCKER_TAG)],
-                  wait: false
+            echo "✅ CI finished successfully!"
         }
+
         failure {
-            echo "${SERVICE_DIR} CI failed — CD will NOT be triggered."
+            echo "❌ CI failed!"
         }
+
         always {
             cleanWs()
         }
