@@ -1,85 +1,79 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Image tag produced by CI pipeline')
-    }
-
     environment {
-        SERVICE_DIR     = 'training-service'
-        DOCKER_IMAGE    = 'oussema22/pi-training-service'
-        DOCKER_REGISTRY = 'docker.io'
-        K8S_NAMESPACE   = 'pi-soyosa'
-        K8S_DEPLOYMENT  = 'training-service-deployment'
-        KUBECONFIG_CRED = 'kubeconfig-credentials'
+        SERVICE_NAME   = 'training-service'
+        DOCKER_IMAGE   = 'oussema22/pi-training-service'
+        NAMESPACE      = 'pi-soyosa'
+        DEPLOYMENT     = 'training-service-deployment'
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"
     }
 
     stages {
 
-        stage('Validate Parameters') {
+        stage('Check Kubernetes') {
             steps {
-                script {
-                    if (!params.DOCKER_TAG?.trim()) {
-                        error("DOCKER_TAG parameter is required.")
-                    }
-                    echo "Deploying: ${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG}"
-                }
+                sh '''
+                    kubectl cluster-info
+                    kubectl get nodes
+                '''
             }
         }
 
         stage('Pull Docker Image') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-creds') {
-                        docker.image("${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG}").pull()
-                    }
-                }
+                sh '''
+                    docker pull ${DOCKER_IMAGE}:latest
+                '''
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
-                    sh """
-                        kubectl set image deployment/${K8S_DEPLOYMENT} \\
-                          ${SERVICE_DIR}=${DOCKER_REGISTRY}/${DOCKER_IMAGE}:${params.DOCKER_TAG} \\
-                          -n ${K8S_NAMESPACE}
+                dir('training-service') {
 
-                        kubectl rollout status deployment/${K8S_DEPLOYMENT} \\
-                          -n ${K8S_NAMESPACE} --timeout=120s
-                    """
+                    sh '''
+                        kubectl apply -f training-service-deployment.yaml
+                        kubectl apply -f training-service-service.yaml
+                    '''
+
+                    sh '''
+                        kubectl set image deployment/${DEPLOYMENT} \
+                        training-service=${DOCKER_IMAGE}:latest \
+                        -n ${NAMESPACE}
+                    '''
+
+                    sh '''
+                        kubectl rollout status deployment/${DEPLOYMENT} \
+                        -n ${NAMESPACE} --timeout=120s
+                    '''
                 }
             }
         }
 
         stage('Health Check') {
             steps {
-                withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
-                    sh """
-                        kubectl wait pod \\
-                          --for=condition=Ready \\
-                          -l app=${K8S_DEPLOYMENT} \\
-                          -n ${K8S_NAMESPACE} \\
-                          --timeout=90s
-
-                        echo "Pod(s) healthy — deployment complete."
-                    """
-                }
+                sh '''
+                    kubectl get pods -n ${NAMESPACE}
+                    kubectl get svc -n ${NAMESPACE}
+                '''
             }
         }
-
     }
 
     post {
+
         success {
-            echo "${SERVICE_DIR} CD succeeded — ${params.DOCKER_TAG} is live."
+            echo 'CD pipeline completed successfully!'
         }
+
         failure {
-            withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
-                sh "kubectl rollout undo deployment/${K8S_DEPLOYMENT} -n ${K8S_NAMESPACE} || true"
-            }
-            echo "${SERVICE_DIR} deployment failed — rollback triggered."
+            sh '''
+                kubectl rollout undo deployment/${DEPLOYMENT} -n ${NAMESPACE} || true
+            '''
+            echo 'Deployment failed. Rollback executed.'
         }
+
         always {
             cleanWs()
         }

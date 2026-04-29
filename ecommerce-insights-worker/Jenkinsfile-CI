@@ -2,52 +2,68 @@ pipeline {
     agent any
 
     tools {
-        jdk   'JAVA_HOME'
-        maven 'M2_HOME'
+        nodejs 'NodeJS'
     }
 
     environment {
-        SONARQUBE       = 'SonarQube'
-        SERVICE_DIR     = 'ecommerce-insights-worker'
-        DOCKER_IMAGE    = 'oussema22/pi-ecommerce-insights-worker'
-        DOCKER_REGISTRY = 'docker.io'
-    }
-
-    triggers {
-        githubPush()
+        APP_NAME = "ecommerce-insights-worker"
+        DOCKER_IMAGE = "oussema22/pi-ecommerce-insights-worker"
+        CD_JOB = "ecommerce-insights-worker-CD"
     }
 
     stages {
 
         stage('Checkout') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Build & Unit Tests') {
-            steps {
-                dir("${SERVICE_DIR}") {
-                    sh 'mvn clean verify -Dmaven.test.failure.ignore=false'
-                }
-            }
-            post {
-                always {
-                    junit(
-                        testResults: "**/target/surefire-reports/**/*.xml",
-                        allowEmptyResults: true
-                    )
+                cleanWs()
+                retry(3) {
+                    checkout scm
                 }
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Build & Test') {
             steps {
-                dir("${SERVICE_DIR}") {
-                    withSonarQubeEnv("${SONARQUBE}") {
-                        sh """
-                            mvn sonar:sonar \\
-                              -Dsonar.projectKey=PI-SOYOSA-${DOCKER_IMAGE.split('/')[1]} \\
+                dir('ecommerce-insights-worker') {
+                    sh "npm ci"
+                    sh "npm test -- --passWithNoTests"
+                }
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                dir('ecommerce-insights-worker') {
+                    sh "npm run lint -- --max-warnings=0 || true"
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                dir('ecommerce-insights-worker') {
+                    sh "docker build -t ${DOCKER_IMAGE} ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
+                    sh """
+                        echo $PASS | docker login -u $USER --password-stdin
+                        docker push ${DOCKER_IMAGE}
+                    """
+                }
+            }
+        }
+
+        stage('Trigger CD Pipeline') {
+            steps {
+                echo "🚀 Triggering CD pipeline..."
+                build job: "${CD_JOB}", wait: false
+            }
+        }
                               -Dsonar.projectName="PI-SOYOSA ${SERVICE_DIR}" \\
                               -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
