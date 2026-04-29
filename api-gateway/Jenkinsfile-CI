@@ -8,8 +8,8 @@ pipeline {
 
     environment {
         APP_NAME = "api-gateway"
-        DOCKER_IMAGE = "oussema22/pi-api-gateway"
-        CD_JOB = "api-gateway-CD"
+        DOCKER_IMAGE = "oussema22/pi-api-gateway:latest"
+        CD_JOB = "gateway-CD"   // 👈 Jenkins CD job name
     }
 
     stages {
@@ -43,8 +43,8 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         sh """
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=PI-SOYOSA-api-gateway \
-                            -Dsonar.projectName=PI-SOYOSA-api-gateway-microservice \
+                            -Dsonar.projectKey=PI-SOYOSA-gateway \
+                            -Dsonar.projectName=PI-SOYOSA-api-gateway \
                             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }

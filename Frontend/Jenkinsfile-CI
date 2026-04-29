@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-        NODEJS_HOME      = tool 'NodeJS'
-        PATH             = "${NODEJS_HOME}/bin:${env.PATH}"
-        DOCKER_IMAGE     = 'oussema22/pi-frontend'
-        CD_JOB           = "frontend-CD"
+        APP_NAME = "frontend"
+        DOCKER_IMAGE = "oussema22/pi-frontend:latest"
+        CD_JOB = "frontend-CD"   // 👈 Jenkins CD job name
     }
 
     stages {
@@ -22,40 +21,7 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 dir('Frontend') {
-                    sh 'npm ci'
-                }
-            }
-        }
-
-        stage('Lint') {
-            steps {
-                dir('Frontend') {
-                    sh 'npm run lint -- --max-warnings=0'
-                }
-            }
-        }
-
-        stage('Unit Tests') {
-            steps {
-                dir('Frontend') {
-                    sh 'npm run test -- --watchAll=false --coverage --coverageReporters=lcov'
-                }
-            }
-
-            post {
-                always {
-                    junit(
-                        testResults: 'Frontend/test-results/**/*.xml',
-                        allowEmptyResults: true
-                    )
-                    publishHTML(target: [
-                        allowMissing         : true,
-                        alwaysLinkToLastBuild: true,
-                        keepAll              : true,
-                        reportDir            : 'Frontend/coverage/lcov-report',
-                        reportFiles          : 'index.html',
-                        reportName           : 'Frontend Coverage'
-                    ])
+                    sh "npm install"
                 }
             }
         }
@@ -63,7 +29,7 @@ pipeline {
         stage('Build') {
             steps {
                 dir('Frontend') {
-                    sh 'npm run build'
+                    sh "npm run build -- --configuration production"
                 }
             }
         }

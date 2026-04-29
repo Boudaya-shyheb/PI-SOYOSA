@@ -7,9 +7,9 @@ pipeline {
     }
 
     environment {
-        APP_NAME = "ecommerce-microservice"
-        DOCKER_IMAGE = "oussema22/pi-ecommerce-microservice"
-        CD_JOB = "ecommerce-microservice-CD"
+        APP_NAME = "ecommerce-service"
+        DOCKER_IMAGE = "oussema22/pi-ecommerce-microservice:latest"
+        CD_JOB = "ecommerce-CD"   // 👈 Jenkins CD job name
     }
 
     stages {
@@ -43,8 +43,8 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         sh """
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=PI-SOYOSA-ecommerce-microservice \
-                            -Dsonar.projectName=PI-SOYOSA-ecommerce-microservice-microservice \
+                            -Dsonar.projectKey=PI-SOYOSA-ecommerce \
+                            -Dsonar.projectName=PI-SOYOSA-ecommerce-microservice \
                             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }

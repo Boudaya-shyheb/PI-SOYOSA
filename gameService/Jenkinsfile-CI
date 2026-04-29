@@ -7,9 +7,9 @@ pipeline {
     }
 
     environment {
-        APP_NAME = "gameservice"
-        DOCKER_IMAGE = "oussema22/pi-gameservice"
-        CD_JOB = "gameservice-CD"
+        APP_NAME = "gameService"
+        DOCKER_IMAGE = "oussema22/pi-gameservice:latest"
+        CD_JOB = "game-CD"   // 👈 Jenkins CD job name
     }
 
     stages {
@@ -43,8 +43,8 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         sh """
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=PI-SOYOSA-gameservice \
-                            -Dsonar.projectName=PI-SOYOSA-gameservice-microservice \
+                            -Dsonar.projectKey=PI-SOYOSA-game \
+                            -Dsonar.projectName=PI-SOYOSA-gameService \
                             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }

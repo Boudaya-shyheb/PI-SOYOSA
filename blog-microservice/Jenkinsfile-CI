@@ -7,9 +7,9 @@ pipeline {
     }
 
     environment {
-        APP_NAME = "blog-microservice"
-        DOCKER_IMAGE = "oussema22/pi-blog-microservice"
-        CD_JOB = "blog-microservice-CD"
+        APP_NAME = "Blog"
+        DOCKER_IMAGE = "oussema22/pi-blog-microservice:latest"
+        CD_JOB = "blog-CD"   // 👈 Jenkins CD job name
     }
 
     stages {
@@ -43,8 +43,8 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         sh """
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=PI-SOYOSA-blog-microservice \
-                            -Dsonar.projectName=PI-SOYOSA-blog-microservice-microservice \
+                            -Dsonar.projectKey=PI-SOYOSA-blog \
+                            -Dsonar.projectName=PI-SOYOSA-blog-microservice \
                             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
                         """
                     }

@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        SERVICE_NAME   = 'trackingms'
+        SERVICE_NAME   = 'tracking-service'
         DOCKER_IMAGE   = 'oussema22/pi-trackingms'
         NAMESPACE      = 'pi-soyosa'
         DEPLOYMENT     = 'trackingms-deployment'
@@ -43,7 +43,7 @@ pipeline {
 
                     sh '''
                         kubectl set image deployment/${DEPLOYMENT} \
-                        trackingms=${DOCKER_IMAGE}:${DOCKER_TAG} \
+                        tracking-service=${DOCKER_IMAGE}:${DOCKER_TAG} \
                         -n ${NAMESPACE}
                     '''
 

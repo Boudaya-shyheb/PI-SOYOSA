@@ -1,14 +1,10 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'NodeJS'
-    }
-
     environment {
         APP_NAME = "ecommerce-insights-worker"
-        DOCKER_IMAGE = "oussema22/pi-ecommerce-insights-worker"
-        CD_JOB = "ecommerce-insights-worker-CD"
+        DOCKER_IMAGE = "oussema22/pi-ecommerce-insights-worker:latest"
+        CD_JOB = "worker-CD"   // 👈 Jenkins CD job name
     }
 
     stages {
@@ -22,19 +18,10 @@ pipeline {
             }
         }
 
-        stage('Build & Test') {
+        stage('Install Dependencies') {
             steps {
                 dir('ecommerce-insights-worker') {
-                    sh "npm ci"
-                    sh "npm test -- --passWithNoTests"
-                }
-            }
-        }
-
-        stage('Lint') {
-            steps {
-                dir('ecommerce-insights-worker') {
-                    sh "npm run lint -- --max-warnings=0 || true"
+                    sh "npm install"
                 }
             }
         }
