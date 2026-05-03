@@ -15,6 +15,18 @@ pipeline {
 
     stages {
 
+        
+        stage('Setup Monitoring') {
+            steps {
+                sh '''
+                    kubectl apply -f monitoring/namespace.yaml
+                    kubectl apply -f monitoring/prometheus-config.yaml
+                    kubectl apply -f monitoring/prometheus-deployment.yaml
+                    kubectl apply -f monitoring/grafana-deployment.yaml
+                '''
+            }
+        }
+
         stage('Check Kubernetes') {
             steps {
                 sh '''

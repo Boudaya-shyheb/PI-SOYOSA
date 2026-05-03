@@ -1,13 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
+  annotations:
+    prometheus.io/path: /actuator/prometheus
+    prometheus.io/port: '80'
+    prometheus.io/scrape: 'true'
   name: ecommerce-insights-worker
   namespace: pi-soyosa
 spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
   selector:
     app: ecommerce-insights-worker
-  ports:
-    - protocol: TCP
-      port: 80 # Placeholder as it's a worker
-      targetPort: 80
   type: ClusterIP

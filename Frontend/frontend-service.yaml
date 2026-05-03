@@ -1,14 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
+  annotations:
+    prometheus.io/path: /actuator/prometheus
+    prometheus.io/port: '80'
+    prometheus.io/scrape: 'true'
   name: frontend-service
   namespace: pi-soyosa
 spec:
+  ports:
+  - nodePort: 30080
+    port: 80
+    protocol: TCP
+    targetPort: 80
   selector:
     app: frontend
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-      nodePort: 30080
   type: NodePort

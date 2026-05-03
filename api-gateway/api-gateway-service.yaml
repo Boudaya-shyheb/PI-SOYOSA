@@ -1,14 +1,18 @@
 apiVersion: v1
 kind: Service
 metadata:
+  annotations:
+    prometheus.io/path: /actuator/prometheus
+    prometheus.io/port: '8092'
+    prometheus.io/scrape: 'true'
   name: api-gateway
   namespace: pi-soyosa
 spec:
+  ports:
+  - nodePort: 30092
+    port: 8092
+    protocol: TCP
+    targetPort: 8092
   selector:
     app: api-gateway
-  ports:
-    - protocol: TCP
-      port: 8092
-      targetPort: 8092
-      nodePort: 30092
   type: NodePort

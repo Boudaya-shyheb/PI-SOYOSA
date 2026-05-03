@@ -1,13 +1,17 @@
 apiVersion: v1
 kind: Service
 metadata:
+  annotations:
+    prometheus.io/path: /actuator/prometheus
+    prometheus.io/port: '8072'
+    prometheus.io/scrape: 'true'
   name: blog-service
   namespace: pi-soyosa
 spec:
+  ports:
+  - port: 8072
+    protocol: TCP
+    targetPort: 8072
   selector:
     app: blog-microservice
-  ports:
-    - protocol: TCP
-      port: 8072
-      targetPort: 8072
   type: ClusterIP

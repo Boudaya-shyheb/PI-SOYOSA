@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         APP_NAME = "frontend"
-        DOCKER_IMAGE = "oussema22/pi-frontend:latest"
-        CD_JOB = "frontend-CD"   // 👈 Jenkins CD job name
+        DOCKER_IMAGE = "oussema22/pi-frontend"
+        CD_JOB = "Frontend-cd"
     }
 
     stages {
@@ -56,7 +56,7 @@ pipeline {
         stage('Trigger CD Pipeline') {
             steps {
                 echo "🚀 Triggering CD pipeline..."
-                build job: "${CD_JOB}", wait: false
+                build job: "${CD_JOB}", parameters: [string(name: 'DOCKER_TAG', value: 'latest')], wait: false
             }
         }
     }
